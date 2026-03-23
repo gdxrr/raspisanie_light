@@ -1,0 +1,18 @@
+{
+  "name": "Расписание 3333",
+  "short_name": "3333",
+  "description": "Расписание занятий группы 3333",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1c1c1e",
+  "theme_color": "#0b65b7",
+  "icons": [
+    {
+      "src": "assets/3333-guap-sign.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
