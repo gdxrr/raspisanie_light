@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="color-scheme" content="dark light">
+  <title>Расписание · 3333</title>
+  <link rel="icon" type="image/png" href="assets/guap-sign.png">
+  <script>
+    (function(){
+      var s = JSON.parse(localStorage.getItem('settings3')||'{}');
+      var t = s.theme || 'dark';
+      var el = document.documentElement;
+      el.className = t === 'dark' ? '' : t;
+      var bg = t === 'light' ? '#f2f2f7' : (t === 'glass' ? '#12121c' : '#1c1c1e');
+      var cs = t === 'light' ? 'light' : (t === 'system' ? 'light dark' : 'dark');
+      el.style.background = bg;
+      el.style.colorScheme = cs;
+      document.addEventListener('DOMContentLoaded', function(){
+        document.body.style.background = bg;
+        document.body.style.color = t === 'light' ? '#000' : '#fff';
+      });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="header-title-wrap">
+        <span class="header-title">3333</span>
+        <img class="header-group-icon" src="assets/3333-sign.png" width="36" height="36" alt="Группа 3333">
+      </div>
+      <div class="header-right">
+        <div class="week-hdr-badge" :class="cwt">
+          <span class="week-hdr-badge-text">{{ cwt==='odd' ? 'Нечётная' : 'Чётная' }}</span>
+        </div>
+        <a class="header-lk" href="https://pro.guap.ru/inside/profile" target="_blank" rel="noopener noreferrer" title="Личный кабинет" aria-label="Личный кабинет">
+          <img class="header-lk-icon" src="assets/guap-sign.png" width="22" height="22" alt="ГУАП">
+        </a>
+        <button type="button" class="icon-btn-hdr" @click="vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'">{{ vm==='list'?'📅':'📋' }}</button>
+        <button type="button" class="icon-btn-hdr" @click="showSettings=true" aria-label="Настройки">⚙️</button>
+      </div>
+    </div>
+
+    <div class="filter-strip" v-if="vm==='list'">
+      <button type="button" class="filter-pill" :class="{active:fil==='all'}"   @click="fil='all'">2 недели</button>
+      <button type="button" class="filter-pill" :class="{active:fil==='odd'}"   @click="fil='odd'">Нечётная</button>
+      <button type="button" class="filter-pill" :class="{active:fil==='even'}"  @click="fil='even'">Чётная</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="sync-banner" v-if="loading">Загрузка расписания…</div>
+    <div class="sync-banner err" v-else-if="loadError">
+      {{ loadError }}
+      <template v-if="!schedule.length"> Проверьте <code style="font-size:12px">config.js</code>.</template>
+      <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="loadSchedule">Обновить</button>
+    </div>
+    <div class="sync-banner err" v-else-if="schedule.length && loadErrorStale">
+      Не удалось обновить с сервера, показан кэш. <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="loadSchedule">Повторить</button>
+    </div>
+
+    <template v-if="vm==='list'">
+      <div style="padding:20px 12px" v-if="!loading && fDays.length===0">
+        <div class="no-card"><div class="no-icon">📅</div><div class="no-title">Пар нет</div><div class="no-sub">Заполните таблицу или проверьте подключение.</div></div>
+      </div>
+      <div v-for="day in fDays" :key="day.dateStr+day.name">
+        <div class="week-separator" v-if="day.isWeekStart">
+          <div class="week-separator-dot" :class="day.weekType"></div>
+          <span class="week-separator-label">{{ day.weekType==='odd'?'Нечётная неделя':'Чётная неделя' }}</span>
+          <div class="week-separator-line"></div>
+        </div>
+        <div class="day-hdr">
+          <div class="day-hdr-title" :class="{today:day.isToday}">{{ day.name }}, {{ day.dateStr }}</div>
+        </div>
+        <div v-if="day.isWeekend" class="no-card">
+          <div class="no-icon">{{ day.weekendLabel && day.weekendLabel!=='weekend' ? '🎉' : '😴' }}</div>
+          <div class="no-title">{{ day.weekendLabel && day.weekendLabel!=='weekend' ? day.weekendLabel : 'Выходной' }}</div>
+          <div class="no-sub">Пар нет</div>
+        </div>
+        <div v-else-if="day.visibleLessons.length===0" class="no-card">
+          <div class="no-icon">📭</div>
+          <div class="no-title">Пар нет</div>
+          <div class="no-sub">Можно спать спокойно!</div>
+        </div>
+        <div v-else class="lessons-block">
+          <template v-for="l in day.visibleLessons" :key="l.id">
+            <div class="lesson-row" :class="{dimmed: visMode(l.id)==='dim'}">
+              <div class="time-col">
+                <div class="time-start">{{ l.start }}</div>
+                <div class="pair-num">{{ pN(l.start) }}</div>
+                <div class="time-end">{{ l.end }}</div>
+              </div>
+              <div class="bar" :class="l.type"></div>
+              <div class="lesson-body">
+                <div class="l-type" :class="l.type">{{ tfl(l.type) }}</div>
+                <div class="l-subject">{{ l.subject }}</div>
+                <div class="l-chips" v-if="l.room">
+                  <span class="chip">{{ l.room }}</span>
+                </div>
+                <div class="l-teacher" v-if="l.teacher">{{ l.teacher }}</div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
+
+    <div class="cal-wrap" v-else>
+      <div class="cal-nav">
+        <button type="button" class="cal-nav-btn" @click="prevM">‹</button>
+        <span class="cal-month">{{ mTitle }}</span>
+        <button type="button" class="cal-nav-btn" @click="nextM">›</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-dow" v-for="d in ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']" :key="d">{{ d }}</div>
+        <div v-for="(c,i) in calCells" :key="i" class="cal-cell"
+          :class="[{empty:!c}, c?c.cls:'', c&&isTd(c.date)?'today':'', c&&selD&&sD(c.date,selD)?'sel':'']"
+          @click="c&&(selD=c.date)">
+          <template v-if="c">
+            <span class="cal-num">{{ c.day }}</span>
+            <div class="cal-dots" v-if="!c.shortLabel">
+              <div v-for="(t,ti) in c.dots" :key="ti" class="cal-dot" :class="t"></div>
+            </div>
+            <div class="cal-cell-label" v-if="c.shortLabel">{{ c.shortLabel }}</div>
+          </template>
+        </div>
+      </div>
+      <div class="cal-legend">
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#bf5af2"></span>Лекция</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#32aaff"></span>Лаб.</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#ff9f0a"></span>Практика</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#ff453a"></span>Праздник</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#ff9f0a;border-radius:3px"></span>Зач.нед</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#ff375f;border-radius:3px"></span>Сессия</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#32d74b;border-radius:3px"></span>Каникулы</div>
+      </div>
+      <div class="cal-detail" v-if="selD">
+        <div class="cal-detail-title">{{ fmtD(selD) }}{{ selPeriod?' · '+selPeriod:'' }}</div>
+        <div class="no-card" v-if="selL.length===0">
+          <div class="no-icon">📅</div><div class="no-title">Пар нет</div><div class="no-sub">Можно спать спокойно!</div>
+        </div>
+        <div class="lessons-block" v-else>
+          <div v-for="l in selL" :key="l.id" class="lesson-row" :class="{dimmed: visMode(l.id)==='dim'}">
+            <div class="time-col">
+              <div class="time-start">{{ l.start }}</div>
+              <div class="pair-num">{{ pN(l.start) }}</div>
+              <div class="time-end">{{ l.end }}</div>
+            </div>
+            <div class="bar" :class="l.type"></div>
+            <div class="lesson-body">
+              <div class="l-type" :class="l.type">{{ tfl(l.type) }}</div>
+              <div class="l-subject">{{ l.subject }}</div>
+              <div class="l-chips" v-if="l.room"><span class="chip">{{ l.room }}</span></div>
+              <div class="l-teacher" v-if="l.teacher">{{ l.teacher }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <transition name="fade">
+    <div class="settings-panel" v-if="showSettings">
+      <div class="settings-nav">
+        <span class="settings-nav-title">Настройки</span>
+        <button type="button" class="icon-btn" @click="showSettings=false">✕</button>
+      </div>
+      <div class="settings-body">
+
+        <div class="settings-section">
+          <div class="settings-section-title">Тема оформления</div>
+          <div class="settings-card">
+            <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:10px;">
+              <div class="settings-row-label">Тема</div>
+              <div class="theme-opts" style="width:100%">
+                <button type="button" class="theme-btn" :class="{active: theme==='dark'}"   @click="setTheme('dark')">🌙 Тёмная</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='light'}"  @click="setTheme('light')">☀️ Светлая</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='system'}" @click="setTheme('system')">⚙️ Авто</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='glass'}" @click="setTheme('glass')">🫧 Стекло</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Учёба</div>
+          <div class="settings-card">
+            <div class="settings-row settings-row-stack">
+              <div class="settings-row-label">ВУЦ по четвергам</div>
+              <div class="theme-opts theme-opts-duo">
+                <button type="button" class="theme-btn" :class="{active: hasVUC}" @click="setHasVUC(true)">Показывать</button>
+                <button type="button" class="theme-btn" :class="{active: !hasVUC}" @click="setHasVUC(false)">Скрыть</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Отображение пар</div>
+          <div class="settings-card">
+            <div v-if="scheduleVisList.length===0" class="settings-row">
+              <div class="settings-row-sub">Нет пар для настройки — загрузите расписание.</div>
+            </div>
+            <div v-for="l in scheduleVisList" :key="l.id" class="settings-row settings-row-vis" :class="'vis-row-' + (visSettings[l.id] || 'show')">
+              <div class="settings-row-left">
+                <div class="settings-row-label" style="font-size:14px">{{ l.subject }}</div>
+                <div class="settings-row-sub">{{ l.day }} · {{ l.start }} · {{ wLbl(l.week) }}</div>
+              </div>
+              <div class="vis-opts">
+                <button type="button" class="vis-btn" :class="{'active-show':  visSettings[l.id]==='show'||!visSettings[l.id]}" @click="setVis(l.id,'show')">👁</button>
+                <button type="button" class="vis-btn" :class="{'active-dim':   visSettings[l.id]==='dim'}"  @click="setVis(l.id,'dim')">◑</button>
+                <button type="button" class="vis-btn" :class="{'active-hide':  visSettings[l.id]==='hide'}" @click="setVis(l.id,'hide')">✕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </transition>
+
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
