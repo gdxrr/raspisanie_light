@@ -85,7 +85,7 @@ html::-webkit-scrollbar-thumb,
   background-clip: padding-box;
 }
 
-.header { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--sep); }
+.header { position: sticky; top: 0; z-index: 250; background: var(--bg); border-bottom: 1px solid var(--sep); }
 .header-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 4px; }
 .header-title-wrap { display: flex; align-items: center; gap: 10px; }
 .header-title { font-size: 28px; font-weight: 700; user-select: none; letter-spacing: -.5px; }
@@ -136,7 +136,7 @@ html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shad
 }
 .filter-pill.active { background: var(--accent); color: #fff; }
 
-.main { padding: 0 0 24px; }
+.main { padding: 0 0 24px; overflow-x: hidden; }
 
 .week-section-hdr { display: flex; align-items: center; gap: 8px; padding: 16px 16px 8px; }
 .ws-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
@@ -203,7 +203,16 @@ html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shad
 .no-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
 .no-sub   { font-size: 13px; color: var(--text2); }
 
-.cal-wrap { padding: 8px 12px 0; }
+.cal-wrap {
+  position: fixed;
+  top: 57px;
+  left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 200;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 12px 24px;
+}
 .cal-nav { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 14px; }
 .cal-nav-btn { width: 34px; height: 34px; border-radius: 10px; border: none; background: var(--bg2); color: var(--text); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
 .cal-month { font-size: 17px; font-weight: 700; }
@@ -348,8 +357,15 @@ html.light .settings-row-vis.vis-row-hide { background: rgba(255, 59, 48, 0.1); 
   transform: scale(1.06);
 }
 
-.fade-enter-active,.fade-leave-active{transition:opacity .2s}
-.fade-enter-from,.fade-leave-to{opacity:0}
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform .32s cubic-bezier(0.32, 0.72, 0, 1), opacity .32s ease;
+}
+.slide-right-enter-from,
+.slide-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0.6;
+}
 
 .sync-banner {
   margin: 8px 12px 0; padding: 12px 14px; border-radius: 12px;

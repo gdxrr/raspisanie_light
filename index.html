@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0b65b7">
   <title>Расписание · 3333</title>
   <link rel="icon" type="image/png" href="assets/guap-sign.png">
-  <link rel="apple-touch-icon" href="assets/3333-guap-sign.png">
+  <link rel="apple-touch-icon" href="assets/guap-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
   <script>
     (function(){
@@ -38,15 +38,15 @@
         <span class="header-title">3333</span>
         <img class="header-group-icon" src="assets/3333-sign.png" width="36" height="36" alt="Группа 3333">
       </div>
-      <div class="header-right">
-        <div class="week-hdr-badge" :class="cwt">
-          <span class="week-hdr-badge-text">{{ cwt==='odd' ? 'Нечётная' : 'Чётная' }}</span>
-        </div>
+      <div class="header-right" v-if="vm==='list'">
         <a class="header-lk" href="https://pro.guap.ru/inside/profile" target="_blank" rel="noopener noreferrer" title="Личный кабинет" aria-label="Личный кабинет">
           <img class="header-lk-icon" src="assets/guap-sign.png" width="22" height="22" alt="ГУАП">
         </a>
         <button type="button" class="icon-btn-hdr" @click="vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'">{{ vm==='list'?'📅':'📋' }}</button>
         <button type="button" class="icon-btn-hdr" @click="showSettings=true" aria-label="Настройки">⚙️</button>
+      </div>
+      <div class="header-right" v-else>
+        <button type="button" class="icon-btn-hdr" @click="vm='list'" aria-label="Закрыть календарь">✕</button>
       </div>
     </div>
 
@@ -114,7 +114,8 @@
       </div>
     </template>
 
-    <div class="cal-wrap" v-else>
+    <transition name="slide-right">
+    <div class="cal-wrap" v-if="vm==='calendar'">
       <div class="cal-nav">
         <button type="button" class="cal-nav-btn" @click="prevM">‹</button>
         <span class="cal-month">{{ mTitle }}</span>
@@ -166,10 +167,11 @@
         </div>
       </div>
     </div>
+    </transition>
 
   </div>
 
-  <transition name="fade">
+  <transition name="slide-right">
     <div class="settings-panel" v-if="showSettings">
       <div class="settings-nav">
         <span class="settings-nav-title">Настройки</span>
@@ -214,7 +216,9 @@
             <div v-for="l in scheduleVisList" :key="l.id" class="settings-row settings-row-vis" :class="'vis-row-' + (visSettings[l.id] || 'show')">
               <div class="settings-row-left">
                 <div class="settings-row-label" style="font-size:14px">{{ l.subject }}</div>
-                <div class="settings-row-sub">{{ l.day }} · {{ l.start }} · {{ wLbl(l.week) }}</div>
+                <div class="settings-row-sub">
+                  {{ l.day }} · {{ l.start }} · {{ wLbl(l.week) }}<template v-if="l.teacher"> · {{ l.teacher }}</template>
+                </div>
               </div>
               <div class="vis-opts">
                 <button type="button" class="vis-btn" :class="{'active-show':  visSettings[l.id]==='show'||!visSettings[l.id]}" @click="setVis(l.id,'show')">👁</button>

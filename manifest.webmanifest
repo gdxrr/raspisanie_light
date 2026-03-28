@@ -9,7 +9,7 @@
   "theme_color": "#0b65b7",
   "icons": [
     {
-      "src": "assets/3333-guap-sign.png",
+      "src": "assets/guap-icon.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any maskable"
