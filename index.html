@@ -40,13 +40,13 @@
       </div>
       <div class="header-right" v-if="vm==='list'">
         <a class="header-lk" href="https://pro.guap.ru/inside/profile" target="_blank" rel="noopener noreferrer" title="Личный кабинет" aria-label="Личный кабинет">
-          <img class="header-lk-icon" src="assets/guap-sign.png" width="22" height="22" alt="ГУАП">
+          <img class="header-lk-icon" src="https://src.guap.ru/logos/guap/guap-sign_w.svg" width="18" height="18" alt="ГУАП" loading="lazy" decoding="async">
         </a>
-        <button type="button" class="icon-btn-hdr" @click="vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'">{{ vm==='list'?'📅':'📋' }}</button>
-        <button type="button" class="icon-btn-hdr" @click="showSettings=true" aria-label="Настройки">⚙️</button>
+        <button type="button" class="icon-btn-hdr" @click="vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon(vm==='list'?'calendar':'list', 18)"></span></button>
+        <button type="button" class="icon-btn-hdr" @click="showSettings=true" aria-label="Настройки"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('settings', 18)"></span></button>
       </div>
       <div class="header-right" v-else>
-        <button type="button" class="icon-btn-hdr" @click="vm='list'" aria-label="Закрыть календарь">✕</button>
+        <button type="button" class="icon-btn-hdr" @click="vm='list'" aria-label="Закрыть календарь"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('x', 18)"></span></button>
       </div>
     </div>
 
@@ -70,7 +70,7 @@
 
     <template v-if="vm==='list'">
       <div style="padding:20px 12px" v-if="!loading && fDays.length===0">
-        <div class="no-card"><div class="no-icon">📅</div><div class="no-title">Пар нет</div><div class="no-sub">Заполните таблицу или проверьте подключение.</div></div>
+        <div class="no-card"><div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Пар нет</div><div class="no-sub">Заполните таблицу или проверьте подключение.</div></div>
       </div>
       <div v-for="day in fDays" :key="day.dateStr+day.name">
         <div class="week-separator" v-if="day.isWeekStart">
@@ -82,12 +82,12 @@
           <div class="day-hdr-title" :class="{today:day.isToday}">{{ day.name }}, {{ day.dateStr }}</div>
         </div>
         <div v-if="day.isWeekend" class="no-card">
-          <div class="no-icon">{{ day.weekendLabel && day.weekendLabel!=='weekend' ? '🎉' : '😴' }}</div>
+          <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon(day.weekendLabel && day.weekendLabel!=='weekend' ? 'party-popper' : 'bed', 36)"></span></div>
           <div class="no-title">{{ day.weekendLabel && day.weekendLabel!=='weekend' ? day.weekendLabel : 'Выходной' }}</div>
           <div class="no-sub">Пар нет</div>
         </div>
         <div v-else-if="day.visibleLessons.length===0" class="no-card">
-          <div class="no-icon">📭</div>
+          <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('inbox', 36)"></span></div>
           <div class="no-title">Пар нет</div>
           <div class="no-sub">Можно спать спокойно!</div>
         </div>
@@ -117,9 +117,9 @@
     <transition name="slide-right">
     <div class="cal-wrap" v-if="vm==='calendar'">
       <div class="cal-nav">
-        <button type="button" class="cal-nav-btn" @click="prevM">‹</button>
+        <button type="button" class="cal-nav-btn" aria-label="Предыдущий месяц" @click="prevM"><span class="lucide-wrap lucide-wrap-cal-nav" v-html="lucideIcon('chevron-left', 20)"></span></button>
         <span class="cal-month">{{ mTitle }}</span>
-        <button type="button" class="cal-nav-btn" @click="nextM">›</button>
+        <button type="button" class="cal-nav-btn" aria-label="Следующий месяц" @click="nextM"><span class="lucide-wrap lucide-wrap-cal-nav" v-html="lucideIcon('chevron-right', 20)"></span></button>
       </div>
       <div class="cal-grid">
         <div class="cal-dow" v-for="d in ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']" :key="d">{{ d }}</div>
@@ -147,7 +147,7 @@
       <div class="cal-detail" v-if="selD">
         <div class="cal-detail-title">{{ fmtD(selD) }}{{ selPeriod?' · '+selPeriod:'' }}</div>
         <div class="no-card" v-if="selL.length===0">
-          <div class="no-icon">📅</div><div class="no-title">Пар нет</div><div class="no-sub">Можно спать спокойно!</div>
+          <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Пар нет</div><div class="no-sub">Можно спать спокойно!</div>
         </div>
         <div class="lessons-block" v-else>
           <div v-for="l in selL" :key="l.id" class="lesson-row" :class="{dimmed: visMode(l.id)==='dim'}">
@@ -175,7 +175,7 @@
     <div class="settings-panel" v-if="showSettings">
       <div class="settings-nav">
         <span class="settings-nav-title">Настройки</span>
-        <button type="button" class="icon-btn" @click="showSettings=false">✕</button>
+        <button type="button" class="icon-btn" aria-label="Закрыть" @click="showSettings=false"><span class="lucide-wrap lucide-wrap-settings-close" v-html="lucideIcon('x', 18)"></span></button>
       </div>
       <div class="settings-body">
 
@@ -185,10 +185,10 @@
             <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:10px;">
               <div class="settings-row-label">Тема</div>
               <div class="theme-opts" style="width:100%">
-                <button type="button" class="theme-btn" :class="{active: theme==='dark'}"   @click="setTheme('dark')">🌙 Тёмная</button>
-                <button type="button" class="theme-btn" :class="{active: theme==='light'}"  @click="setTheme('light')">☀️ Светлая</button>
-                <button type="button" class="theme-btn" :class="{active: theme==='system'}" @click="setTheme('system')">⚙️ Авто</button>
-                <button type="button" class="theme-btn" :class="{active: theme==='glass'}" @click="setTheme('glass')">🫧 Стекло</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='dark'}"   @click="setTheme('dark')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('moon', 16)"></span> Тёмная</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='light'}"  @click="setTheme('light')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('sun', 16)"></span> Светлая</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='system'}" @click="setTheme('system')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('monitor-smartphone', 16)"></span> Авто</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='glass'}" @click="setTheme('glass')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('sparkles', 16)"></span> Стекло</button>
               </div>
             </div>
           </div>
@@ -221,9 +221,9 @@
                 </div>
               </div>
               <div class="vis-opts">
-                <button type="button" class="vis-btn" :class="{'active-show':  visSettings[l.id]==='show'||!visSettings[l.id]}" @click="setVis(l.id,'show')">👁</button>
-                <button type="button" class="vis-btn" :class="{'active-dim':   visSettings[l.id]==='dim'}"  @click="setVis(l.id,'dim')">◑</button>
-                <button type="button" class="vis-btn" :class="{'active-hide':  visSettings[l.id]==='hide'}" @click="setVis(l.id,'hide')">✕</button>
+                <button type="button" class="vis-btn" :class="{'active-show':  visSettings[l.id]==='show'||!visSettings[l.id]}" @click="setVis(l.id,'show')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye', 15)"></span></button>
+                <button type="button" class="vis-btn" :class="{'active-dim':   visSettings[l.id]==='dim'}"  @click="setVis(l.id,'dim')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('sun-medium', 15)"></span></button>
+                <button type="button" class="vis-btn" :class="{'active-hide':  visSettings[l.id]==='hide'}" @click="setVis(l.id,'hide')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye-off', 15)"></span></button>
               </div>
             </div>
           </div>
@@ -235,6 +235,7 @@
 
 </div>
 
+<script src="lucide-icons.js"></script>
 <script src="config.js"></script>
 <script src="app.js"></script>
 </body>

@@ -189,6 +189,9 @@ createApp({
     const showSettings = ref(false);
 
     function tfl(t) { return { lec: 'Лекция', lab: 'Лабораторная работа', prac: 'Практика', kurs: 'Курсовая' }[t] || t; }
+    function lucideIcon(name, size) {
+      return window.LUCIDE_ICONS ? window.LUCIDE_ICONS.svg(name, size) : '';
+    }
     function wLbl(w) { return { both: 'Обе', odd: 'Нечётная', even: 'Чётная' }[w] || w; }
     function pN(s) { const n = PAIR_TIMES[s]; return n != null ? (n === 0 ? '' : String(n)) : ''; }
     function wm(l, w) { return l.week === 'both' || l.week === w; }
@@ -383,7 +386,7 @@ createApp({
       fDays,
       showSettings, theme, setTheme, hasVUC, setHasVUC, saveSettings, visSettings,
       calM, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
-      loading, loadError, loadErrorStale, loadSchedule,
+      loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
     };
   },
 }).mount('#app');
