@@ -67,6 +67,7 @@
     <div class="sync-banner err" v-else-if="schedule.length && loadErrorStale">
       Не удалось обновить с сервера, показан кэш. <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="loadSchedule">Повторить</button>
     </div>
+    <div class="sync-meta" v-if="schedule.length && lastFetchedLabel && !loading">Обновлено: {{ lastFetchedLabel }}</div>
 
     <template v-if="vm==='list'">
       <div style="padding:20px 12px" v-if="!loading && fDays.length===0">
@@ -92,8 +93,8 @@
           <div class="no-sub">Можно спать спокойно!</div>
         </div>
         <div v-else class="lessons-block">
-          <template v-for="l in day.visibleLessons" :key="l.id">
-            <div class="lesson-row" :class="{dimmed: visMode(l.id)==='dim'}">
+          <template v-for="l in day.visibleLessons" :key="lessonKey(l)">
+            <div class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}">
               <div class="time-col">
                 <div class="time-start">{{ l.start }}</div>
                 <div class="pair-num">{{ pN(l.start) }}</div>
@@ -150,7 +151,7 @@
           <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Пар нет</div><div class="no-sub">Можно спать спокойно!</div>
         </div>
         <div class="lessons-block" v-else>
-          <div v-for="l in selL" :key="l.id" class="lesson-row" :class="{dimmed: visMode(l.id)==='dim'}">
+          <div v-for="l in selL" :key="lessonKey(l)" class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}">
             <div class="time-col">
               <div class="time-start">{{ l.start }}</div>
               <div class="pair-num">{{ pN(l.start) }}</div>
@@ -213,7 +214,7 @@
             <div v-if="scheduleVisList.length===0" class="settings-row">
               <div class="settings-row-sub">Нет пар для настройки — загрузите расписание.</div>
             </div>
-            <div v-for="l in scheduleVisList" :key="l.id" class="settings-row settings-row-vis" :class="'vis-row-' + (visSettings[l.id] || 'show')">
+            <div v-for="l in scheduleVisList" :key="lessonKey(l)" class="settings-row settings-row-vis" :class="'vis-row-' + visModeLesson(l)">
               <div class="settings-row-left">
                 <div class="settings-row-label" style="font-size:14px">{{ l.subject }}</div>
                 <div class="settings-row-sub">
@@ -221,9 +222,9 @@
                 </div>
               </div>
               <div class="vis-opts">
-                <button type="button" class="vis-btn" :class="{'active-show':  visSettings[l.id]==='show'||!visSettings[l.id]}" @click="setVis(l.id,'show')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye', 15)"></span></button>
-                <button type="button" class="vis-btn" :class="{'active-dim':   visSettings[l.id]==='dim'}"  @click="setVis(l.id,'dim')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('sun-medium', 15)"></span></button>
-                <button type="button" class="vis-btn" :class="{'active-hide':  visSettings[l.id]==='hide'}" @click="setVis(l.id,'hide')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye-off', 15)"></span></button>
+                <button type="button" class="vis-btn" :class="{'active-show':  visModeLesson(l)==='show'}" @click="setVisLesson(l,'show')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye', 15)"></span></button>
+                <button type="button" class="vis-btn" :class="{'active-dim':   visModeLesson(l)==='dim'}"  @click="setVisLesson(l,'dim')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('sun-medium', 15)"></span></button>
+                <button type="button" class="vis-btn" :class="{'active-hide':  visModeLesson(l)==='hide'}" @click="setVisLesson(l,'hide')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye-off', 15)"></span></button>
               </div>
             </div>
           </div>

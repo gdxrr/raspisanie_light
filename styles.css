@@ -406,6 +406,13 @@ html.light .settings-row-vis.vis-row-hide { background: rgba(255, 59, 48, 0.1); 
 .sync-banner.err { border-color: rgba(255,69,58,.4); color: var(--text); }
 .sync-banner a { color: var(--accent); }
 
+.sync-meta {
+  margin: 6px 16px 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+}
+
 html.glass body::before {
   content: '';
   position: fixed; inset: 0; z-index: 0;

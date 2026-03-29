@@ -1,5 +1,21 @@
 const { createApp, ref, computed, reactive, onMounted, onUnmounted, watch } = Vue;
 
+const SCH_META_KEY = 'sch3_meta';
+const FETCH_TIMEOUT_MS = 20000;
+
+function readSchMeta() {
+  try {
+    return JSON.parse(localStorage.getItem(SCH_META_KEY) || '{}');
+  } catch (_) {
+    return {};
+  }
+}
+
+function writeSchMeta(partial) {
+  const cur = readSchMeta();
+  localStorage.setItem(SCH_META_KEY, JSON.stringify({ ...cur, ...partial }));
+}
+
 const DAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
 const DOW = { 'Понедельник': 1, 'Вторник': 2, 'Среда': 3, 'Четверг': 4, 'Пятница': 5, 'Суббота': 6, 'Воскресенье': 0 };
 const MG = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
@@ -106,8 +122,8 @@ function parseSheetValues(rows) {
   return out;
 }
 
-async function fetchRowsFromConfig(cfg) {
-  const res = await fetch(cfg.webAppUrl);
+async function fetchRowsFromConfig(cfg, fetchOpts) {
+  const res = await fetch(cfg.webAppUrl, fetchOpts || {});
   if (!res.ok) throw new Error('Web App: ' + res.status + ' ' + res.statusText);
   const j = await res.json();
   if (Array.isArray(j)) return j;
@@ -118,7 +134,7 @@ async function fetchRowsFromConfig(cfg) {
 
 createApp({
   setup() {
-    const today = new Date();
+    const today = ref(new Date());
 
     const sch = ref([]);
     try {
@@ -138,9 +154,16 @@ createApp({
     const hasVUC = ref(settingsRaw.hasVUC !== undefined ? settingsRaw.hasVUC : true);
     const visSettings = reactive(settingsRaw.vis || {});
 
+    const meta0 = readSchMeta();
+    const lastFetchedAt = ref(typeof meta0.fetchedAt === 'string' ? meta0.fetchedAt : '');
+
     const loading = ref(false);
     const loadError = ref('');
     const loadErrorStale = ref(false);
+
+    let loadSeq = 0;
+    let loadAbort = null;
+    let loadTimeoutId = 0;
 
     function saveSettings() {
       localStorage.setItem('settings3', JSON.stringify({
@@ -152,6 +175,29 @@ createApp({
     function setHasVUC(v) {
       hasVUC.value = v;
       saveSettings();
+    }
+
+    function lessonStableKey(l) {
+      return JSON.stringify([l.day, l.start, l.end, l.subject, l.week]);
+    }
+    function visModeLesson(l) {
+      const sk = lessonStableKey(l);
+      if (visSettings[sk] !== undefined) return visSettings[sk];
+      const idKey = String(l.id);
+      if (visSettings[idKey] !== undefined) return visSettings[idKey];
+      if (visSettings[l.id] !== undefined) return visSettings[l.id];
+      return 'show';
+    }
+    function setVisLesson(l, mode) {
+      const sk = lessonStableKey(l);
+      visSettings[sk] = mode;
+      const idKey = String(l.id);
+      if (visSettings[idKey] !== undefined) delete visSettings[idKey];
+      if (visSettings[l.id] !== undefined) delete visSettings[l.id];
+      saveSettings();
+    }
+    function lessonShownLesson(l) {
+      return visModeLesson(l) !== 'hide';
     }
 
     function applyTheme(t) {
@@ -174,10 +220,6 @@ createApp({
     applyTheme(theme.value);
     function setTheme(t) { theme.value = t; applyTheme(t); saveSettings(); }
 
-    function visMode(id) { return visSettings[id] || 'show'; }
-    function setVis(id, mode) { visSettings[id] = mode; saveSettings(); }
-    function lessonShown(id) { return visMode(id) !== 'hide'; }
-
     function filterVUC(lessons) {
       if (hasVUC.value) return lessons;
       return lessons.filter(l => l.subject !== 'ВУЦ');
@@ -185,7 +227,7 @@ createApp({
 
     const vm = ref('list');
     const fil = ref('all');
-    const cwt = computed(() => wt(today));
+    const cwt = computed(() => wt(today.value));
     const showSettings = ref(false);
 
     function tfl(t) { return { lec: 'Лекция', lab: 'Лабораторная работа', prac: 'Практика', kurs: 'Курсовая' }[t] || t; }
@@ -197,7 +239,7 @@ createApp({
     function wm(l, w) { return l.week === 'both' || l.week === w; }
 
     function ndDate(dn) {
-      const t = DOW[dn], d = new Date(today), diff = (t - d.getDay() + 7) % 7;
+      const t = DOW[dn], d = new Date(today.value), diff = (t - d.getDay() + 7) % 7;
       d.setDate(d.getDate() + diff);
       return d;
     }
@@ -205,15 +247,16 @@ createApp({
     function sortL(a) { return [...a].sort((x, y) => timeToMin(x.start) - timeToMin(y.start)); }
 
     function buildDays(src) {
+      const t0 = today.value;
       const days = [];
       for (let i = 0; i < 14; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
+        const date = new Date(t0);
+        date.setDate(t0.getDate() + i);
         const dow = date.getDay();
         const idx = dow === 0 ? 6 : dow - 1;
         const dayName = DAYS[idx];
         const dateStr = `${date.getDate()} ${MG[date.getMonth()]}`;
-        const isToday = (i === 0);
+        const isToday = sD(date, t0);
         const dayWt = wt(date);
 
         const meta = getCellMeta(date);
@@ -240,7 +283,7 @@ createApp({
     const fDays = computed(() => {
       const all = buildDays(sch.value).map((d) => ({
         ...d,
-        visibleLessons: d.lessons.filter((l) => lessonShown(l.id)),
+        visibleLessons: d.lessons.filter((l) => lessonShownLesson(l)),
       }));
       if (fil.value === 'odd') return all.filter(d => d.weekType === 'odd');
       if (fil.value === 'even') return all.filter(d => d.weekType === 'even');
@@ -249,8 +292,8 @@ createApp({
 
     const scheduleVisList = computed(() => sch.value.filter((l) => l.subject !== 'ВУЦ'));
 
-    const calM = ref(new Date(today.getFullYear(), today.getMonth(), 1));
-    const selD = ref(new Date(today));
+    const calM = ref(new Date(today.value.getFullYear(), today.value.getMonth(), 1));
+    const selD = ref(new Date(today.value));
     const mTitle = computed(() => {
       const m = calM.value, n = MN[m.getMonth()];
       return n.charAt(0).toUpperCase() + n.slice(1) + ' ' + m.getFullYear();
@@ -316,14 +359,14 @@ createApp({
         const idx = date.getDay() === 0 ? 6 : date.getDay() - 1;
         let ls = filterVUC(sch.value.filter(x => x.day === DAYS[idx] && wm(x, wt(date))));
         if (meta && meta.preHoliday) ls = ls.filter(x => timeToMin(x.start) <= timeToMin('14:30'));
-        ls = ls.filter((x) => lessonShown(x.id));
+        ls = ls.filter((x) => lessonShownLesson(x));
         cs.push({ day: d, date, cls: meta ? meta.cls : '', shortLabel: meta ? meta.shortLabel || '' : '', dots: [...new Set(ls.map(x => x.type))] });
       }
       while (cs.length % 7 !== 0) cs.push(null);
       return cs;
     });
 
-    function isTd(d) { return sD(d, today); }
+    function isTd(d) { return sD(d, today.value); }
     function sD(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
     function fmtD(d) { const i = d.getDay() === 0 ? 6 : d.getDay() - 1; return `${DAYS[i]}, ${d.getDate()} ${MG[d.getMonth()]}`; }
 
@@ -334,7 +377,7 @@ createApp({
       const i = date.getDay() === 0 ? 6 : date.getDay() - 1;
       let ls = filterVUC(sch.value.filter(l => l.day === DAYS[i] && wm(l, wt(date))));
       if (meta && meta.preHoliday) ls = ls.filter(l => timeToMin(l.start) <= timeToMin('14:30'));
-      ls = ls.filter((l) => lessonShown(l.id));
+      ls = ls.filter((l) => lessonShownLesson(l));
       return ls.sort((a, b) => timeToMin(a.start) - timeToMin(b.start));
     });
 
@@ -348,7 +391,21 @@ createApp({
       return '';
     });
 
+    const lastFetchedLabel = computed(() => {
+      const iso = lastFetchedAt.value;
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return '';
+      return d.toLocaleString('ru-RU', {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    });
+
     async function loadSchedule() {
+      const seq = ++loadSeq;
       const cfg = typeof window.SCHEDULE_CONFIG === 'object' && window.SCHEDULE_CONFIG ? window.SCHEDULE_CONFIG : {};
       loadError.value = '';
       loadErrorStale.value = false;
@@ -356,37 +413,92 @@ createApp({
         loadError.value = 'В config.js укажите webAppUrl.';
         return;
       }
+      if (loadTimeoutId) {
+        clearTimeout(loadTimeoutId);
+        loadTimeoutId = 0;
+      }
+      if (loadAbort) loadAbort.abort();
+      loadAbort = new AbortController();
+      const { signal } = loadAbort;
+      let timedOut = false;
+      loadTimeoutId = setTimeout(() => {
+        if (seq !== loadSeq) return;
+        timedOut = true;
+        loadAbort.abort();
+      }, FETCH_TIMEOUT_MS);
       loading.value = true;
       try {
-        const rows = await fetchRowsFromConfig(cfg);
+        const rows = await fetchRowsFromConfig(cfg, { signal });
+        if (seq !== loadSeq) return;
         const lessons = parseSheetValues(rows);
         sch.value = lessons;
         localStorage.setItem('sch3', JSON.stringify(lessons));
+        const fetchedAt = new Date().toISOString();
+        lastFetchedAt.value = fetchedAt;
+        writeSchMeta({ fetchedAt });
       } catch (e) {
-        const msg = e && e.message ? e.message : String(e);
-        if (sch.value.length) loadErrorStale.value = true;
-        else loadError.value = msg;
+        if (seq !== loadSeq) return;
+        if (e && e.name === 'AbortError') {
+          if (timedOut) {
+            if (sch.value.length) loadErrorStale.value = true;
+            else loadError.value = 'Превышено время ожидания (' + Math.round(FETCH_TIMEOUT_MS / 1000) + ' с).';
+          } else if (sch.value.length) {
+            loadErrorStale.value = true;
+          } else {
+            loadError.value = 'Запрос отменён.';
+          }
+        } else {
+          const msg = e && e.message ? e.message : String(e);
+          if (sch.value.length) loadErrorStale.value = true;
+          else loadError.value = msg;
+        }
       } finally {
-        loading.value = false;
+        if (seq === loadSeq) {
+          clearTimeout(loadTimeoutId);
+          loadTimeoutId = 0;
+          loading.value = false;
+        }
       }
     }
 
-    onMounted(() => { loadSchedule(); });
+    let todayTickId = 0;
+    function bumpToday() {
+      today.value = new Date();
+    }
+    function onVisibility() {
+      if (document.visibilityState === 'visible') bumpToday();
+    }
+
+    onMounted(() => {
+      bumpToday();
+      loadSchedule();
+      todayTickId = setInterval(bumpToday, 60 * 1000);
+      document.addEventListener('visibilitychange', onVisibility);
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      }
+    });
 
     watch(showSettings, (open) => {
       document.documentElement.classList.toggle('settings-open', open);
     });
     onUnmounted(() => {
       document.documentElement.classList.remove('settings-open');
+      if (todayTickId) clearInterval(todayTickId);
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (loadTimeoutId) clearTimeout(loadTimeoutId);
+      if (loadAbort) loadAbort.abort();
     });
 
     return {
       schedule: sch, scheduleVisList, vm, fil, cwt,
-      tfl, wLbl, pN, visMode, setVis,
+      tfl, wLbl, pN, visModeLesson, setVisLesson,
       fDays,
       showSettings, theme, setTheme, hasVUC, setHasVUC, saveSettings, visSettings,
       calM, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
       loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
+      lastFetchedLabel,
+      lessonKey: lessonStableKey,
     };
   },
 }).mount('#app');
