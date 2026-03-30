@@ -67,7 +67,10 @@
     <div class="sync-banner err" v-else-if="schedule.length && loadErrorStale">
       Не удалось обновить с сервера, показан кэш. <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="loadSchedule">Повторить</button>
     </div>
-    <div class="sync-meta" v-if="schedule.length && lastFetchedLabel && !loading">Обновлено: {{ lastFetchedLabel }}</div>
+    <div class="sync-meta" v-if="schedule.length && !loading">
+      <span v-if="refreshing">Обновляем данные…</span>
+      <span v-else-if="lastFetchedLabel">Обновлено: {{ lastFetchedLabel }}</span>
+    </div>
 
     <template v-if="vm==='list'">
       <div style="padding:20px 12px" v-if="!loading && fDays.length===0">

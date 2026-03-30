@@ -1,7 +1,7 @@
 const { createApp, ref, computed, reactive, onMounted, onUnmounted, watch } = Vue;
 
 const SCH_META_KEY = 'sch3_meta';
-const FETCH_TIMEOUT_MS = 20000;
+const FETCH_TIMEOUT_MS = 12000;
 
 function readSchMeta() {
   try {
@@ -158,6 +158,7 @@ createApp({
     const lastFetchedAt = ref(typeof meta0.fetchedAt === 'string' ? meta0.fetchedAt : '');
 
     const loading = ref(false);
+    const refreshing = ref(false);
     const loadError = ref('');
     const loadErrorStale = ref(false);
 
@@ -426,7 +427,10 @@ createApp({
         timedOut = true;
         loadAbort.abort();
       }, FETCH_TIMEOUT_MS);
-      loading.value = true;
+      // Если кэш уже есть, обновляем в фоне без блокирующего "Загрузка расписания…"
+      const hasCachedSchedule = sch.value.length > 0;
+      loading.value = !hasCachedSchedule;
+      refreshing.value = hasCachedSchedule;
       try {
         const rows = await fetchRowsFromConfig(cfg, { signal });
         if (seq !== loadSeq) return;
@@ -457,6 +461,7 @@ createApp({
           clearTimeout(loadTimeoutId);
           loadTimeoutId = 0;
           loading.value = false;
+          refreshing.value = false;
         }
       }
     }
@@ -496,7 +501,7 @@ createApp({
       fDays,
       showSettings, theme, setTheme, hasVUC, setHasVUC, saveSettings, visSettings,
       calM, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
-      loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
+      loading, refreshing, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,
       lessonKey: lessonStableKey,
     };
