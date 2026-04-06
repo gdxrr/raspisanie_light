@@ -1,7 +1,7 @@
 const { createApp, ref, computed, reactive, onMounted, onUnmounted, watch } = Vue;
 
 const SCH_META_KEY = 'sch3_meta';
-const FETCH_TIMEOUT_MS = 12000;
+const FETCH_TIMEOUT_MS = 20000;
 
 function readSchMeta() {
   try {
@@ -158,7 +158,6 @@ createApp({
     const lastFetchedAt = ref(typeof meta0.fetchedAt === 'string' ? meta0.fetchedAt : '');
 
     const loading = ref(false);
-    const refreshing = ref(false);
     const loadError = ref('');
     const loadErrorStale = ref(false);
 
@@ -239,6 +238,35 @@ createApp({
     function pN(s) { const n = PAIR_TIMES[s]; return n != null ? (n === 0 ? '' : String(n)) : ''; }
     function wm(l, w) { return l.week === 'both' || l.week === w; }
 
+    /** 09.04: в этой календарной неделе (пн–вс) остаётся 9 занятий; каждую следующую неделю −1. */
+    const VUC_REMAIN_AT_ANCHOR_WEEK = 9;
+    const VUC_ANCHOR_DT = { y: 2026, m: 3, d: 9 };
+    function mondayOfCalendarWeek(dt) {
+      const x = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+      const dow = x.getDay();
+      x.setDate(x.getDate() + (dow === 0 ? -6 : 1 - dow));
+      return x;
+    }
+    function razWord(n) {
+      const a = Math.abs(n) % 100;
+      const b = n % 10;
+      if (a > 10 && a < 20) return 'раз';
+      if (b > 1 && b < 5) return 'раза';
+      return 'раз';
+    }
+    function vucRemainderForDate(date) {
+      if (!hasVUC.value) return '';
+      const lessons = sch.value;
+      if (!lessons.some((l) => l.subject === 'ВУЦ' && l.day === 'Четверг')) return '';
+      const anchorMon = mondayOfCalendarWeek(new Date(VUC_ANCHOR_DT.y, VUC_ANCHOR_DT.m, VUC_ANCHOR_DT.d));
+      const thisMon = mondayOfCalendarWeek(date);
+      const weekDelta = Math.round((thisMon - anchorMon) / (7 * 24 * 60 * 60 * 1000));
+      const remaining = weekDelta < 0 ? VUC_REMAIN_AT_ANCHOR_WEEK : Math.max(0, VUC_REMAIN_AT_ANCHOR_WEEK - weekDelta);
+      if (remaining === 0) return 'До конца ВУЦ визитов не осталось.';
+      return `До конца ВУЦ осталось ${remaining} ${razWord(remaining)} сходить.`;
+    }
+    const vucRemainderLine = computed(() => vucRemainderForDate(today.value));
+
     function ndDate(dn) {
       const t = DOW[dn], d = new Date(today.value), diff = (t - d.getDay() + 7) % 7;
       d.setDate(d.getDate() + diff);
@@ -285,6 +313,7 @@ createApp({
       const all = buildDays(sch.value).map((d) => ({
         ...d,
         visibleLessons: d.lessons.filter((l) => lessonShownLesson(l)),
+        vucRemainderLine: vucRemainderForDate(d.date),
       }));
       if (fil.value === 'odd') return all.filter(d => d.weekType === 'odd');
       if (fil.value === 'even') return all.filter(d => d.weekType === 'even');
@@ -427,10 +456,7 @@ createApp({
         timedOut = true;
         loadAbort.abort();
       }, FETCH_TIMEOUT_MS);
-      // Если кэш уже есть, обновляем в фоне без блокирующего "Загрузка расписания…"
-      const hasCachedSchedule = sch.value.length > 0;
-      loading.value = !hasCachedSchedule;
-      refreshing.value = hasCachedSchedule;
+      loading.value = true;
       try {
         const rows = await fetchRowsFromConfig(cfg, { signal });
         if (seq !== loadSeq) return;
@@ -461,7 +487,6 @@ createApp({
           clearTimeout(loadTimeoutId);
           loadTimeoutId = 0;
           loading.value = false;
-          refreshing.value = false;
         }
       }
     }
@@ -501,9 +526,11 @@ createApp({
       fDays,
       showSettings, theme, setTheme, hasVUC, setHasVUC, saveSettings, visSettings,
       calM, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
-      loading, refreshing, loadError, loadErrorStale, loadSchedule, lucideIcon,
+      loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,
       lessonKey: lessonStableKey,
+      vucRemainderLine,
+      vucRemainderForDate,
     };
   },
 }).mount('#app');

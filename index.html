@@ -67,10 +67,7 @@
     <div class="sync-banner err" v-else-if="schedule.length && loadErrorStale">
       Не удалось обновить с сервера, показан кэш. <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="loadSchedule">Повторить</button>
     </div>
-    <div class="sync-meta" v-if="schedule.length && !loading">
-      <span v-if="refreshing">Обновляем данные…</span>
-      <span v-else-if="lastFetchedLabel">Обновлено: {{ lastFetchedLabel }}</span>
-    </div>
+    <div class="sync-meta" v-if="schedule.length && lastFetchedLabel && !loading">Обновлено: {{ lastFetchedLabel }}</div>
 
     <template v-if="vm==='list'">
       <div style="padding:20px 12px" v-if="!loading && fDays.length===0">
@@ -111,6 +108,7 @@
                   <span class="chip">{{ l.room }}</span>
                 </div>
                 <div class="l-teacher" v-if="l.teacher">{{ l.teacher }}</div>
+                <div v-if="l.subject==='ВУЦ' && day.vucRemainderLine" class="l-vuc-note">{{ day.vucRemainderLine }}</div>
               </div>
             </div>
           </template>
@@ -166,6 +164,7 @@
               <div class="l-subject">{{ l.subject }}</div>
               <div class="l-chips" v-if="l.room"><span class="chip">{{ l.room }}</span></div>
               <div class="l-teacher" v-if="l.teacher">{{ l.teacher }}</div>
+              <div v-if="l.subject==='ВУЦ' && vucRemainderForDate(selD)" class="l-vuc-note">{{ vucRemainderForDate(selD) }}</div>
             </div>
           </div>
         </div>
