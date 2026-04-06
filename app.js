@@ -136,6 +136,10 @@ createApp({
   setup() {
     const today = ref(new Date());
 
+    function vibrate(ms) {
+      if (navigator.vibrate) navigator.vibrate(ms || 10);
+    }
+
     const sch = ref([]);
     try {
       const s = localStorage.getItem('sch3');
@@ -151,7 +155,7 @@ createApp({
 
     const settingsRaw = JSON.parse(localStorage.getItem('settings3') || '{}');
     const theme = ref(settingsRaw.theme || 'dark');
-    const hasVUC = ref(settingsRaw.hasVUC !== undefined ? settingsRaw.hasVUC : true);
+    const vucDay = ref(settingsRaw.vucDay || 'thu');
     const visSettings = reactive(settingsRaw.vis || {});
 
     const meta0 = readSchMeta();
@@ -168,12 +172,12 @@ createApp({
     function saveSettings() {
       localStorage.setItem('settings3', JSON.stringify({
         theme: theme.value,
-        hasVUC: hasVUC.value,
+        vucDay: vucDay.value,
         vis: { ...visSettings },
       }));
     }
-    function setHasVUC(v) {
-      hasVUC.value = v;
+    function setVucDay(v) {
+      vucDay.value = v;
       saveSettings();
     }
 
@@ -221,8 +225,9 @@ createApp({
     function setTheme(t) { theme.value = t; applyTheme(t); saveSettings(); }
 
     function filterVUC(lessons) {
-      if (hasVUC.value) return lessons;
-      return lessons.filter(l => l.subject !== 'ВУЦ');
+      if (vucDay.value === 'hide') return lessons.filter(l => l.subject !== 'ВУЦ');
+      const targetDay = vucDay.value === 'wed' ? 'Среда' : 'Четверг';
+      return lessons.map(l => l.subject === 'ВУЦ' ? { ...l, day: targetDay } : l);
     }
 
     const vm = ref('list');
@@ -231,6 +236,14 @@ createApp({
     const showSettings = ref(false);
 
     function tfl(t) { return { lec: 'Лекция', lab: 'Лабораторная работа', prac: 'Практика', kurs: 'Курсовая' }[t] || t; }
+    function barClass(l) {
+      if (l.type === 'lec' && l.subject === 'ВУЦ') return 'lec-vuc';
+      return l.type;
+    }
+    function lTypeClass(l) {
+      if (l.type === 'lec' && l.subject === 'ВУЦ') return 'lec-vuc';
+      return l.type;
+    }
     function lucideIcon(name, size) {
       return window.LUCIDE_ICONS ? window.LUCIDE_ICONS.svg(name, size) : '';
     }
@@ -255,9 +268,9 @@ createApp({
       return 'раз';
     }
     function vucRemainderForDate(date) {
-      if (!hasVUC.value) return '';
+      if (vucDay.value !== 'thu') return '';
       const lessons = sch.value;
-      if (!lessons.some((l) => l.subject === 'ВУЦ' && l.day === 'Четверг')) return '';
+      if (!lessons.some((l) => l.subject === 'ВУЦ')) return '';
       const anchorMon = mondayOfCalendarWeek(new Date(VUC_ANCHOR_DT.y, VUC_ANCHOR_DT.m, VUC_ANCHOR_DT.d));
       const thisMon = mondayOfCalendarWeek(date);
       const weekDelta = Math.round((thisMon - anchorMon) / (7 * 24 * 60 * 60 * 1000));
@@ -390,7 +403,8 @@ createApp({
         let ls = filterVUC(sch.value.filter(x => x.day === DAYS[idx] && wm(x, wt(date))));
         if (meta && meta.preHoliday) ls = ls.filter(x => timeToMin(x.start) <= timeToMin('14:30'));
         ls = ls.filter((x) => lessonShownLesson(x));
-        cs.push({ day: d, date, cls: meta ? meta.cls : '', shortLabel: meta ? meta.shortLabel || '' : '', dots: [...new Set(ls.map(x => x.type))] });
+        const dotTypes = [...new Set(ls.map(x => x.type === 'lec' && x.subject === 'ВУЦ' ? 'lec-vuc' : x.type))];
+        cs.push({ day: d, date, cls: meta ? meta.cls : '', shortLabel: meta ? meta.shortLabel || '' : '', dots: dotTypes });
       }
       while (cs.length % 7 !== 0) cs.push(null);
       return cs;
@@ -522,15 +536,16 @@ createApp({
 
     return {
       schedule: sch, scheduleVisList, vm, fil, cwt,
-      tfl, wLbl, pN, visModeLesson, setVisLesson,
+      tfl, wLbl, pN, visModeLesson, setVisLesson, barClass, lTypeClass,
       fDays,
-      showSettings, theme, setTheme, hasVUC, setHasVUC, saveSettings, visSettings,
+      showSettings, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
       calM, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
       loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,
       lessonKey: lessonStableKey,
       vucRemainderLine,
       vucRemainderForDate,
+      vibrate,
     };
   },
 }).mount('#app');

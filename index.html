@@ -42,18 +42,18 @@
         <a class="header-lk" href="https://pro.guap.ru/inside/profile" target="_blank" rel="noopener noreferrer" title="Личный кабинет" aria-label="Личный кабинет">
           <img class="header-lk-icon" src="https://src.guap.ru/logos/guap/guap-sign_w.svg" width="18" height="18" alt="ГУАП" loading="lazy" decoding="async">
         </a>
-        <button type="button" class="icon-btn-hdr" @click="vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon(vm==='list'?'calendar':'list', 18)"></span></button>
-        <button type="button" class="icon-btn-hdr" @click="showSettings=true" aria-label="Настройки"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('settings', 18)"></span></button>
+        <button type="button" class="icon-btn-hdr" @click="vibrate(); vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon(vm==='list'?'calendar':'list', 18)"></span></button>
+        <button type="button" class="icon-btn-hdr" @click="vibrate(); showSettings=true" aria-label="Настройки"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('settings', 18)"></span></button>
       </div>
       <div class="header-right" v-else>
-        <button type="button" class="icon-btn-hdr" @click="vm='list'" aria-label="Закрыть календарь"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('x', 18)"></span></button>
+        <button type="button" class="icon-btn-hdr" @click="vibrate(); vm='list'" aria-label="Закрыть календарь"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('x', 18)"></span></button>
       </div>
     </div>
 
     <div class="filter-strip" v-if="vm==='list'">
-      <button type="button" class="filter-pill" :class="{active:fil==='all'}"   @click="fil='all'">2 недели</button>
-      <button type="button" class="filter-pill" :class="{active:fil==='odd'}"   @click="fil='odd'">Нечётная</button>
-      <button type="button" class="filter-pill" :class="{active:fil==='even'}"  @click="fil='even'">Чётная</button>
+      <button type="button" class="filter-pill" :class="{active:fil==='all'}"   @click="vibrate(); fil='all'">2 недели</button>
+      <button type="button" class="filter-pill" :class="{active:fil==='odd'}"   @click="vibrate(); fil='odd'">Нечётная</button>
+      <button type="button" class="filter-pill" :class="{active:fil==='even'}"  @click="vibrate(); fil='even'">Чётная</button>
     </div>
   </div>
 
@@ -62,10 +62,10 @@
     <div class="sync-banner err" v-else-if="loadError">
       {{ loadError }}
       <template v-if="!schedule.length"> Проверьте <code style="font-size:12px">config.js</code>.</template>
-      <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="loadSchedule">Обновить</button>
+      <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="vibrate(); loadSchedule">Обновить</button>
     </div>
     <div class="sync-banner err" v-else-if="schedule.length && loadErrorStale">
-      Не удалось обновить с сервера, показан кэш. <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="loadSchedule">Повторить</button>
+      Не удалось обновить с сервера, показан кэш. <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="vibrate(); loadSchedule">Повторить</button>
     </div>
     <div class="sync-meta" v-if="schedule.length && lastFetchedLabel && !loading">Обновлено: {{ lastFetchedLabel }}</div>
 
@@ -100,9 +100,9 @@
                 <div class="pair-num">{{ pN(l.start) }}</div>
                 <div class="time-end">{{ l.end }}</div>
               </div>
-              <div class="bar" :class="l.type"></div>
+              <div class="bar" :class="barClass(l)"></div>
               <div class="lesson-body">
-                <div class="l-type" :class="l.type">{{ tfl(l.type) }}</div>
+                <div class="l-type" :class="lTypeClass(l)">{{ tfl(l.type) }}</div>
                 <div class="l-subject">{{ l.subject }}</div>
                 <div class="l-chips" v-if="l.room">
                   <span class="chip">{{ l.room }}</span>
@@ -119,9 +119,9 @@
     <transition name="slide-right">
     <div class="cal-wrap" v-if="vm==='calendar'">
       <div class="cal-nav">
-        <button type="button" class="cal-nav-btn" aria-label="Предыдущий месяц" @click="prevM"><span class="lucide-wrap lucide-wrap-cal-nav" v-html="lucideIcon('chevron-left', 20)"></span></button>
+        <button type="button" class="cal-nav-btn" aria-label="Предыдущий месяц" @click="vibrate(); prevM"><span class="lucide-wrap lucide-wrap-cal-nav" v-html="lucideIcon('chevron-left', 20)"></span></button>
         <span class="cal-month">{{ mTitle }}</span>
-        <button type="button" class="cal-nav-btn" aria-label="Следующий месяц" @click="nextM"><span class="lucide-wrap lucide-wrap-cal-nav" v-html="lucideIcon('chevron-right', 20)"></span></button>
+        <button type="button" class="cal-nav-btn" aria-label="Следующий месяц" @click="vibrate(); nextM"><span class="lucide-wrap lucide-wrap-cal-nav" v-html="lucideIcon('chevron-right', 20)"></span></button>
       </div>
       <div class="cal-grid">
         <div class="cal-dow" v-for="d in ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']" :key="d">{{ d }}</div>
@@ -158,9 +158,9 @@
               <div class="pair-num">{{ pN(l.start) }}</div>
               <div class="time-end">{{ l.end }}</div>
             </div>
-            <div class="bar" :class="l.type"></div>
+            <div class="bar" :class="barClass(l)"></div>
             <div class="lesson-body">
-              <div class="l-type" :class="l.type">{{ tfl(l.type) }}</div>
+              <div class="l-type" :class="lTypeClass(l)">{{ tfl(l.type) }}</div>
               <div class="l-subject">{{ l.subject }}</div>
               <div class="l-chips" v-if="l.room"><span class="chip">{{ l.room }}</span></div>
               <div class="l-teacher" v-if="l.teacher">{{ l.teacher }}</div>
@@ -178,7 +178,7 @@
     <div class="settings-panel" v-if="showSettings">
       <div class="settings-nav">
         <span class="settings-nav-title">Настройки</span>
-        <button type="button" class="icon-btn" aria-label="Закрыть" @click="showSettings=false"><span class="lucide-wrap lucide-wrap-settings-close" v-html="lucideIcon('x', 18)"></span></button>
+        <button type="button" class="icon-btn" aria-label="Закрыть" @click="vibrate(); showSettings=false"><span class="lucide-wrap lucide-wrap-settings-close" v-html="lucideIcon('x', 18)"></span></button>
       </div>
       <div class="settings-body">
 
@@ -188,10 +188,10 @@
             <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:10px;">
               <div class="settings-row-label">Тема</div>
               <div class="theme-opts" style="width:100%">
-                <button type="button" class="theme-btn" :class="{active: theme==='dark'}"   @click="setTheme('dark')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('moon', 16)"></span> Тёмная</button>
-                <button type="button" class="theme-btn" :class="{active: theme==='light'}"  @click="setTheme('light')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('sun', 16)"></span> Светлая</button>
-                <button type="button" class="theme-btn" :class="{active: theme==='system'}" @click="setTheme('system')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('monitor-smartphone', 16)"></span> Авто</button>
-                <button type="button" class="theme-btn" :class="{active: theme==='glass'}" @click="setTheme('glass')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('sparkles', 16)"></span> Стекло</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='dark'}"   @click="vibrate(); setTheme('dark')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('moon', 16)"></span> Тёмная</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='light'}"  @click="vibrate(); setTheme('light')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('sun', 16)"></span> Светлая</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='system'}" @click="vibrate(); setTheme('system')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('monitor-smartphone', 16)"></span> Авто</button>
+                <button type="button" class="theme-btn" :class="{active: theme==='glass'}" @click="vibrate(); setTheme('glass')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('sparkles', 16)"></span> Стекло</button>
               </div>
             </div>
           </div>
@@ -201,11 +201,12 @@
           <div class="settings-section-title">Учёба</div>
           <div class="settings-card">
             <div class="settings-row settings-row-stack">
-              <div class="settings-row-label">ВУЦ по четвергам</div>
-              <div class="theme-opts theme-opts-duo">
-                <button type="button" class="theme-btn" :class="{active: hasVUC}" @click="setHasVUC(true)">Показывать</button>
-                <button type="button" class="theme-btn" :class="{active: !hasVUC}" @click="setHasVUC(false)">Скрыть</button>
-              </div>
+              <div class="settings-row-label">ВУЦ</div>
+              <select class="vuc-select" :value="vucDay" @change="vibrate(); setVucDay($event.target.value)">
+                <option value="wed">Есть ВУЦ — Среда</option>
+                <option value="thu">Есть ВУЦ — Четверг</option>
+                <option value="hide">Нет ВУЦ</option>
+              </select>
             </div>
           </div>
         </div>
@@ -224,9 +225,9 @@
                 </div>
               </div>
               <div class="vis-opts">
-                <button type="button" class="vis-btn" :class="{'active-show':  visModeLesson(l)==='show'}" @click="setVisLesson(l,'show')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye', 15)"></span></button>
-                <button type="button" class="vis-btn" :class="{'active-dim':   visModeLesson(l)==='dim'}"  @click="setVisLesson(l,'dim')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('sun-medium', 15)"></span></button>
-                <button type="button" class="vis-btn" :class="{'active-hide':  visModeLesson(l)==='hide'}" @click="setVisLesson(l,'hide')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye-off', 15)"></span></button>
+                <button type="button" class="vis-btn" :class="{'active-show':  visModeLesson(l)==='show'}" @click="vibrate(); setVisLesson(l,'show')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye', 15)"></span></button>
+                <button type="button" class="vis-btn" :class="{'active-dim':   visModeLesson(l)==='dim'}"  @click="vibrate(); setVisLesson(l,'dim')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('sun-medium', 15)"></span></button>
+                <button type="button" class="vis-btn" :class="{'active-hide':  visModeLesson(l)==='hide'}" @click="vibrate(); setVisLesson(l,'hide')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye-off', 15)"></span></button>
               </div>
             </div>
           </div>
