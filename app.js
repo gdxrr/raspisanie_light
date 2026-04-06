@@ -155,7 +155,7 @@ createApp({
 
     const settingsRaw = JSON.parse(localStorage.getItem('settings3') || '{}');
     const theme = ref(settingsRaw.theme || 'dark');
-    const vucDay = ref(settingsRaw.vucDay || 'thu');
+    const vucDay = ref(settingsRaw.vucDay || 'hide');
     const visSettings = reactive(settingsRaw.vis || {});
 
     const meta0 = readSchMeta();

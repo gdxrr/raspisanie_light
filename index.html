@@ -58,16 +58,16 @@
   </div>
 
   <div class="main">
-    <div class="sync-banner" v-if="loading">Загрузка расписания…</div>
-    <div class="sync-banner err" v-else-if="loadError">
-      {{ loadError }}
-      <template v-if="!schedule.length"> Проверьте <code style="font-size:12px">config.js</code>.</template>
-      <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="vibrate(); loadSchedule">Обновить</button>
+    <div class="sync-meta-wrap" v-if="loading"><div class="sync-meta">Загрузка расписания…</div></div>
+    <div class="sync-meta-wrap" v-else-if="loadError">
+      <div class="sync-meta sync-meta-err">{{ loadError }}<template v-if="!schedule.length"> Проверьте <code style="font-size:12px">config.js</code>.</template><button type="button" class="sync-meta-btn" @click="vibrate(); loadSchedule">Обновить</button></div>
     </div>
-    <div class="sync-banner err" v-else-if="schedule.length && loadErrorStale">
-      Не удалось обновить с сервера, показан кэш. <button type="button" class="filter-pill active" style="margin-left:8px;padding:4px 12px;font-size:12px" @click="vibrate(); loadSchedule">Повторить</button>
+    <div class="sync-meta-wrap" v-else-if="schedule.length && loadErrorStale">
+      <div class="sync-meta sync-meta-err">Не удалось обновить с сервера, показан кэш.<button type="button" class="sync-meta-btn" @click="vibrate(); loadSchedule">Повторить</button></div>
     </div>
-    <div class="sync-meta" v-if="schedule.length && lastFetchedLabel && !loading">Обновлено: {{ lastFetchedLabel }}</div>
+    <div class="sync-meta-wrap" v-if="schedule.length && lastFetchedLabel && !loading">
+      <div class="sync-meta">Обновлено: {{ lastFetchedLabel }}</div>
+    </div>
 
     <template v-if="vm==='list'">
       <div style="padding:20px 12px" v-if="!loading && fDays.length===0">
@@ -203,9 +203,9 @@
             <div class="settings-row settings-row-stack">
               <div class="settings-row-label">ВУЦ</div>
               <select class="vuc-select" :value="vucDay" @change="vibrate(); setVucDay($event.target.value)">
+                <option value="hide">Нет ВУЦ</option>
                 <option value="wed">Есть ВУЦ — Среда</option>
                 <option value="thu">Есть ВУЦ — Четверг</option>
-                <option value="hide">Нет ВУЦ</option>
               </select>
             </div>
           </div>
