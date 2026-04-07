@@ -111,25 +111,28 @@ html::-webkit-scrollbar-thumb,
 }
 
 .header { position: sticky; top: 0; z-index: 250; background: var(--bg); border-bottom: 1px solid var(--sep); }
-.header-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 4px; position: relative; }
-.header-title-wrap { display: flex; align-items: center; gap: 10px; }
+.header-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 4px; }
+.header-title-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .header-title { font-size: 28px; font-weight: 700; user-select: none; letter-spacing: -.5px; }
 .header-group-icon {
   width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
   flex-shrink: 0; border: 2px solid var(--sep); box-shadow: 0 2px 8px rgba(0,0,0,.2);
 }
 .header-loading {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: center;
   gap: 10px;
   font-size: 15px;
   font-weight: 600;
   color: var(--text2);
-  pointer-events: none;
+  margin-left: auto;
+  margin-right: 12px;
+  flex-shrink: 0;
+  animation: header-fade-in .25s ease;
+}
+@keyframes header-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 .header-loading-spinner {
   width: 18px;
@@ -143,7 +146,7 @@ html::-webkit-scrollbar-thumb,
 @keyframes header-spin {
   to { transform: rotate(360deg); }
 }
-.header-right { display: flex; align-items: center; gap: 10px; }
+.header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .week-hdr-badge {
   display: inline-flex; align-items: center; justify-content: center;
   padding: 5px 11px; border-radius: 8px; flex-shrink: 0;
@@ -580,7 +583,9 @@ html.glass .header-lk {
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.14);
 }
-html.glass .header-loading { color: rgba(255,255,255,0.65); }
+html.glass .header-loading {
+  color: rgba(255,255,255,0.65);
+}
 html.glass .header-loading-spinner {
   border-color: rgba(255,255,255,0.3);
   border-top-color: #48cae4;
