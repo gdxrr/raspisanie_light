@@ -48,6 +48,13 @@ html.glass, html.glass body {
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* iOS Safari: принудительное использование Inter */
+@supports (font: -apple-system-body) {
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif !important; }
+}
+
 .lucide-wrap {
   display: inline-flex;
   align-items: center;
@@ -128,7 +135,12 @@ html::-webkit-scrollbar-thumb,
   margin-left: auto;
   margin-right: 12px;
   flex-shrink: 0;
+  -webkit-animation: header-fade-in .25s ease;
   animation: header-fade-in .25s ease;
+}
+@-webkit-keyframes header-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes header-fade-in {
   from { opacity: 0; }
@@ -140,11 +152,17 @@ html::-webkit-scrollbar-thumb,
   border: 2.5px solid var(--text3);
   border-top-color: var(--accent);
   border-radius: 50%;
+  -webkit-animation: header-spin 0.7s linear infinite;
   animation: header-spin 0.7s linear infinite;
   flex-shrink: 0;
+  -webkit-backface-visibility: visible;
+  backface-visibility: visible;
+}
+@-webkit-keyframes header-spin {
+  to { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
 }
 @keyframes header-spin {
-  to { transform: rotate(360deg); }
+  to { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
 }
 .header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .week-hdr-badge {
