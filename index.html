@@ -39,8 +39,16 @@
   <div class="header">
     <div class="header-top">
       <div class="header-title-wrap">
-        <span class="header-title">3333</span>
-        <img class="header-group-icon" src="assets/3333-sign.png" width="36" height="36" alt="Группа 3333">
+        <transition name="header-title" mode="out-in">
+          <div class="header-brand" key="brand" v-if="!loading">
+            <span class="header-title">3333</span>
+            <img class="header-group-icon" src="assets/3333-sign.png" width="36" height="36" alt="Группа 3333">
+          </div>
+          <div class="header-loading-state" key="loading" v-else>
+            <span class="header-loading-spinner"></span>
+            <span class="header-loading-text">Загрузка расписания</span>
+          </div>
+        </transition>
       </div>
       <div class="header-right" v-if="vm==='list'">
         <a class="header-lk" href="https://pro.guap.ru/inside/profile" target="_blank" rel="noopener noreferrer" title="Личный кабинет" aria-label="Личный кабинет">
@@ -61,14 +69,7 @@
     </div>
   </div>
 
-  <div class="loading-overlay" v-if="loading">
-    <div class="loading-content">
-      <div class="loading-pulse"></div>
-      <div class="loading-label">Загрузка расписания</div>
-    </div>
-  </div>
-
-  <div class="main" :class="{ 'main-blurred': loading }">
+  <div class="main">
     <div class="sync-meta-wrap" v-if="loadError">
       <div class="sync-meta sync-meta-err">{{ loadError }}<template v-if="!schedule.length"> Проверьте <code style="font-size:12px">config.js</code>.</template><button type="button" class="sync-meta-btn" @click="vibrate(); loadSchedule">Обновить</button></div>
     </div>

@@ -470,10 +470,7 @@ createApp({
         timedOut = true;
         loadAbort.abort();
       }, FETCH_TIMEOUT_MS);
-      let showLoadingTimer = 0;
-      showLoadingTimer = setTimeout(() => {
-        if (seq === loadSeq) loading.value = true;
-      }, 150);
+      loading.value = true;
       try {
         const rows = await fetchRowsFromConfig(cfg, { signal });
         if (seq !== loadSeq) return;
@@ -502,7 +499,6 @@ createApp({
       } finally {
         if (seq === loadSeq) {
           clearTimeout(loadTimeoutId);
-          clearTimeout(showLoadingTimer);
           loadTimeoutId = 0;
           loading.value = false;
         }
