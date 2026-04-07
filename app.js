@@ -165,7 +165,23 @@ createApp({
     const loadError = ref('');
     const loadErrorStale = ref(false);
 
-    let loadSeq = 0;
+    // Анимированные точки для "Загрузка"
+    const loadingDots = ref('');
+    let loadingDotsTimer = 0;
+    function startLoadingDots() {
+      let n = 0;
+      loadingDotsTimer = setInterval(() => {
+        n = (n + 1) % 4;
+        loadingDots.value = '.'.repeat(n);
+      }, 400);
+    }
+    function stopLoadingDots() {
+      if (loadingDotsTimer) {
+        clearInterval(loadingDotsTimer);
+        loadingDotsTimer = 0;
+      }
+      loadingDots.value = '';
+    }
     let loadAbort = null;
     let loadTimeoutId = 0;
 
@@ -471,6 +487,7 @@ createApp({
         loadAbort.abort();
       }, FETCH_TIMEOUT_MS);
       loading.value = true;
+      startLoadingDots();
       try {
         const rows = await fetchRowsFromConfig(cfg, { signal });
         if (seq !== loadSeq) return;
@@ -501,6 +518,7 @@ createApp({
           clearTimeout(loadTimeoutId);
           loadTimeoutId = 0;
           loading.value = false;
+          stopLoadingDots();
         }
       }
     }
@@ -532,6 +550,7 @@ createApp({
       document.removeEventListener('visibilitychange', onVisibility);
       if (loadTimeoutId) clearTimeout(loadTimeoutId);
       if (loadAbort) loadAbort.abort();
+      stopLoadingDots();
     });
 
     return {
@@ -540,7 +559,7 @@ createApp({
       fDays,
       showSettings, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
       calM, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
-      loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
+      loading, loadingDots, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,
       lessonKey: lessonStableKey,
       vucRemainderLine,

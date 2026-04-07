@@ -152,16 +152,20 @@ html::-webkit-scrollbar-thumb,
   height: 18px;
   min-width: 18px;
   min-height: 18px;
-  border: 2.5px solid var(--text3);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  overflow: hidden;
-  -webkit-animation: header-spin 0.7s linear infinite;
-  animation: header-spin 0.7s linear infinite;
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
+  color: var(--text3);
+  -webkit-animation: header-spin 0.8s linear infinite;
+  animation: header-spin 0.8s linear infinite;
+  -webkit-transform-origin: center;
+  transform-origin: center;
   flex-shrink: 0;
+}
+.header-loading-spinner path {
+  color: var(--accent);
+}
+.header-loading-text {
+  display: inline;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 @-webkit-keyframes header-spin {
   to { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
@@ -608,10 +612,6 @@ html.glass .header-lk {
 }
 html.glass .header-loading {
   color: rgba(255,255,255,0.65);
-}
-html.glass .header-loading-spinner {
-  border-color: rgba(255,255,255,0.3);
-  border-top-color: #48cae4;
 }
 html.glass .filter-pill {
   background: rgba(255,255,255,0.07);
