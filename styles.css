@@ -1211,3 +1211,115 @@ html.glass .lesson-modal-close {
 html.glass .lesson-modal-close:hover {
   background: rgba(255, 255, 255, 0.16);
 }
+
+/* Превью оформления */
+.appearance-preview {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.preview-day-header {
+  padding: 0 0 8px 0;
+}
+.preview-day-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.preview-lesson-row {
+  display: flex;
+  align-items: stretch;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 12px;
+  transition: all .2s ease;
+}
+.preview-time-col {
+  min-width: 50px;
+  margin-right: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  padding: 2px 0;
+}
+.preview-time-start {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+}
+.preview-pair-num {
+  font-size: 13px;
+  color: var(--text3);
+}
+.preview-time-end {
+  font-size: 13px;
+  color: var(--text3);
+}
+.preview-bar {
+  width: 3px;
+  border-radius: 2px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+.preview-bar.lec { background: var(--lec); }
+.preview-bar.lab { background: var(--lab); }
+.preview-bar.prac { background: var(--prac); }
+.preview-bar.kurs { background: var(--kurs); }
+.preview-lesson-body {
+  flex: 1;
+  min-width: 0;
+}
+.preview-l-type {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.preview-l-type.lec { color: var(--lec); }
+.preview-l-type.lab { color: var(--lab); }
+.preview-l-type.prac { color: var(--prac); }
+.preview-l-type.kurs { color: var(--kurs); }
+.preview-l-subject {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.preview-l-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.preview-chip {
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 7px;
+  border-radius: 5px;
+}
+
+/* Glass эффекты для превью */
+html.glass .preview-lesson-row {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+html.glass .preview-bar.lec { box-shadow: 0 0 6px rgba(199,125,255,.4); }
+html.glass .preview-bar.lab { box-shadow: 0 0 6px rgba(72,202,228,.4); }
+html.glass .preview-bar.prac { box-shadow: 0 0 6px rgba(255,183,3,.4); }
+html.glass .preview-bar.kurs { box-shadow: 0 0 6px rgba(255,107,157,.4); }
+html.glass .preview-chip {
+  background: rgba(255,255,255,0.11);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+html.glass .preview-day-title {
+  text-shadow: 0 0 8px var(--accent);
+}
