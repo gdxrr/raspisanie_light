@@ -125,7 +125,7 @@
         </div>
         <div v-else class="lessons-block">
           <template v-for="l in day.visibleLessons" :key="lessonKey(l)">
-            <div class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l">
+            <div class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l" @mouseenter="preloadRoomPhoto(l.room)" @touchstart.passive="preloadRoomPhoto(l.room)">
               <div class="time-col">
                 <div class="time-start">{{ l.start }}</div>
                 <div class="pair-num">{{ pN(l.start) }}</div>
@@ -183,7 +183,7 @@
           <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Пар нет</div><div class="no-sub">Можно спать спокойно!</div>
         </div>
         <div class="lessons-block" v-else>
-          <div v-for="l in selL" :key="lessonKey(l)" class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l">
+          <div v-for="l in selL" :key="lessonKey(l)" class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l" @mouseenter="preloadRoomPhoto(l.room)" @touchstart.passive="preloadRoomPhoto(l.room)">
             <div class="time-col">
               <div class="time-start">{{ l.start }}</div>
               <div class="pair-num">{{ pN(l.start) }}</div>
@@ -407,7 +407,7 @@
         <div class="lesson-modal-body">
           <h2 class="lesson-modal-subject">{{ selectedLesson.subject }}</h2>
           <div class="lesson-modal-photo" v-if="selectedLesson.room && roomPhotoPath(selectedLesson.room)">
-            <img :src="roomPhotoPath(selectedLesson.room)" :alt="'Аудитория ' + selectedLesson.room" loading="lazy" @error="$event.target.parentElement.style.display='none'">
+            <img :src="roomPhotoPath(selectedLesson.room)" :alt="'Аудитория ' + selectedLesson.room" @error="$event.target.parentElement.style.display='none'">
           </div>
           <div class="lesson-modal-info">
             <div class="lesson-modal-info-row" v-if="selectedLesson.teacher">

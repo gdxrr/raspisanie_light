@@ -368,6 +368,14 @@ createApp({
     const settingsTab = ref('schedule');
     const selectedLesson = ref(null);
 
+    // Предзагрузка фото при наведении на пару
+    function preloadRoomPhoto(room) {
+      const path = roomPhotoPath(room);
+      if (!path) return;
+      const img = new Image();
+      img.src = path;
+    }
+
     function tfl(t) { return { lec: 'Лекция', lab: 'Лабораторная работа', prac: 'Практика', kurs: 'Курсовая' }[t] || t; }
     function barClass(l) {
       if (l.type === 'lec' && l.subject === 'ВУЦ') return 'lec-vuc';
@@ -693,6 +701,7 @@ createApp({
       vucRemainderForDate,
       vibrate,
       roomPhotoPath,
+      preloadRoomPhoto,
     };
   },
 }).mount('#app');
