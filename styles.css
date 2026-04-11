@@ -11,8 +11,7 @@ html.light, html.light body {
   --bg: #f2f2f7; --bg2: #ffffff; --bg3: #e5e5ea; --bg4: #d1d1d6;
   --sep: rgba(0,0,0,0.08);
   --text: #000; --text2: rgba(0,0,0,.5); --text3: rgba(0,0,0,.3);
-  --lec: #9b59d4; --lab: #0a7aff; --prac: #c47a00; --kurs: #d63050;
-  --accent: #0a84ff; --odd: #ff3b30; --even: #0a84ff;
+  --odd: #ff3b30; --even: #0a84ff;
   background: #f2f2f7 !important;
   color: #000 !important;
   color-scheme: light;
@@ -22,8 +21,7 @@ html.light, html.light body {
     --bg: #f2f2f7; --bg2: #ffffff; --bg3: #e5e5ea; --bg4: #d1d1d6;
     --sep: rgba(0,0,0,0.08);
     --text: #000; --text2: rgba(0,0,0,.5); --text3: rgba(0,0,0,.3);
-    --lec: #9b59d4; --lab: #0a7aff; --prac: #c47a00; --kurs: #d63050;
-    --accent: #0a84ff; --odd: #ff3b30; --even: #0a84ff;
+    --odd: #ff3b30; --even: #0a84ff;
     background: #f2f2f7 !important;
     color: #000 !important;
     color-scheme: light;
@@ -39,8 +37,7 @@ html.glass, html.glass body {
   --glass-border2: rgba(255,255,255,0.22);
   --sep: rgba(255,255,255,0.08);
   --text: #ffffff; --text2: rgba(255,255,255,.6); --text3: rgba(255,255,255,.32);
-  --lec: #c77dff; --lab: #48cae4; --prac: #ffb703; --kurs: #ff6b9d;
-  --accent: #48cae4; --odd: #ff6b6b; --even: #48cae4;
+  --odd: #ff6b6b; --even: #48cae4;
   --glow-odd: rgba(255,107,107,0.35); --glow-even: rgba(72,202,228,0.35);
   background: #12121c !important; color: #ffffff !important;
   color-scheme: dark;
@@ -302,6 +299,59 @@ html.light .header-lk-icon { filter: invert(1); }
 .no-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
 .no-sub   { font-size: 13px; color: var(--text2); }
 
+/* Skeleton loader */
+.skeleton-block { background: var(--bg2); border-radius: 14px; margin: 0 12px 8px; overflow: hidden; }
+.skeleton-row {
+  display: flex; align-items: stretch; padding: 14px 14px; position: relative;
+}
+.skeleton-row + .skeleton-row::before {
+  content: ''; position: absolute; top: 0; left: 14px; right: 0;
+  height: 1px; background: var(--sep);
+}
+.skeleton-time { min-width: 56px; margin-right: 14px; display: flex; flex-direction: column; gap: 8px; }
+.skeleton-bar { width: 3px; border-radius: 2px; margin-right: 14px; align-self: stretch; }
+.skeleton-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.skeleton-line {
+  height: 12px; border-radius: 6px; background: var(--bg3);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+.skeleton-line.w-20 { width: 20%; }
+.skeleton-line.w-40 { width: 40%; }
+.skeleton-line.w-60 { width: 60%; }
+.skeleton-line.w-80 { width: 80%; }
+.skeleton-line.w-100 { width: 100%; }
+.skeleton-line.h-16 { height: 16px; }
+.skeleton-line.h-20 { height: 20px; }
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Stagger animation для списка пар */
+.lesson-row {
+  animation: lesson-fade-in 0.4s ease-out backwards;
+}
+.lesson-row:nth-child(1) { animation-delay: 0.05s; }
+.lesson-row:nth-child(2) { animation-delay: 0.1s; }
+.lesson-row:nth-child(3) { animation-delay: 0.15s; }
+.lesson-row:nth-child(4) { animation-delay: 0.2s; }
+.lesson-row:nth-child(5) { animation-delay: 0.25s; }
+.lesson-row:nth-child(6) { animation-delay: 0.3s; }
+.lesson-row:nth-child(7) { animation-delay: 0.35s; }
+.lesson-row:nth-child(8) { animation-delay: 0.4s; }
+
+@keyframes lesson-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .cal-wrap {
   position: fixed;
   top: 57px;
@@ -366,6 +416,48 @@ html.light .header-lk-icon { filter: invert(1); }
   padding: 14px 16px; display: flex; align-items: center; gap: 10px;
 }
 .settings-nav-title { font-size: 17px; font-weight: 700; flex: 1; }
+
+.settings-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--sep);
+  padding: 0;
+  flex-shrink: 0;
+}
+.settings-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .2s;
+  border-bottom: 2px solid transparent;
+}
+.settings-tab:hover {
+  color: var(--text);
+  background: var(--bg3);
+}
+.settings-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.settings-tab .lucide-wrap {
+  width: 18px;
+  height: 18px;
+}
+.settings-tab .lucide-wrap svg {
+  width: 100%;
+  height: 100%;
+}
 .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--bg3); color: var(--text); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .settings-body {
   flex: 1;
@@ -473,7 +565,156 @@ html.light .vuc-select option { background: #fff; color: #000; }
   cursor: pointer; font-family: inherit; transition: all .15s;
   text-align: center; width: 100%;
 }
-.theme-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(10,132,255,.1); }
+.theme-btn.active { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+
+/* Акцентные цвета */
+.accent-colors-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+.accent-color-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all .2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  flex-shrink: 0;
+}
+.accent-color-btn:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 10px rgba(0,0,0,.3);
+}
+.accent-color-btn.active {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--bg2), 0 0 0 4px var(--accent), 0 3px 10px rgba(0,0,0,.3);
+  transform: scale(1.1);
+}
+.accent-color-check {
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+
+/* Цветовые схемы пар */
+.lesson-scheme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+.lesson-scheme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 2px solid var(--bg3);
+  background: var(--bg3);
+  cursor: pointer;
+  transition: all .2s ease;
+  font-family: inherit;
+}
+.lesson-scheme-btn:hover {
+  border-color: var(--bg4);
+  transform: translateY(-2px);
+}
+.lesson-scheme-btn.active {
+  border-color: var(--accent);
+  background: rgba(10,132,255,.08);
+  box-shadow: 0 0 0 2px rgba(10,132,255,.15);
+}
+.lesson-scheme-preview {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.lesson-scheme-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.lesson-scheme-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+}
+.lesson-scheme-btn.active .lesson-scheme-name {
+  color: var(--accent);
+}
+
+/* Редактор кастомных цветов */
+.custom-color-editor {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.custom-color-theme-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg3);
+  border-radius: 10px;
+}
+.custom-theme-tab {
+  flex: 1;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 7px;
+  font-family: inherit;
+  cursor: not-allowed;
+}
+.custom-theme-tab.active {
+  background: var(--bg2);
+  color: var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.custom-color-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.custom-color-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.custom-color-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+}
+.custom-color-input {
+  width: 100%;
+  height: 40px;
+  border: 2px solid var(--bg3);
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--bg2);
+  transition: border-color .2s;
+}
+.custom-color-input:hover {
+  border-color: var(--bg4);
+}
+.custom-color-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
 
 .settings-row-vis { transition: background .2s ease, box-shadow .2s ease; }
 .settings-row-vis.vis-row-show {
@@ -634,14 +875,14 @@ html.glass .filter-pill {
   border: 1px solid rgba(255,255,255,0.14);
 }
 html.glass .filter-pill.active {
-  background: #48cae4; border-color: #48cae4;
-  box-shadow: 0 0 16px rgba(72,202,228,0.35);
+  background: var(--accent); border-color: var(--accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 html.glass .week-separator-dot.odd  { box-shadow: 0 0 8px rgba(255,107,107,0.35); }
-html.glass .week-separator-dot.even { box-shadow: 0 0 8px rgba(72,202,228,0.35); }
+html.glass .week-separator-dot.even { box-shadow: 0 0 8px var(--accent); }
 html.glass .week-separator-line { background: rgba(255,255,255,0.14); }
-html.glass .day-hdr-title.today { text-shadow: 0 0 12px rgba(72,202,228,0.35); }
+html.glass .day-hdr-title.today { text-shadow: 0 0 12px var(--accent); }
 
 html.glass .lessons-block {
   background: rgba(255,255,255,0.07);
@@ -670,6 +911,25 @@ html.glass .no-card {
   box-shadow: 0 4px 24px rgba(0,0,0,0.1);
 }
 
+html.glass .no-card {
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.14); border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+
+html.glass .skeleton-block {
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+html.glass .skeleton-row + .skeleton-row::before { background: rgba(255,255,255,0.14); }
+html.glass .skeleton-line { background: rgba(255,255,255,0.11); }
+html.glass .skeleton-bar { background: rgba(255,255,255,0.11); }
+
 html.glass .cal-nav-btn {
   background: rgba(255,255,255,0.11);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -680,7 +940,7 @@ html.glass .cal-cell.today {
   border: 1px solid rgba(255,255,255,0.22);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
-html.glass .cal-cell.sel { box-shadow: 0 0 16px rgba(72,202,228,0.35); }
+html.glass .cal-cell.sel { box-shadow: 0 0 16px var(--accent); }
 
 html.glass .icon-btn {
   background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.14);
@@ -693,6 +953,14 @@ html.glass .settings-nav {
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255,255,255,0.14);
 }
+html.glass .settings-tabs {
+  background: rgba(18,18,28,0.8);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+}
+html.glass .settings-tab:hover {
+  background: rgba(255,255,255,0.07);
+}
 html.glass .settings-card {
   background: rgba(255,255,255,0.07);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -704,8 +972,9 @@ html.glass .theme-btn {
   backdrop-filter: blur(8px);
 }
 html.glass .theme-btn.active {
-  border-color: #48cae4; color: #48cae4;
-  background: rgba(72,202,228,.12); box-shadow: 0 0 12px rgba(72,202,228,0.35);
+  border-color: var(--accent); color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 html.glass .vis-btn {
   background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.14);
@@ -731,4 +1000,41 @@ html.glass .vis-btn.active-dim {
 }
 html.glass .vis-btn.active-hide {
   box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.45), 0 0 14px rgba(255, 107, 107, 0.2);
+}
+
+html.glass .lesson-scheme-btn {
+  background: rgba(255,255,255,0.11);
+  border: 2px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+html.glass .lesson-scheme-btn:hover {
+  border-color: rgba(255,255,255,0.22);
+}
+html.glass .lesson-scheme-btn.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent), 0 0 12px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+html.glass .custom-color-theme-tabs {
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+html.glass .custom-theme-tab.active {
+  background: rgba(255,255,255,0.11);
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+html.glass .custom-color-input {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+html.glass .custom-color-input:hover {
+  border-color: rgba(255,255,255,0.22);
+}
+html.glass .custom-color-input:focus {
+  border-color: var(--accent);
 }

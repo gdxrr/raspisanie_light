@@ -78,10 +78,33 @@
     </div>
 
     <template v-if="vm==='list'">
+      <!-- Skeleton loader при загрузке -->
+      <template v-if="loading && fDays.length===0">
+        <div v-for="i in 3" :key="'skeleton-'+i">
+          <div class="day-hdr">
+            <div class="skeleton-line w-40 h-16"></div>
+          </div>
+          <div class="skeleton-block">
+            <div v-for="j in 3" :key="'skeleton-row-'+j" class="skeleton-row">
+              <div class="skeleton-time">
+                <div class="skeleton-line w-100 h-20"></div>
+                <div class="skeleton-line w-100"></div>
+              </div>
+              <div class="skeleton-bar skeleton-line"></div>
+              <div class="skeleton-body">
+                <div class="skeleton-line w-20"></div>
+                <div class="skeleton-line w-80 h-16"></div>
+                <div class="skeleton-line w-40"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
       <div style="padding:20px 12px" v-if="!loading && fDays.length===0">
         <div class="no-card"><div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Пар нет</div><div class="no-sub">Заполните таблицу или проверьте подключение.</div></div>
       </div>
-      <div v-for="day in fDays" :key="day.dateStr+day.name">
+      <div v-for="day in fDays" :key="day.dateStr+day.name" v-show="!loading">
         <div class="week-separator" v-if="day.isWeekStart">
           <div class="week-separator-dot" :class="day.weekType"></div>
           <span class="week-separator-label">{{ day.weekType==='odd'?'Нечётная неделя':'Чётная неделя' }}</span>
@@ -188,54 +211,106 @@
         <span class="settings-nav-title">Настройки</span>
         <button type="button" class="icon-btn" aria-label="Закрыть" @click="vibrate(); showSettings=false"><span class="lucide-wrap lucide-wrap-settings-close" v-html="lucideIcon('x', 18)"></span></button>
       </div>
+
+      <div class="settings-tabs">
+        <button type="button" class="settings-tab" :class="{active: settingsTab==='schedule'}" @click="vibrate(); settingsTab='schedule'">
+          <span class="lucide-wrap" v-html="lucideIcon('calendar', 18)"></span>
+          <span>Расписание</span>
+        </button>
+        <button type="button" class="settings-tab" :class="{active: settingsTab==='appearance'}" @click="vibrate(); settingsTab='appearance'">
+          <span class="lucide-wrap" v-html="lucideIcon('palette', 18)"></span>
+          <span>Оформление</span>
+        </button>
+      </div>
+
       <div class="settings-body">
 
-        <div class="settings-section">
-          <div class="settings-section-title">Тема оформления</div>
-          <div class="settings-card">
-            <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:10px;">
-              <div class="settings-row-label">Тема</div>
-              <div class="theme-opts" style="width:100%">
-                <button type="button" class="theme-btn" :class="{active: theme==='dark'}"   @click="vibrate(); setTheme('dark')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('moon', 16)"></span> Тёмная</button>
-                <button type="button" class="theme-btn" :class="{active: theme==='light'}"  @click="vibrate(); setTheme('light')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('sun', 16)"></span> Светлая</button>
-                <button type="button" class="theme-btn" :class="{active: theme==='system'}" @click="vibrate(); setTheme('system')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('monitor-smartphone', 16)"></span> Авто</button>
-                <button type="button" class="theme-btn" :class="{active: theme==='glass'}" @click="vibrate(); setTheme('glass')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('sparkles', 16)"></span> Стекло</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="settings-section">
-          <div class="settings-section-title">Учёба</div>
-          <div class="settings-card">
-            <div class="settings-row settings-row-stack">
-              <div class="settings-row-label">ВУЦ</div>
-              <select class="vuc-select" :value="vucDay" @change="vibrate(); setVucDay($event.target.value)">
-                <option value="hide">Нет</option>
-                <option value="wed">Среда</option>
-                <option value="thu">Четверг</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="settings-section">
-          <div class="settings-section-title">Отображение пар</div>
-          <div class="settings-card">
-            <div v-if="scheduleVisList.length===0" class="settings-row">
-              <div class="settings-row-sub">Нет пар для настройки — загрузите расписание.</div>
-            </div>
-            <div v-for="l in scheduleVisList" :key="lessonKey(l)" class="settings-row settings-row-vis" :class="'vis-row-' + visModeLesson(l)">
-              <div class="settings-row-left">
-                <div class="settings-row-label" style="font-size:14px">{{ l.subject }}</div>
-                <div class="settings-row-sub">
-                  {{ l.day }} · {{ l.start }} · {{ wLbl(l.week) }}<template v-if="l.teacher"> · {{ l.teacher }}</template>
+        <div v-show="settingsTab==='appearance'">
+          <div class="settings-section">
+            <div class="settings-section-title">Тема оформления</div>
+            <div class="settings-card">
+              <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:10px;">
+                <div class="settings-row-label">Тема</div>
+                <div class="theme-opts" style="width:100%">
+                  <button type="button" class="theme-btn" :class="{active: theme==='dark'}"   @click="vibrate(); setTheme('dark')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('moon', 16)"></span> Тёмная</button>
+                  <button type="button" class="theme-btn" :class="{active: theme==='light'}"  @click="vibrate(); setTheme('light')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('sun', 16)"></span> Светлая</button>
+                  <button type="button" class="theme-btn" :class="{active: theme==='system'}" @click="vibrate(); setTheme('system')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('monitor-smartphone', 16)"></span> Авто</button>
+                  <button type="button" class="theme-btn" :class="{active: theme==='glass'}" @click="vibrate(); setTheme('glass')"><span class="lucide-wrap lucide-wrap-theme" v-html="lucideIcon('sparkles', 16)"></span> Стекло</button>
                 </div>
               </div>
-              <div class="vis-opts">
-                <button type="button" class="vis-btn" :class="{'active-show':  visModeLesson(l)==='show'}" @click="vibrate(); setVisLesson(l,'show')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye', 15)"></span></button>
-                <button type="button" class="vis-btn" :class="{'active-dim':   visModeLesson(l)==='dim'}"  @click="vibrate(); setVisLesson(l,'dim')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('sun-medium', 15)"></span></button>
-                <button type="button" class="vis-btn" :class="{'active-hide':  visModeLesson(l)==='hide'}" @click="vibrate(); setVisLesson(l,'hide')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye-off', 15)"></span></button>
+              <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:10px; border-top: 1px solid var(--sep); padding-top: 14px; margin-top: 4px;">
+                <div class="settings-row-label">Акцентный цвет</div>
+                <div class="accent-colors-grid">
+                  <button
+                    v-for="(colorData, colorKey) in accentColors"
+                    :key="colorKey"
+                    type="button"
+                    class="accent-color-btn"
+                    :class="{active: accentColor===colorKey}"
+                    :style="{backgroundColor: colorData.color}"
+                    @click="vibrate(); setAccentColor(colorKey)"
+                    :aria-label="colorData.name">
+                    <span class="accent-color-check" v-if="accentColor===colorKey">✓</span>
+                  </button>
+                </div>
+              </div>
+              <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:10px; border-top: 1px solid var(--sep); padding-top: 14px; margin-top: 4px;">
+                <div class="settings-row-label">Цвета пар</div>
+                <div class="lesson-scheme-grid">
+                  <button
+                    v-for="(schemeData, schemeKey) in lessonColorSchemes"
+                    :key="schemeKey"
+                    type="button"
+                    class="lesson-scheme-btn"
+                    :class="{active: lessonColorScheme===schemeKey}"
+                    @click="vibrate(); setLessonColorScheme(schemeKey)">
+                    <div class="lesson-scheme-preview">
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: schemeData.dark.lec}"></span>
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: schemeData.dark.lab}"></span>
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: schemeData.dark.prac}"></span>
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: schemeData.dark.kurs}"></span>
+                    </div>
+                    <span class="lesson-scheme-name">{{ schemeData.name }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-show="settingsTab==='schedule'">
+          <div class="settings-section">
+            <div class="settings-section-title">Учёба</div>
+            <div class="settings-card">
+              <div class="settings-row settings-row-stack">
+                <div class="settings-row-label">ВУЦ</div>
+                <select class="vuc-select" :value="vucDay" @change="vibrate(); setVucDay($event.target.value)">
+                  <option value="hide">Нет</option>
+                  <option value="wed">Среда</option>
+                  <option value="thu">Четверг</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">Отображение пар</div>
+            <div class="settings-card">
+              <div v-if="scheduleVisList.length===0" class="settings-row">
+                <div class="settings-row-sub">Нет пар для настройки — загрузите расписание.</div>
+              </div>
+              <div v-for="l in scheduleVisList" :key="lessonKey(l)" class="settings-row settings-row-vis" :class="'vis-row-' + visModeLesson(l)">
+                <div class="settings-row-left">
+                  <div class="settings-row-label" style="font-size:14px">{{ l.subject }}</div>
+                  <div class="settings-row-sub">
+                    {{ l.day }} · {{ l.start }} · {{ wLbl(l.week) }}<template v-if="l.teacher"> · {{ l.teacher }}</template>
+                  </div>
+                </div>
+                <div class="vis-opts">
+                  <button type="button" class="vis-btn" :class="{'active-show':  visModeLesson(l)==='show'}" @click="vibrate(); setVisLesson(l,'show')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye', 15)"></span></button>
+                  <button type="button" class="vis-btn" :class="{'active-dim':   visModeLesson(l)==='dim'}"  @click="vibrate(); setVisLesson(l,'dim')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('sun-medium', 15)"></span></button>
+                  <button type="button" class="vis-btn" :class="{'active-hide':  visModeLesson(l)==='hide'}" @click="vibrate(); setVisLesson(l,'hide')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye-off', 15)"></span></button>
+                </div>
               </div>
             </div>
           </div>

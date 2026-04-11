@@ -156,6 +156,8 @@ createApp({
     const settingsRaw = JSON.parse(localStorage.getItem('settings3') || '{}');
     const theme = ref(settingsRaw.theme || 'dark');
     const vucDay = ref(settingsRaw.vucDay || 'hide');
+    const accentColor = ref(settingsRaw.accentColor || 'blue');
+    const lessonColorScheme = ref(settingsRaw.lessonColorScheme || 'default');
     const visSettings = reactive(settingsRaw.vis || {});
 
     const meta0 = readSchMeta();
@@ -173,6 +175,8 @@ createApp({
       localStorage.setItem('settings3', JSON.stringify({
         theme: theme.value,
         vucDay: vucDay.value,
+        accentColor: accentColor.value,
+        lessonColorScheme: lessonColorScheme.value,
         vis: { ...visSettings },
       }));
     }
@@ -220,9 +224,136 @@ createApp({
         el.style.background = '#1c1c1e';
         el.style.colorScheme = 'dark';
       }
+      // Применить акцентный цвет после смены темы
+      setTimeout(() => {
+        applyAccentColor(accentColor.value);
+        applyLessonColorScheme(lessonColorScheme.value);
+      }, 0);
     }
     applyTheme(theme.value);
     function setTheme(t) { theme.value = t; applyTheme(t); saveSettings(); }
+
+    const accentColors = {
+      blue: { name: 'Синий', color: '#0a84ff', colorLight: '#007aff' },
+      purple: { name: 'Фиолетовый', color: '#bf5af2', colorLight: '#af52de' },
+      pink: { name: 'Розовый', color: '#ff375f', colorLight: '#ff2d55' },
+      green: { name: 'Зелёный', color: '#32d74b', colorLight: '#34c759' },
+      orange: { name: 'Оранжевый', color: '#ff9f0a', colorLight: '#ff9500' },
+      red: { name: 'Красный', color: '#ff453a', colorLight: '#ff3b30' },
+      teal: { name: 'Бирюзовый', color: '#64d2ff', colorLight: '#5ac8fa' },
+    };
+
+    const lessonColorSchemes = {
+      default: {
+        name: 'Классика',
+        dark: { lec: '#bf5af2', lab: '#32aaff', prac: '#ff9f0a', kurs: '#ff375f' },
+        light: { lec: '#9b59d4', lab: '#0a7aff', prac: '#c47a00', kurs: '#d63050' },
+        glass: { lec: '#c77dff', lab: '#48cae4', prac: '#ffb703', kurs: '#ff6b9d' }
+      },
+      warm: {
+        name: 'Тёплая',
+        dark: { lec: '#ff6b6b', lab: '#ffa500', prac: '#ffd93d', kurs: '#ff4757' },
+        light: { lec: '#ee5a6f', lab: '#ff8c00', prac: '#f4c430', kurs: '#ff3838' },
+        glass: { lec: '#ff7979', lab: '#ffb347', prac: '#ffe066', kurs: '#ff5e6c' }
+      },
+      cool: {
+        name: 'Холодная',
+        dark: { lec: '#4ecdc4', lab: '#45b7d1', prac: '#96ceb4', kurs: '#5f27cd' },
+        light: { lec: '#3bb5ad', lab: '#3498db', prac: '#7fb685', kurs: '#5f27cd' },
+        glass: { lec: '#5eddd3', lab: '#56c5e0', prac: '#a8dcc0', kurs: '#7c3aed' }
+      },
+      pastel: {
+        name: 'Пастель',
+        dark: { lec: '#b4a7d6', lab: '#92c9e8', prac: '#f4c2c2', kurs: '#d4a5a5' },
+        light: { lec: '#9b8fc4', lab: '#7ab8d9', prac: '#e0a8a8', kurs: '#c49393' },
+        glass: { lec: '#c4b5e8', lab: '#a5d8f5', prac: '#ffd4d4', kurs: '#e6b8b8' }
+      },
+      neon: {
+        name: 'Неон',
+        dark: { lec: '#ff00ff', lab: '#00ffff', prac: '#ffff00', kurs: '#ff0080' },
+        light: { lec: '#d400d4', lab: '#00d4d4', prac: '#d4d400', kurs: '#d40066' },
+        glass: { lec: '#ff33ff', lab: '#33ffff', prac: '#ffff33', kurs: '#ff3399' }
+      },
+      forest: {
+        name: 'Лес',
+        dark: { lec: '#6a994e', lab: '#52b788', prac: '#a7c957', kurs: '#bc6c25' },
+        light: { lec: '#588b3c', lab: '#40916c', prac: '#95b745', kurs: '#a35a1f' },
+        glass: { lec: '#7db05f', lab: '#63c99a', prac: '#b9d769', kurs: '#ce7d2f' }
+      }
+    };
+
+    function applyLessonColorScheme(schemeName) {
+      const scheme = lessonColorSchemes[schemeName];
+      if (!scheme) {
+        return;
+      }
+
+      const root = document.documentElement;
+      const currentTheme = theme.value;
+      let colors;
+
+      if (currentTheme === 'glass') {
+        colors = scheme.glass;
+      } else if (currentTheme === 'light') {
+        colors = scheme.light;
+      } else if (currentTheme === 'system') {
+        const isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        colors = isLight ? scheme.light : scheme.dark;
+      } else {
+        colors = scheme.dark;
+      }
+
+      root.style.setProperty('--lec', colors.lec, 'important');
+      root.style.setProperty('--lab', colors.lab, 'important');
+      root.style.setProperty('--prac', colors.prac, 'important');
+      root.style.setProperty('--kurs', colors.kurs, 'important');
+    }
+
+    function setLessonColorScheme(schemeName) {
+      lessonColorScheme.value = schemeName;
+      applyLessonColorScheme(schemeName);
+      saveSettings();
+    }
+
+    function applyAccentColor(color) {
+      const colorData = accentColors[color];
+      if (!colorData) return;
+      const root = document.documentElement;
+      const currentTheme = theme.value;
+      let isLight = false;
+
+      if (currentTheme === 'light') {
+        isLight = true;
+      } else if (currentTheme === 'system') {
+        isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      }
+
+      const accentValue = isLight ? colorData.colorLight : colorData.color;
+      root.style.setProperty('--accent', accentValue);
+    }
+
+    function setAccentColor(color) {
+      accentColor.value = color;
+      applyAccentColor(color);
+      saveSettings();
+    }
+
+    // Применить акцентный цвет после применения темы
+    watch(theme, () => {
+      applyAccentColor(accentColor.value);
+      applyLessonColorScheme(lessonColorScheme.value);
+    });
+
+    // Слушатель для system темы
+    if (window.matchMedia) {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
+      mediaQuery.addEventListener('change', () => {
+        if (theme.value === 'system') {
+          applyAccentColor(accentColor.value);
+          applyLessonColorScheme(lessonColorScheme.value);
+        }
+      });
+    }
 
     function filterVUC(lessons) {
       if (vucDay.value === 'hide') return lessons.filter(l => l.subject !== 'ВУЦ');
@@ -234,6 +365,7 @@ createApp({
     const fil = ref('all');
     const cwt = computed(() => wt(today.value));
     const showSettings = ref(false);
+    const settingsTab = ref('schedule');
 
     function tfl(t) { return { lec: 'Лекция', lab: 'Лабораторная работа', prac: 'Практика', kurs: 'Курсовая' }[t] || t; }
     function barClass(l) {
@@ -521,6 +653,9 @@ createApp({
       if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
         navigator.serviceWorker.register('sw.js').catch(() => {});
       }
+      // Применить акцентный цвет после монтирования
+      applyAccentColor(accentColor.value);
+      applyLessonColorScheme(lessonColorScheme.value);
     });
 
     watch(showSettings, (open) => {
@@ -538,7 +673,9 @@ createApp({
       schedule: sch, scheduleVisList, vm, fil, cwt,
       tfl, wLbl, pN, visModeLesson, setVisLesson, barClass, lTypeClass,
       fDays,
-      showSettings, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
+      showSettings, settingsTab, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
+      accentColor, setAccentColor, accentColors,
+      lessonColorScheme, setLessonColorScheme, lessonColorSchemes,
       calM, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
       loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,
