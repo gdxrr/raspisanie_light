@@ -366,11 +366,20 @@ createApp({
     const cwt = computed(() => wt(today.value));
     const showSettings = ref(false);
     const settingsTab = ref('schedule');
+    const selectedLesson = ref(null);
 
     function tfl(t) { return { lec: 'Лекция', lab: 'Лабораторная работа', prac: 'Практика', kurs: 'Курсовая' }[t] || t; }
     function barClass(l) {
       if (l.type === 'lec' && l.subject === 'ВУЦ') return 'lec-vuc';
       return l.type;
+    }
+    function roomPhotoPath(room) {
+      if (!room) return null;
+      // Извлекаем номер аудитории после символа |
+      const parts = room.split('|');
+      const roomNum = parts.length > 1 ? parts[1].trim() : room.trim();
+      if (!roomNum) return null;
+      return `photo_aud/${roomNum}.PNG`;
     }
     function lTypeClass(l) {
       if (l.type === 'lec' && l.subject === 'ВУЦ') return 'lec-vuc';
@@ -673,7 +682,7 @@ createApp({
       schedule: sch, scheduleVisList, vm, fil, cwt,
       tfl, wLbl, pN, visModeLesson, setVisLesson, barClass, lTypeClass,
       fDays,
-      showSettings, settingsTab, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
+      showSettings, settingsTab, selectedLesson, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
       accentColor, setAccentColor, accentColors,
       lessonColorScheme, setLessonColorScheme, lessonColorSchemes,
       calM, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
@@ -683,6 +692,7 @@ createApp({
       vucRemainderLine,
       vucRemainderForDate,
       vibrate,
+      roomPhotoPath,
     };
   },
 }).mount('#app');

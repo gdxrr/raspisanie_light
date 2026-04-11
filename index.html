@@ -125,7 +125,7 @@
         </div>
         <div v-else class="lessons-block">
           <template v-for="l in day.visibleLessons" :key="lessonKey(l)">
-            <div class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}">
+            <div class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l">
               <div class="time-col">
                 <div class="time-start">{{ l.start }}</div>
                 <div class="pair-num">{{ pN(l.start) }}</div>
@@ -183,7 +183,7 @@
           <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Пар нет</div><div class="no-sub">Можно спать спокойно!</div>
         </div>
         <div class="lessons-block" v-else>
-          <div v-for="l in selL" :key="lessonKey(l)" class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}">
+          <div v-for="l in selL" :key="lessonKey(l)" class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l">
             <div class="time-col">
               <div class="time-start">{{ l.start }}</div>
               <div class="pair-num">{{ pN(l.start) }}</div>
@@ -225,9 +225,10 @@
 
       <div class="settings-body">
 
-        <div v-show="settingsTab==='appearance'">
-          <div class="settings-section">
-            <div class="settings-section-title">Тема оформления</div>
+        <transition name="settings-tab-fade" mode="out-in">
+          <div v-if="settingsTab==='appearance'" key="appearance">
+            <div class="settings-section">
+              <div class="settings-section-title">Тема оформления</div>
             <div class="settings-card">
               <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:10px;">
                 <div class="settings-row-label">Тема</div>
@@ -277,10 +278,12 @@
             </div>
           </div>
         </div>
+        </transition>
 
-        <div v-show="settingsTab==='schedule'">
-          <div class="settings-section">
-            <div class="settings-section-title">Учёба</div>
+        <transition name="settings-tab-fade" mode="out-in">
+          <div v-if="settingsTab==='schedule'" key="schedule">
+            <div class="settings-section">
+              <div class="settings-section-title">Учёба</div>
             <div class="settings-card">
               <div class="settings-row settings-row-stack">
                 <div class="settings-row-label">ВУЦ</div>
@@ -315,7 +318,45 @@
             </div>
           </div>
         </div>
+        </transition>
 
+      </div>
+    </div>
+  </transition>
+
+  <transition name="modal-fade">
+    <div class="lesson-modal-overlay" v-if="selectedLesson" @click="vibrate(); selectedLesson=null">
+      <div class="lesson-modal" @click.stop>
+        <div class="lesson-modal-header">
+          <div class="lesson-modal-type" :class="lTypeClass(selectedLesson)">{{ tfl(selectedLesson.type) }}</div>
+          <button type="button" class="lesson-modal-close" @click="vibrate(); selectedLesson=null" aria-label="Закрыть">
+            <span class="lucide-wrap" v-html="lucideIcon('x', 20)"></span>
+          </button>
+        </div>
+        <div class="lesson-modal-body">
+          <h2 class="lesson-modal-subject">{{ selectedLesson.subject }}</h2>
+          <div class="lesson-modal-photo" v-if="selectedLesson.room && roomPhotoPath(selectedLesson.room)">
+            <img :src="roomPhotoPath(selectedLesson.room)" :alt="'Аудитория ' + selectedLesson.room" loading="lazy" @error="$event.target.parentElement.style.display='none'">
+          </div>
+          <div class="lesson-modal-info">
+            <div class="lesson-modal-info-row" v-if="selectedLesson.teacher">
+              <span class="lucide-wrap" v-html="lucideIcon('user', 18)"></span>
+              <span>{{ selectedLesson.teacher }}</span>
+            </div>
+            <div class="lesson-modal-info-row" v-if="selectedLesson.room">
+              <span class="lucide-wrap" v-html="lucideIcon('map-pin', 18)"></span>
+              <span>{{ selectedLesson.room }}</span>
+            </div>
+            <div class="lesson-modal-info-row">
+              <span class="lucide-wrap" v-html="lucideIcon('clock', 18)"></span>
+              <span>{{ selectedLesson.start }} — {{ selectedLesson.end }}</span>
+            </div>
+            <div class="lesson-modal-info-row">
+              <span class="lucide-wrap" v-html="lucideIcon('calendar', 18)"></span>
+              <span>{{ selectedLesson.day }} · {{ wLbl(selectedLesson.week) }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </transition>
