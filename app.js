@@ -387,6 +387,13 @@ createApp({
       const parts = room.split('|');
       const roomNum = parts.length > 1 ? parts[1].trim() : room.trim();
       if (!roomNum) return null;
+
+      // Проверяем, есть ли упоминание корпуса Гастелло
+      const fullRoom = room.toLowerCase();
+      if (fullRoom.includes('гастелло') || fullRoom.includes('gast')) {
+        return `photo_aud/gast ${roomNum}.PNG`;
+      }
+
       return `photo_aud/${roomNum}.PNG`;
     }
     function lTypeClass(l) {
@@ -619,7 +626,13 @@ createApp({
         timedOut = true;
         loadAbort.abort();
       }, FETCH_TIMEOUT_MS);
-      loading.value = true;
+
+      // Показываем загрузку только если нет кэша
+      const hasCache = sch.value.length > 0;
+      if (!hasCache) {
+        loading.value = true;
+      }
+
       try {
         const rows = await fetchRowsFromConfig(cfg, { signal });
         if (seq !== loadSeq) return;
@@ -686,6 +699,265 @@ createApp({
       if (loadAbort) loadAbort.abort();
     });
 
+    // === Поиск групп ===
+    const showGroupSearch = ref(false);
+    const searchQuery = ref('');
+    const searchResults = ref([]);
+    const searchLoading = ref(false);
+    const searchError = ref('');
+    const selectedSearchGroup = ref(null);
+    const groupScheduleData = ref(null);
+    const groupScheduleLoading = ref(false);
+    const groupScheduleError = ref('');
+    const favoriteGroups = ref([]);
+    const searchInput = ref(null);
+
+    // Кэш для поиска групп и расписаний
+    const GROUPS_CACHE_KEY = 'groupsCache';
+    const SCHEDULE_CACHE_KEY_PREFIX = 'scheduleCache_';
+    const FAVORITES_KEY = 'favoriteGroups';
+    const CACHE_DURATION = 60 * 60 * 1000; // 1 час
+
+    // Загрузка избранного из localStorage
+    function loadFavorites() {
+      try {
+        const stored = localStorage.getItem(FAVORITES_KEY);
+        if (stored) {
+          favoriteGroups.value = JSON.parse(stored);
+        }
+      } catch (e) {
+        console.error('Error loading favorites:', e);
+      }
+    }
+
+    function saveFavorites() {
+      try {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteGroups.value));
+      } catch (e) {
+        console.error('Error saving favorites:', e);
+      }
+    }
+
+    function isFavorite(groupId) {
+      return favoriteGroups.value.some(f => f.id === groupId);
+    }
+
+    function toggleFavorite(group) {
+      const idx = favoriteGroups.value.findIndex(f => f.id === group.id);
+      if (idx >= 0) {
+        favoriteGroups.value.splice(idx, 1);
+      } else {
+        favoriteGroups.value.push({ id: group.id, name: group.name });
+      }
+      saveFavorites();
+    }
+
+    function removeFavorite(groupId) {
+      const idx = favoriteGroups.value.findIndex(f => f.id === groupId);
+      if (idx >= 0) {
+        favoriteGroups.value.splice(idx, 1);
+        saveFavorites();
+      }
+    }
+
+    // Получение кэша
+    function getCache(key) {
+      try {
+        const cached = localStorage.getItem(key);
+        if (!cached) return null;
+        const data = JSON.parse(cached);
+        if (Date.now() - data.timestamp > CACHE_DURATION) {
+          localStorage.removeItem(key);
+          return null;
+        }
+        return data.value;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function setCache(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify({
+          value,
+          timestamp: Date.now()
+        }));
+      } catch (e) {
+        console.error('Cache error:', e);
+      }
+    }
+
+    let searchTimeout = null;
+    async function handleSearchInput() {
+      if (searchTimeout) clearTimeout(searchTimeout);
+
+      const query = searchQuery.value.trim();
+      if (!query) {
+        searchResults.value = [];
+        return;
+      }
+
+      searchTimeout = setTimeout(async () => {
+        await searchGroups(query);
+      }, 300);
+    }
+
+    async function searchGroups(query) {
+      searchLoading.value = true;
+      searchError.value = '';
+
+      try {
+        // Проверяем кэш
+        const cached = getCache(GROUPS_CACHE_KEY);
+        let allGroups = cached;
+
+        if (!allGroups) {
+          // Запрос к API
+          const response = await fetch(`/api/schedule?action=search&query=`);
+          if (!response.ok) throw new Error('Ошибка загрузки списка групп');
+          const data = await response.json();
+          if (!data.success) throw new Error(data.error || 'Ошибка API');
+          allGroups = data.groups;
+          setCache(GROUPS_CACHE_KEY, allGroups);
+        }
+
+        // Фильтруем локально
+        const filtered = allGroups.filter(g =>
+          g.name.toLowerCase().includes(query.toLowerCase())
+        );
+        searchResults.value = filtered.slice(0, 20);
+      } catch (e) {
+        searchError.value = e.message || 'Ошибка поиска';
+        searchResults.value = [];
+      } finally {
+        searchLoading.value = false;
+      }
+    }
+
+    async function loadGroupSchedule(groupId, groupName) {
+      selectedSearchGroup.value = { id: groupId, name: groupName };
+      groupScheduleLoading.value = true;
+      groupScheduleError.value = '';
+      groupScheduleData.value = null;
+
+      try {
+        // Проверяем кэш
+        const cacheKey = SCHEDULE_CACHE_KEY_PREFIX + groupId;
+        const cached = getCache(cacheKey);
+
+        if (cached) {
+          groupScheduleData.value = cached;
+          groupScheduleLoading.value = false;
+          return;
+        }
+
+        // Запрос к API
+        const response = await fetch(`/api/schedule?action=schedule&groupId=${groupId}`);
+        if (!response.ok) throw new Error('Ошибка загрузки расписания');
+        const data = await response.json();
+        if (!data.success) throw new Error(data.error || 'Ошибка API');
+
+        groupScheduleData.value = data.schedule;
+        setCache(cacheKey, data.schedule);
+      } catch (e) {
+        groupScheduleError.value = e.message || 'Ошибка загрузки расписания';
+      } finally {
+        groupScheduleLoading.value = false;
+      }
+    }
+
+    const groupScheduleDays = computed(() => {
+      if (!groupScheduleData.value) return [];
+
+      const dayOrder = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+      const grouped = {};
+
+      groupScheduleData.value.lessons.forEach(lesson => {
+        if (!grouped[lesson.day]) {
+          grouped[lesson.day] = [];
+        }
+        grouped[lesson.day].push(lesson);
+      });
+
+      return dayOrder
+        .filter(day => grouped[day])
+        .map(day => ({
+          name: day,
+          lessons: grouped[day].sort((a, b) => a.pairNum - b.pairNum)
+        }));
+    });
+
+    function barClassForType(type) {
+      const normalized = type.toLowerCase();
+      if (normalized.includes('лек')) return 'lec';
+      if (normalized.includes('лаб')) return 'lab';
+      if (normalized.includes('практ')) return 'prac';
+      if (normalized.includes('курс')) return 'kurs';
+      return 'lec';
+    }
+
+    function lTypeClassForType(type) {
+      return barClassForType(type);
+    }
+
+    function closeGroupSearch() {
+      showGroupSearch.value = false;
+      searchQuery.value = '';
+      searchResults.value = [];
+      selectedSearchGroup.value = null;
+      groupScheduleData.value = null;
+      searchError.value = '';
+      groupScheduleError.value = '';
+    }
+
+    // Touch handling для свайпа вниз
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    function handleSearchTouchStart(e) {
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+    }
+
+    function handleSearchTouchMove(e) {
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchY - touchStartY;
+
+      // Если свайп вниз и модальное окно прокручено вверх
+      if (deltaY > 0) {
+        const modal = e.currentTarget;
+        if (modal.scrollTop === 0) {
+          // Можно добавить визуальный эффект следования
+        }
+      }
+    }
+
+    function handleSearchTouchEnd(e) {
+      const touchEndY = e.changedTouches[0].clientY;
+      const deltaY = touchEndY - touchStartY;
+      const deltaTime = Date.now() - touchStartTime;
+
+      // Если быстрый свайп вниз больше 100px
+      if (deltaY > 100 && deltaTime < 300) {
+        closeGroupSearch();
+      }
+    }
+
+    // Автофокус на поле поиска при открытии
+    watch(showGroupSearch, (newVal) => {
+      if (newVal) {
+        setTimeout(() => {
+          if (searchInput.value) {
+            searchInput.value.focus();
+          }
+        }, 300);
+      }
+    });
+
+    // Загрузка избранного при монтировании
+    onMounted(() => {
+      loadFavorites();
+    });
+
     return {
       schedule: sch, scheduleVisList, vm, fil, cwt,
       tfl, wLbl, pN, visModeLesson, setVisLesson, barClass, lTypeClass,
@@ -697,6 +969,14 @@ createApp({
       loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,
       lessonKey: lessonStableKey,
+      // Поиск групп
+      showGroupSearch, searchQuery, searchResults, searchLoading, searchError,
+      selectedSearchGroup, groupScheduleData, groupScheduleLoading, groupScheduleError,
+      favoriteGroups, searchInput,
+      handleSearchInput, loadGroupSchedule, closeGroupSearch,
+      isFavorite, toggleFavorite, removeFavorite,
+      groupScheduleDays, barClassForType, lTypeClassForType,
+      handleSearchTouchStart, handleSearchTouchMove, handleSearchTouchEnd,
       vucRemainderLine,
       vucRemainderForDate,
       vibrate,

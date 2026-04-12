@@ -353,7 +353,6 @@ html.light .header-lk-icon { filter: invert(1); }
     transform: translateY(10px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
@@ -626,6 +625,20 @@ html.light .vuc-select option { background: #fff; color: #000; }
   font-size: 14px;
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+
+/* Адаптивность для акцентных цветов на узких экранах */
+@media (max-width: 380px) {
+  .accent-colors-grid {
+    gap: 10px;
+  }
+  .accent-color-btn {
+    width: 28px;
+    height: 28px;
+  }
+  .accent-color-check {
+    font-size: 12px;
+  }
 }
 
 /* Цветовые схемы пар */
