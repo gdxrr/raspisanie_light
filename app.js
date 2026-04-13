@@ -158,6 +158,7 @@ createApp({
     const vucDay = ref(settingsRaw.vucDay || 'hide');
     const accentColor = ref(settingsRaw.accentColor || 'blue');
     const lessonColorScheme = ref(settingsRaw.lessonColorScheme || 'default');
+    const glassBackground = ref(settingsRaw.glassBackground || 'aurora');
     const visSettings = reactive(settingsRaw.vis || {});
 
     const meta0 = readSchMeta();
@@ -177,6 +178,7 @@ createApp({
         vucDay: vucDay.value,
         accentColor: accentColor.value,
         lessonColorScheme: lessonColorScheme.value,
+        glassBackground: glassBackground.value,
         vis: { ...visSettings },
       }));
     }
@@ -220,6 +222,7 @@ createApp({
       } else if (t === 'glass') {
         el.style.background = '#12121c';
         el.style.colorScheme = 'dark';
+        applyGlassBackground(glassBackground.value);
       } else {
         el.style.background = '#1c1c1e';
         el.style.colorScheme = 'dark';
@@ -232,6 +235,36 @@ createApp({
     }
     applyTheme(theme.value);
     function setTheme(t) { theme.value = t; applyTheme(t); saveSettings(); }
+
+    const glassBackgrounds = {
+      aurora: { name: 'Аврора' },
+      sunset: { name: 'Закат' },
+      ocean: { name: 'Океан' },
+      forest: { name: 'Лес' },
+      rose: { name: 'Роза' },
+      minimal: { name: 'Минимал' },
+    };
+
+    function applyGlassBackground(bg) {
+      const el = document.documentElement;
+      if (theme.value !== 'glass') return;
+
+      // Удаляем все классы фонов
+      Object.keys(glassBackgrounds).forEach(key => {
+        el.classList.remove('glass-bg-' + key);
+      });
+
+      // Добавляем нужный класс
+      if (bg && glassBackgrounds[bg]) {
+        el.classList.add('glass-bg-' + bg);
+      }
+    }
+
+    function setGlassBackground(bg) {
+      glassBackground.value = bg;
+      applyGlassBackground(bg);
+      saveSettings();
+    }
 
     const accentColors = {
       blue: { name: 'Синий', color: '#0a84ff', colorLight: '#007aff' },
@@ -965,6 +998,7 @@ createApp({
       showSettings, settingsTab, selectedLesson, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
       accentColor, setAccentColor, accentColors,
       lessonColorScheme, setLessonColorScheme, lessonColorSchemes,
+      glassBackground, setGlassBackground, glassBackgrounds,
       calM, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
       loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,

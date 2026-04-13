@@ -690,6 +690,92 @@ html.light .vuc-select option { background: #fff; color: #000; }
   color: var(--accent);
 }
 
+/* Фоны для glass темы */
+.glass-bg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+.glass-bg-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 2px solid var(--bg3);
+  background: var(--bg3);
+  cursor: pointer;
+  transition: all .2s ease;
+  font-family: inherit;
+}
+.glass-bg-btn:hover {
+  border-color: var(--bg4);
+  transform: translateY(-2px);
+}
+.glass-bg-btn.active {
+  border-color: var(--accent);
+  background: rgba(10,132,255,.08);
+  box-shadow: 0 0 0 2px rgba(10,132,255,.15);
+}
+.glass-bg-preview {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  background: #12121c;
+}
+.glass-bg-preview::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.glass-bg-preview-aurora::before {
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(120,80,255,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 20%, rgba(72,202,228,0.3) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 50% 80%, rgba(199,125,255,0.25) 0%, transparent 60%);
+}
+.glass-bg-preview-sunset::before {
+  background:
+    radial-gradient(ellipse 55% 45% at 15% 15%, rgba(255,107,107,0.32) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 85% 25%, rgba(255,159,10,0.28) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 55% at 50% 85%, rgba(255,55,95,0.24) 0%, transparent 58%);
+}
+.glass-bg-preview-ocean::before {
+  background:
+    radial-gradient(ellipse 65% 55% at 25% 20%, rgba(50,170,255,0.32) 0%, transparent 62%),
+    radial-gradient(ellipse 55% 60% at 75% 15%, rgba(72,202,228,0.28) 0%, transparent 58%),
+    radial-gradient(ellipse 45% 50% at 50% 80%, rgba(95,90,255,0.22) 0%, transparent 55%);
+}
+.glass-bg-preview-forest::before {
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 15%, rgba(106,153,78,0.3) 0%, transparent 58%),
+    radial-gradient(ellipse 50% 55% at 80% 25%, rgba(82,183,136,0.26) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 50% at 45% 85%, rgba(167,201,87,0.24) 0%, transparent 57%);
+}
+.glass-bg-preview-rose::before {
+  background:
+    radial-gradient(ellipse 58% 52% at 18% 12%, rgba(255,107,157,0.32) 0%, transparent 60%),
+    radial-gradient(ellipse 52% 58% at 82% 18%, rgba(199,125,255,0.28) 0%, transparent 58%),
+    radial-gradient(ellipse 48% 52% at 50% 82%, rgba(255,55,95,0.22) 0%, transparent 56%);
+}
+.glass-bg-preview-minimal::before {
+  background:
+    radial-gradient(ellipse 70% 60% at 30% 20%, rgba(255,255,255,0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 70% at 70% 30%, rgba(255,255,255,0.08) 0%, transparent 60%);
+}
+.glass-bg-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+}
+.glass-bg-btn.active .glass-bg-name {
+  color: var(--accent);
+}
+
 /* Редактор кастомных цветов */
 .custom-color-editor {
   width: 100%;
@@ -864,7 +950,51 @@ html.glass body::before {
     radial-gradient(ellipse 50% 60% at 80% 20%, rgba(72,202,228,0.15) 0%, transparent 60%),
     radial-gradient(ellipse 40% 50% at 50% 80%, rgba(199,125,255,0.12) 0%, transparent 60%);
   pointer-events: none;
+  transition: background 0.8s ease;
 }
+
+/* Варианты фонов для glass темы */
+html.glass.glass-bg-aurora body::before {
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(120,80,255,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 20%, rgba(72,202,228,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 50% 80%, rgba(199,125,255,0.12) 0%, transparent 60%);
+}
+
+html.glass.glass-bg-sunset body::before {
+  background:
+    radial-gradient(ellipse 55% 45% at 15% 15%, rgba(255,107,107,0.16) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 85% 25%, rgba(255,159,10,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 55% at 50% 85%, rgba(255,55,95,0.12) 0%, transparent 58%);
+}
+
+html.glass.glass-bg-ocean body::before {
+  background:
+    radial-gradient(ellipse 65% 55% at 25% 20%, rgba(50,170,255,0.16) 0%, transparent 62%),
+    radial-gradient(ellipse 55% 60% at 75% 15%, rgba(72,202,228,0.14) 0%, transparent 58%),
+    radial-gradient(ellipse 45% 50% at 50% 80%, rgba(95,90,255,0.11) 0%, transparent 55%);
+}
+
+html.glass.glass-bg-forest body::before {
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 15%, rgba(106,153,78,0.15) 0%, transparent 58%),
+    radial-gradient(ellipse 50% 55% at 80% 25%, rgba(82,183,136,0.13) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 50% at 45% 85%, rgba(167,201,87,0.12) 0%, transparent 57%);
+}
+
+html.glass.glass-bg-rose body::before {
+  background:
+    radial-gradient(ellipse 58% 52% at 18% 12%, rgba(255,107,157,0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 52% 58% at 82% 18%, rgba(199,125,255,0.14) 0%, transparent 58%),
+    radial-gradient(ellipse 48% 52% at 50% 82%, rgba(255,55,95,0.11) 0%, transparent 56%);
+}
+
+html.glass.glass-bg-minimal body::before {
+  background:
+    radial-gradient(ellipse 70% 60% at 30% 20%, rgba(255,255,255,0.06) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 70% at 70% 30%, rgba(255,255,255,0.04) 0%, transparent 60%);
+}
+
 html.glass #app { position: relative; z-index: 1; }
 
 html.glass .header {
@@ -1049,6 +1179,21 @@ html.glass .lesson-scheme-btn:hover {
   border-color: rgba(255,255,255,0.22);
 }
 html.glass .lesson-scheme-btn.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent), 0 0 12px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+html.glass .glass-bg-btn {
+  background: rgba(255,255,255,0.11);
+  border: 2px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+html.glass .glass-bg-btn:hover {
+  border-color: rgba(255,255,255,0.22);
+}
+html.glass .glass-bg-btn.active {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent), 0 0 12px color-mix(in srgb, var(--accent) 35%, transparent);
