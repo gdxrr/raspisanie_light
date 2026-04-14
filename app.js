@@ -1,27 +1,16 @@
 const { createApp, ref, computed, reactive, onMounted, onUnmounted, watch } = Vue;
 
-const SCH_META_KEY = 'sch3_meta';
 const FETCH_TIMEOUT_MS = 20000;
 
-function readSchMeta() {
-  try {
-    return JSON.parse(localStorage.getItem(SCH_META_KEY) || '{}');
-  } catch (_) {
-    return {};
-  }
-}
-
-function writeSchMeta(partial) {
-  const cur = readSchMeta();
-  localStorage.setItem(SCH_META_KEY, JSON.stringify({ ...cur, ...partial }));
-}
-
 const DAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-const DOW = { 'Понедельник': 1, 'Вторник': 2, 'Среда': 3, 'Четверг': 4, 'Пятница': 5, 'Суббота': 6, 'Воскресенье': 0 };
-const MG = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const MN = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
 
-const PAIR_TIMES = { '8:30': 0, '9:30': 1, '11:10': 2, '13:00': 3, '15:10': 4, '17:00': 5, '18:40': 6 };
+function monthGenitive(monthIndex) {
+  const nominative = MN[monthIndex] || '';
+  if (!nominative) return '';
+  if (nominative.endsWith('ь') || nominative.endsWith('й')) return nominative.slice(0, -1) + 'я';
+  return nominative + 'а';
+}
 
 function aWeek(d) {
   let y = d.getFullYear();
@@ -77,39 +66,64 @@ function normalizeTime(v) {
 }
 
 function normalizeType(v) {
-  const s = String(v || '').toLowerCase().trim();
-  const map = {
-    lec: 'lec', lecture: 'lec', лек: 'lec', лекция: 'lec',
-    lab: 'lab', laboratory: 'lab', лаб: 'lab', 'лаб.': 'lab', 'лабораторная': 'lab',
-    prac: 'prac', practice: 'prac', практика: 'prac', прак: 'prac',
-    kurs: 'kurs', course: 'kurs', курсовая: 'kurs',
-  };
-  return map[s] || (['lec', 'lab', 'prac', 'kurs'].includes(s) ? s : '');
+  const s = String(v || '').trim().toLowerCase();
+  if (!s) return '';
+  if (s === 'лекция') return 'lec';
+  if (s === 'лабораторная работа') return 'lab';
+  if (s === 'практика') return 'prac';
+  if (s === 'курсовая работа') return 'kurs';
+  return '';
 }
 
 function normalizeWeek(v) {
-  const s = String(v || '').toLowerCase().trim();
-  if (['both', 'обе', 'все', 'любая', 'any'].includes(s)) return 'both';
-  if (['odd', 'нечёт', 'нечет', 'нечётная', 'нечетная'].includes(s)) return 'odd';
-  if (['even', 'чёт', 'чет', 'чётная', 'четная'].includes(s)) return 'even';
+  const s = String(v || '').trim().toLowerCase();
+  if (!s || s === 'обе') return 'both';
+  if (s === 'нечётная') return 'odd';
+  if (s === 'чётная') return 'even';
   return 'both';
 }
 
+function getObjectField(obj, keys) {
+  for (const k of keys) {
+    if (obj[k] !== undefined && obj[k] !== null) return obj[k];
+  }
+  return '';
+}
+
 function rowToLesson(row, sheetRowIndex) {
-  if (!row || !row.length) return null;
-  const idRaw = row[0];
-  const day = String(row[1] ?? '').trim();
-  const start = normalizeTime(row[2]);
-  const end = normalizeTime(row[3]);
-  const type = normalizeType(row[4]);
-  const subject = String(row[5] ?? '').trim();
-  const room = String(row[6] ?? '').trim();
-  const teacher = String(row[7] ?? '').trim();
-  const week = normalizeWeek(row[8]);
+  if (!row) return null;
+  const isArrayRow = Array.isArray(row);
+  const hasArrayData = isArrayRow && row.length > 0;
+  const hasObjectData = !isArrayRow && typeof row === 'object' && Object.keys(row).length > 0;
+  if (!hasArrayData && !hasObjectData) return null;
+
+  const idRaw = isArrayRow ? '' : getObjectField(row, ['id', 'ID', 'Id']);
+  const dayRaw = isArrayRow ? row[0] : getObjectField(row, ['day', 'день']);
+  const pairRaw = isArrayRow ? row[1] : getObjectField(row, ['pair', 'pairNum', 'номер пары', 'пара']);
+  const startRaw = isArrayRow ? row[2] : getObjectField(row, ['start', 'startTime', 'начало']);
+  const endRaw = isArrayRow ? row[3] : getObjectField(row, ['end', 'endTime', 'конец']);
+  const typeRaw = isArrayRow ? row[4] : getObjectField(row, ['type', 'тип']);
+  const subjectRaw = isArrayRow ? row[5] : getObjectField(row, ['subject', 'дисциплина', 'предмет']);
+  const roomRaw = isArrayRow ? row[6] : getObjectField(row, ['room', 'аудитория', 'кабинет']);
+  const roomSchemeUrlRaw = isArrayRow ? row[7] : getObjectField(row, ['roomSchemeUrl', 'roomPhotoUrl', 'схема', 'ссылка']);
+  const teacherRaw = isArrayRow ? row[8] : getObjectField(row, ['teacher', 'преподаватель']);
+  const weekRaw = isArrayRow ? row[9] : getObjectField(row, ['week', 'неделя']);
+
+  const day = String(dayRaw ?? '').trim();
+  let start = normalizeTime(startRaw);
+  let end = normalizeTime(endRaw);
+  let type = normalizeType(typeRaw);
+  const subject = String(subjectRaw ?? '').trim();
+  const room = String(roomRaw ?? '').trim();
+  const roomSchemeUrl = String(roomSchemeUrlRaw ?? '').trim();
+  const teacher = String(teacherRaw ?? '').trim();
+  const week = normalizeWeek(weekRaw);
+
+  const pairNum = Number(pairRaw) || null;
   if (!day || !start || !end || !type || !subject) return null;
   const idNum = Number(idRaw);
   const id = Number.isFinite(idNum) && idNum > 0 ? idNum : sheetRowIndex;
-  return { id, day, start, end, type, subject, room, teacher, week };
+  return { id, day, start, end, type, subject, room, roomSchemeUrl, teacher, week, pairNum };
 }
 
 function parseSheetValues(rows) {
@@ -129,6 +143,10 @@ async function fetchRowsFromConfig(cfg, fetchOpts) {
   if (Array.isArray(j)) return j;
   if (j.values && Array.isArray(j.values)) return j.values;
   if (j.rows && Array.isArray(j.rows)) return j.rows;
+  if (j.data && Array.isArray(j.data)) return j.data;
+  if (j.data && j.data.rows && Array.isArray(j.data.rows)) return j.data.rows;
+  if (j.data && j.data.values && Array.isArray(j.data.values)) return j.data.values;
+  if (j.result && Array.isArray(j.result)) return j.result;
   throw new Error('Web App: ожидался массив или { values: [...] }');
 }
 
@@ -141,10 +159,18 @@ createApp({
     }
 
     const sch = ref([]);
+    let fetchedAt = '';
     try {
       const s = localStorage.getItem('sch3');
       const d = s ? JSON.parse(s) : null;
-      if (Array.isArray(d)) {
+      if (d && Array.isArray(d.lessons)) {
+        sch.value = d.lessons.map((l) => ({
+          ...l,
+          start: normalizeTime(l.start),
+          end: normalizeTime(l.end),
+        }));
+        fetchedAt = d.fetchedAt || '';
+      } else if (Array.isArray(d)) {
         sch.value = d.map((l) => ({
           ...l,
           start: normalizeTime(l.start),
@@ -160,9 +186,6 @@ createApp({
     const lessonColorScheme = ref(settingsRaw.lessonColorScheme || 'default');
     const glassBackground = ref(settingsRaw.glassBackground || 'aurora');
     const visSettings = reactive(settingsRaw.vis || {});
-
-    const meta0 = readSchMeta();
-    const lastFetchedAt = ref(typeof meta0.fetchedAt === 'string' ? meta0.fetchedAt : '');
 
     const loading = ref(false);
     const loadError = ref('');
@@ -223,12 +246,10 @@ createApp({
       const el = document.documentElement;
       if (theme.value !== 'glass') return;
 
-      // Удаляем все классы фонов
       Object.keys(glassBackgrounds).forEach(key => {
         el.classList.remove('glass-bg-' + key);
       });
 
-      // Добавляем нужный класс
       if (bg && glassBackgrounds[bg]) {
         el.classList.add('glass-bg-' + bg);
       }
@@ -257,7 +278,6 @@ createApp({
         el.style.background = '#1c1c1e';
         el.style.colorScheme = 'dark';
       }
-      // Применить акцентный цвет после смены темы
       setTimeout(() => {
         applyAccentColor(accentColor.value);
         applyLessonColorScheme(lessonColorScheme.value);
@@ -371,13 +391,11 @@ createApp({
       saveSettings();
     }
 
-    // Применить акцентный цвет после применения темы
     watch(theme, () => {
       applyAccentColor(accentColor.value);
       applyLessonColorScheme(lessonColorScheme.value);
     });
 
-    // Слушатель для system темы
     if (window.matchMedia) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
       mediaQuery.addEventListener('change', () => {
@@ -391,22 +409,23 @@ createApp({
     function filterVUC(lessons) {
       if (vucDay.value === 'hide') return lessons.filter(l => l.subject !== 'ВУЦ');
       const targetDay = vucDay.value === 'wed' ? 'Среда' : 'Четверг';
-      return lessons.map(l => l.subject === 'ВУЦ' ? { ...l, day: targetDay } : l);
+      const noVuc = lessons.filter(l => l.subject !== 'ВУЦ');
+      const vucLessons = [
+        { id: 'vuc-1', day: targetDay, start: '8:30', end: '17:30', type: 'lec', subject: 'ВУЦ', room: 'Б. Морская | ВУЦ', teacher: '', week: 'both' },
+      ];
+      return [...noVuc, ...vucLessons];
     }
 
     const vm = ref('list');
     const fil = ref('all');
-    const cwt = computed(() => wt(today.value));
     const showSettings = ref(false);
     const settingsTab = ref('schedule');
     const selectedLesson = ref(null);
 
-    // Предзагрузка фото при наведении на пару
     function preloadRoomPhoto(room) {
-      const path = roomPhotoPath(room);
-      if (!path) return;
+      if (!room) return;
       const img = new Image();
-      img.src = path;
+      img.src = room;
     }
 
     function tfl(t) { return { lec: 'Лекция', lab: 'Лабораторная работа', prac: 'Практика', kurs: 'Курсовая' }[t] || t; }
@@ -414,20 +433,9 @@ createApp({
       if (l.type === 'lec' && l.subject === 'ВУЦ') return 'lec-vuc';
       return l.type;
     }
-    function roomPhotoPath(room) {
-      if (!room) return null;
-      // Извлекаем номер аудитории после символа |
-      const parts = room.split('|');
-      const roomNum = parts.length > 1 ? parts[1].trim() : room.trim();
-      if (!roomNum) return null;
-
-      // Проверяем, есть ли упоминание корпуса Гастелло
-      const fullRoom = room.toLowerCase();
-      if (fullRoom.includes('гастелло') || fullRoom.includes('gast')) {
-        return `photo_aud/gast ${roomNum}.PNG`;
-      }
-
-      return `photo_aud/${roomNum}.PNG`;
+    function roomPhotoPath(lesson) {
+      if (!lesson) return '';
+      return String(lesson.roomSchemeUrl || '').trim();
     }
     function lTypeClass(l) {
       if (l.type === 'lec' && l.subject === 'ВУЦ') return 'lec-vuc';
@@ -437,10 +445,14 @@ createApp({
       return window.LUCIDE_ICONS ? window.LUCIDE_ICONS.svg(name, size) : '';
     }
     function wLbl(w) { return { both: 'Обе', odd: 'Нечётная', even: 'Чётная' }[w] || w; }
-    function pN(s) { const n = PAIR_TIMES[s]; return n != null ? (n === 0 ? '' : String(n)) : ''; }
-    function wm(l, w) { return l.week === 'both' || l.week === w; }
+    function pN(lesson) {
+      const n = Number(lesson && lesson.pairNum);
+      return Number.isFinite(n) ? String(n) : '';
+    }
+    function wm(l, w) { 
+      return l.week === 'both' || l.week === w; 
+    }
 
-    /** 09.04: в этой календарной неделе (пн–вс) остаётся 9 занятий; каждую следующую неделю −1. */
     const VUC_REMAIN_AT_ANCHOR_WEEK = 9;
     const VUC_ANCHOR_DT = { y: 2026, m: 3, d: 9 };
     function mondayOfCalendarWeek(dt) {
@@ -458,8 +470,6 @@ createApp({
     }
     function vucRemainderForDate(date) {
       if (vucDay.value !== 'thu') return '';
-      const lessons = sch.value;
-      if (!lessons.some((l) => l.subject === 'ВУЦ')) return '';
       const anchorMon = mondayOfCalendarWeek(new Date(VUC_ANCHOR_DT.y, VUC_ANCHOR_DT.m, VUC_ANCHOR_DT.d));
       const thisMon = mondayOfCalendarWeek(date);
       const weekDelta = Math.round((thisMon - anchorMon) / (7 * 24 * 60 * 60 * 1000));
@@ -467,15 +477,19 @@ createApp({
       if (remaining === 0) return 'До конца ВУЦ визитов не осталось.';
       return `До конца ВУЦ осталось ${remaining} ${razWord(remaining)} сходить.`;
     }
-    const vucRemainderLine = computed(() => vucRemainderForDate(today.value));
 
-    function ndDate(dn) {
-      const t = DOW[dn], d = new Date(today.value), diff = (t - d.getDay() + 7) % 7;
-      d.setDate(d.getDate() + diff);
-      return d;
+    function sortL(a) {
+      return [...a].sort((x, y) => {
+        const px = Number(x && x.pairNum);
+        const py = Number(y && y.pairNum);
+        const hasPx = Number.isFinite(px);
+        const hasPy = Number.isFinite(py);
+        if (hasPx && hasPy && px !== py) return px - py;
+        if (hasPx && !hasPy) return -1;
+        if (!hasPx && hasPy) return 1;
+        return timeToMin(x.start) - timeToMin(y.start);
+      });
     }
-
-    function sortL(a) { return [...a].sort((x, y) => timeToMin(x.start) - timeToMin(y.start)); }
 
     function buildDays(src) {
       const t0 = today.value;
@@ -486,7 +500,7 @@ createApp({
         const dow = date.getDay();
         const idx = dow === 0 ? 6 : dow - 1;
         const dayName = DAYS[idx];
-        const dateStr = `${date.getDate()} ${MG[date.getMonth()]}`;
+        const dateStr = `${date.getDate()} ${monthGenitive(date.getMonth())}`;
         const isToday = sD(date, t0);
         const dayWt = wt(date);
 
@@ -501,7 +515,8 @@ createApp({
 
         let lessons = [];
         if (!isWeekend) {
-          lessons = sortL(filterVUC(src).filter(l => l.day === dayName && wm(l, dayWt)));
+          const allLessons = filterVUC(src).filter(l => l.day === dayName && wm(l, dayWt));
+          lessons = sortL(allLessons);
           if (meta && meta.preHoliday) lessons = lessons.filter(l => timeToMin(l.start) <= timeToMin('14:30'));
         }
 
@@ -601,7 +616,7 @@ createApp({
 
     function isTd(d) { return sD(d, today.value); }
     function sD(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
-    function fmtD(d) { const i = d.getDay() === 0 ? 6 : d.getDay() - 1; return `${DAYS[i]}, ${d.getDate()} ${MG[d.getMonth()]}`; }
+    function fmtD(d) { const i = d.getDay() === 0 ? 6 : d.getDay() - 1; return `${DAYS[i]}, ${d.getDate()} ${monthGenitive(d.getMonth())}`; }
 
     const selL = computed(() => {
       if (!selD.value) return [];
@@ -611,7 +626,7 @@ createApp({
       let ls = filterVUC(sch.value.filter(l => l.day === DAYS[i] && wm(l, wt(date))));
       if (meta && meta.preHoliday) ls = ls.filter(l => timeToMin(l.start) <= timeToMin('14:30'));
       ls = ls.filter((l) => lessonShownLesson(l));
-      return ls.sort((a, b) => timeToMin(a.start) - timeToMin(b.start));
+      return sortL(ls);
     });
 
     const selPeriod = computed(() => {
@@ -625,7 +640,7 @@ createApp({
     });
 
     const lastFetchedLabel = computed(() => {
-      const iso = lastFetchedAt.value;
+      const iso = fetchedAt;
       if (!iso) return '';
       const d = new Date(iso);
       if (Number.isNaN(d.getTime())) return '';
@@ -660,7 +675,6 @@ createApp({
         loadAbort.abort();
       }, FETCH_TIMEOUT_MS);
 
-      // Показываем загрузку только если нет кэша
       const hasCache = sch.value.length > 0;
       if (!hasCache) {
         loading.value = true;
@@ -671,10 +685,8 @@ createApp({
         if (seq !== loadSeq) return;
         const lessons = parseSheetValues(rows);
         sch.value = lessons;
-        localStorage.setItem('sch3', JSON.stringify(lessons));
-        const fetchedAt = new Date().toISOString();
-        lastFetchedAt.value = fetchedAt;
-        writeSchMeta({ fetchedAt });
+        fetchedAt = new Date().toISOString();
+        localStorage.setItem('sch3', JSON.stringify({ lessons, fetchedAt }));
       } catch (e) {
         if (seq !== loadSeq) return;
         if (e && e.name === 'AbortError') {
@@ -714,9 +726,8 @@ createApp({
       todayTickId = setInterval(bumpToday, 60 * 1000);
       document.addEventListener('visibilitychange', onVisibility);
       if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
+        navigator.serviceWorker.register('service-worker.js').catch(() => {});
       }
-      // Применить акцентный цвет после монтирования
       applyAccentColor(accentColor.value);
       applyLessonColorScheme(lessonColorScheme.value);
     });
@@ -732,267 +743,8 @@ createApp({
       if (loadAbort) loadAbort.abort();
     });
 
-    // === Поиск групп ===
-    const showGroupSearch = ref(false);
-    const searchQuery = ref('');
-    const searchResults = ref([]);
-    const searchLoading = ref(false);
-    const searchError = ref('');
-    const selectedSearchGroup = ref(null);
-    const groupScheduleData = ref(null);
-    const groupScheduleLoading = ref(false);
-    const groupScheduleError = ref('');
-    const favoriteGroups = ref([]);
-    const searchInput = ref(null);
-
-    // Кэш для поиска групп и расписаний
-    const GROUPS_CACHE_KEY = 'groupsCache';
-    const SCHEDULE_CACHE_KEY_PREFIX = 'scheduleCache_';
-    const FAVORITES_KEY = 'favoriteGroups';
-    const CACHE_DURATION = 60 * 60 * 1000; // 1 час
-
-    // Загрузка избранного из localStorage
-    function loadFavorites() {
-      try {
-        const stored = localStorage.getItem(FAVORITES_KEY);
-        if (stored) {
-          favoriteGroups.value = JSON.parse(stored);
-        }
-      } catch (e) {
-        console.error('Error loading favorites:', e);
-      }
-    }
-
-    function saveFavorites() {
-      try {
-        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteGroups.value));
-      } catch (e) {
-        console.error('Error saving favorites:', e);
-      }
-    }
-
-    function isFavorite(groupId) {
-      return favoriteGroups.value.some(f => f.id === groupId);
-    }
-
-    function toggleFavorite(group) {
-      const idx = favoriteGroups.value.findIndex(f => f.id === group.id);
-      if (idx >= 0) {
-        favoriteGroups.value.splice(idx, 1);
-      } else {
-        favoriteGroups.value.push({ id: group.id, name: group.name });
-      }
-      saveFavorites();
-    }
-
-    function removeFavorite(groupId) {
-      const idx = favoriteGroups.value.findIndex(f => f.id === groupId);
-      if (idx >= 0) {
-        favoriteGroups.value.splice(idx, 1);
-        saveFavorites();
-      }
-    }
-
-    // Получение кэша
-    function getCache(key) {
-      try {
-        const cached = localStorage.getItem(key);
-        if (!cached) return null;
-        const data = JSON.parse(cached);
-        if (Date.now() - data.timestamp > CACHE_DURATION) {
-          localStorage.removeItem(key);
-          return null;
-        }
-        return data.value;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function setCache(key, value) {
-      try {
-        localStorage.setItem(key, JSON.stringify({
-          value,
-          timestamp: Date.now()
-        }));
-      } catch (e) {
-        console.error('Cache error:', e);
-      }
-    }
-
-    let searchTimeout = null;
-    async function handleSearchInput() {
-      if (searchTimeout) clearTimeout(searchTimeout);
-
-      const query = searchQuery.value.trim();
-      if (!query) {
-        searchResults.value = [];
-        return;
-      }
-
-      searchTimeout = setTimeout(async () => {
-        await searchGroups(query);
-      }, 300);
-    }
-
-    async function searchGroups(query) {
-      searchLoading.value = true;
-      searchError.value = '';
-
-      try {
-        // Проверяем кэш
-        const cached = getCache(GROUPS_CACHE_KEY);
-        let allGroups = cached;
-
-        if (!allGroups) {
-          // Запрос к API
-          const response = await fetch(`/api/schedule?action=search&query=`);
-          if (!response.ok) throw new Error('Ошибка загрузки списка групп');
-          const data = await response.json();
-          if (!data.success) throw new Error(data.error || 'Ошибка API');
-          allGroups = data.groups;
-          setCache(GROUPS_CACHE_KEY, allGroups);
-        }
-
-        // Фильтруем локально
-        const filtered = allGroups.filter(g =>
-          g.name.toLowerCase().includes(query.toLowerCase())
-        );
-        searchResults.value = filtered.slice(0, 20);
-      } catch (e) {
-        searchError.value = e.message || 'Ошибка поиска';
-        searchResults.value = [];
-      } finally {
-        searchLoading.value = false;
-      }
-    }
-
-    async function loadGroupSchedule(groupId, groupName) {
-      selectedSearchGroup.value = { id: groupId, name: groupName };
-      groupScheduleLoading.value = true;
-      groupScheduleError.value = '';
-      groupScheduleData.value = null;
-
-      try {
-        // Проверяем кэш
-        const cacheKey = SCHEDULE_CACHE_KEY_PREFIX + groupId;
-        const cached = getCache(cacheKey);
-
-        if (cached) {
-          groupScheduleData.value = cached;
-          groupScheduleLoading.value = false;
-          return;
-        }
-
-        // Запрос к API
-        const response = await fetch(`/api/schedule?action=schedule&groupId=${groupId}`);
-        if (!response.ok) throw new Error('Ошибка загрузки расписания');
-        const data = await response.json();
-        if (!data.success) throw new Error(data.error || 'Ошибка API');
-
-        groupScheduleData.value = data.schedule;
-        setCache(cacheKey, data.schedule);
-      } catch (e) {
-        groupScheduleError.value = e.message || 'Ошибка загрузки расписания';
-      } finally {
-        groupScheduleLoading.value = false;
-      }
-    }
-
-    const groupScheduleDays = computed(() => {
-      if (!groupScheduleData.value) return [];
-
-      const dayOrder = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-      const grouped = {};
-
-      groupScheduleData.value.lessons.forEach(lesson => {
-        if (!grouped[lesson.day]) {
-          grouped[lesson.day] = [];
-        }
-        grouped[lesson.day].push(lesson);
-      });
-
-      return dayOrder
-        .filter(day => grouped[day])
-        .map(day => ({
-          name: day,
-          lessons: grouped[day].sort((a, b) => a.pairNum - b.pairNum)
-        }));
-    });
-
-    function barClassForType(type) {
-      const normalized = type.toLowerCase();
-      if (normalized.includes('лек')) return 'lec';
-      if (normalized.includes('лаб')) return 'lab';
-      if (normalized.includes('практ')) return 'prac';
-      if (normalized.includes('курс')) return 'kurs';
-      return 'lec';
-    }
-
-    function lTypeClassForType(type) {
-      return barClassForType(type);
-    }
-
-    function closeGroupSearch() {
-      showGroupSearch.value = false;
-      searchQuery.value = '';
-      searchResults.value = [];
-      selectedSearchGroup.value = null;
-      groupScheduleData.value = null;
-      searchError.value = '';
-      groupScheduleError.value = '';
-    }
-
-    // Touch handling для свайпа вниз
-    let touchStartY = 0;
-    let touchStartTime = 0;
-    function handleSearchTouchStart(e) {
-      touchStartY = e.touches[0].clientY;
-      touchStartTime = Date.now();
-    }
-
-    function handleSearchTouchMove(e) {
-      const touchY = e.touches[0].clientY;
-      const deltaY = touchY - touchStartY;
-
-      // Если свайп вниз и модальное окно прокручено вверх
-      if (deltaY > 0) {
-        const modal = e.currentTarget;
-        if (modal.scrollTop === 0) {
-          // Можно добавить визуальный эффект следования
-        }
-      }
-    }
-
-    function handleSearchTouchEnd(e) {
-      const touchEndY = e.changedTouches[0].clientY;
-      const deltaY = touchEndY - touchStartY;
-      const deltaTime = Date.now() - touchStartTime;
-
-      // Если быстрый свайп вниз больше 100px
-      if (deltaY > 100 && deltaTime < 300) {
-        closeGroupSearch();
-      }
-    }
-
-    // Автофокус на поле поиска при открытии
-    watch(showGroupSearch, (newVal) => {
-      if (newVal) {
-        setTimeout(() => {
-          if (searchInput.value) {
-            searchInput.value.focus();
-          }
-        }, 300);
-      }
-    });
-
-    // Загрузка избранного при монтировании
-    onMounted(() => {
-      loadFavorites();
-    });
-
     return {
-      schedule: sch, scheduleVisList, vm, fil, cwt,
+      schedule: sch, scheduleVisList, vm, fil,
       tfl, wLbl, pN, visModeLesson, setVisLesson, barClass, lTypeClass,
       fDays,
       showSettings, settingsTab, selectedLesson, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
@@ -1003,15 +755,6 @@ createApp({
       loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,
       lessonKey: lessonStableKey,
-      // Поиск групп
-      showGroupSearch, searchQuery, searchResults, searchLoading, searchError,
-      selectedSearchGroup, groupScheduleData, groupScheduleLoading, groupScheduleError,
-      favoriteGroups, searchInput,
-      handleSearchInput, loadGroupSchedule, closeGroupSearch,
-      isFavorite, toggleFavorite, removeFavorite,
-      groupScheduleDays, barClassForType, lTypeClassForType,
-      handleSearchTouchStart, handleSearchTouchMove, handleSearchTouchEnd,
-      vucRemainderLine,
       vucRemainderForDate,
       vibrate,
       roomPhotoPath,

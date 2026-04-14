@@ -44,10 +44,10 @@ html.glass, html.glass body {
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+[v-cloak] { display: none; }
 
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
-/* iOS Safari: принудительное использование Inter */
 @supports (font: -apple-system-body) {
   body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif !important; }
 }
@@ -65,8 +65,6 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .lucide-wrap-hdr, .lucide-wrap-settings-close { width: 18px; height: 18px; }
 .lucide-wrap-hdr svg, .lucide-wrap-settings-close svg { width: 100%; height: 100%; }
 .lucide-wrap-empty { width: 36px; height: 36px; }
-/* Сплошной цвет + opacity на контейнере: иначе у stroke с полупрозрачным currentColor
-   пересечения линий визуально «подсвечиваются» */
 .lucide-wrap-empty svg { width: 100%; height: 100%; }
 .no-icon .lucide-wrap-empty {
   color: var(--text);
@@ -124,7 +122,6 @@ html::-webkit-scrollbar-thumb,
   flex-shrink: 0; border: 2px solid var(--sep); box-shadow: 0 2px 8px rgba(0,0,0,.2);
 }
 
-/* Анимация переключения загрузки ↔ бренд */
 .header-title-enter-active {
   -webkit-animation: header-title-slide-in .4s cubic-bezier(0.32, 0.72, 0, 1);
   animation: header-title-slide-in .4s cubic-bezier(0.32, 0.72, 0, 1);
@@ -151,7 +148,6 @@ html::-webkit-scrollbar-thumb,
   to   { opacity: 0; transform: translateX(-20px); }
 }
 
-/* Состояние загрузки в шапке */
 .header-loading-state {
   display: flex;
   align-items: center;
@@ -214,7 +210,6 @@ html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shad
 }
 .header-lk:active { opacity: 0.85; }
 .header-lk-icon { display: block; width: 18px; height: 18px; object-fit: contain; }
-/* guap-sign_w.svg — светлая версия лого; на светлом фоне инвертируем */
 html.light .header-lk-icon { filter: invert(1); }
 @media (prefers-color-scheme: light) {
   html.system .header-lk-icon { filter: invert(1); }
@@ -305,7 +300,6 @@ html.light .header-lk-icon { filter: invert(1); }
 .no-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
 .no-sub   { font-size: 13px; color: var(--text2); }
 
-/* Skeleton loader */
 .skeleton-block { background: var(--bg2); border-radius: 14px; margin: 0 12px 8px; overflow: hidden; }
 .skeleton-row {
   display: flex; align-items: stretch; padding: 14px 14px; position: relative;
@@ -334,7 +328,6 @@ html.light .header-lk-icon { filter: invert(1); }
   50% { opacity: 0.5; }
 }
 
-/* Stagger animation для списка пар */
 .lesson-row {
   animation: lesson-fade-in 0.4s ease-out backwards;
 }
@@ -464,7 +457,6 @@ html.light .header-lk-icon { filter: invert(1); }
   height: 100%;
 }
 
-/* Анимация переключения вкладок настроек */
 .settings-tab-fade-enter-active,
 .settings-tab-fade-leave-active {
   transition: opacity .35s cubic-bezier(0.4, 0, 0.2, 1), transform .35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -510,7 +502,6 @@ html.settings-open body {
 }
 .theme-opts-duo { grid-template-columns: 1fr 1fr; width: 100%; }
 
-/* iOS-style toggle switch */
 .toggle-switch {
   display: inline-flex;
   align-items: center;
@@ -590,7 +581,6 @@ html.light .vuc-select option { background: #fff; color: #000; }
 }
 .theme-btn.active { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
 
-/* Акцентные цвета */
 .accent-colors-grid {
   display: flex;
   flex-wrap: wrap;
@@ -627,7 +617,6 @@ html.light .vuc-select option { background: #fff; color: #000; }
   text-shadow: 0 1px 2px rgba(0,0,0,.6);
 }
 
-/* Адаптивность для акцентных цветов на узких экранах */
 @media (max-width: 380px) {
   .accent-colors-grid {
     gap: 10px;
@@ -641,7 +630,6 @@ html.light .vuc-select option { background: #fff; color: #000; }
   }
 }
 
-/* Цветовые схемы пар */
 .lesson-scheme-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -690,7 +678,6 @@ html.light .vuc-select option { background: #fff; color: #000; }
   color: var(--accent);
 }
 
-/* Фоны для glass темы */
 .glass-bg-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -776,7 +763,6 @@ html.light .vuc-select option { background: #fff; color: #000; }
   color: var(--accent);
 }
 
-/* Редактор кастомных цветов */
 .custom-color-editor {
   width: 100%;
   display: flex;
@@ -953,7 +939,6 @@ html.glass body::before {
   transition: background 0.8s ease;
 }
 
-/* Варианты фонов для glass темы */
 html.glass.glass-bg-aurora body::before {
   background:
     radial-gradient(ellipse 60% 50% at 20% 10%, rgba(120,80,255,0.18) 0%, transparent 60%),
@@ -1221,7 +1206,6 @@ html.glass .custom-color-input:focus {
   border-color: var(--accent);
 }
 
-/* Модальное окно карточки пары */
 .lesson-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1330,7 +1314,6 @@ html.glass .custom-color-input:focus {
   height: 100%;
 }
 
-/* Анимация модального окна */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity .25s ease;
@@ -1352,7 +1335,6 @@ html.glass .custom-color-input:focus {
   opacity: 0;
 }
 
-/* Стекло для модального окна */
 html.glass .lesson-modal {
   background: rgba(18, 18, 28, 0.95);
   backdrop-filter: blur(30px) saturate(180%);
@@ -1370,7 +1352,6 @@ html.glass .lesson-modal-close:hover {
   background: rgba(255, 255, 255, 0.16);
 }
 
-/* Превью оформления */
 .appearance-preview {
   padding: 16px;
   display: flex;
@@ -1513,7 +1494,6 @@ html.glass .appearance-preview > * {
   border-radius: 5px;
 }
 
-/* Glass эффекты для превью */
 html.glass .preview-lesson-row {
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);

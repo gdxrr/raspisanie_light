@@ -7,7 +7,7 @@
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#0b65b7">
   <title>Расписание · 3333</title>
-  <link rel="icon" type="image/png" href="assets/guap-sign.png">
+  <link rel="icon" type="image/png" href="assets/images/signs/guap-sign.png">
   <link rel="apple-touch-icon" href="assets/guap-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
   <script>
@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
 
   <div class="header">
     <div class="header-top">
@@ -42,7 +42,7 @@
         <transition name="header-title" mode="out-in">
           <div class="header-brand" key="brand" v-if="!loading">
             <span class="header-title">3333</span>
-            <img class="header-group-icon" src="assets/3333-sign.png" width="36" height="36" alt="Группа 3333">
+            <img class="header-group-icon" src="assets/images/signs/3333-sign.png" width="36" height="36" alt="Группа 3333">
           </div>
           <div class="header-loading-state" key="loading" v-else>
             <span class="header-loading-spinner"></span>
@@ -78,7 +78,7 @@
     </div>
 
     <template v-if="vm==='list'">
-      <!-- Skeleton loader при загрузке -->
+
       <template v-if="loading && fDays.length===0">
         <div v-for="i in 3" :key="'skeleton-'+i">
           <div class="day-hdr">
@@ -125,10 +125,10 @@
         </div>
         <div v-else class="lessons-block">
           <template v-for="l in day.visibleLessons" :key="lessonKey(l)">
-            <div class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l" @mouseenter="preloadRoomPhoto(l.room)" @touchstart.passive="preloadRoomPhoto(l.room)">
+            <div class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l" @mouseenter="preloadRoomPhoto(l.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(l.roomSchemeUrl)">
               <div class="time-col">
                 <div class="time-start">{{ l.start }}</div>
-                <div class="pair-num">{{ pN(l.start) }}</div>
+                <div class="pair-num">{{ pN(l) }}</div>
                 <div class="time-end">{{ l.end }}</div>
               </div>
               <div class="bar" :class="barClass(l)"></div>
@@ -183,10 +183,10 @@
           <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Пар нет</div><div class="no-sub">Можно спать спокойно!</div>
         </div>
         <div class="lessons-block" v-else>
-          <div v-for="l in selL" :key="lessonKey(l)" class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l" @mouseenter="preloadRoomPhoto(l.room)" @touchstart.passive="preloadRoomPhoto(l.room)">
+          <div v-for="l in selL" :key="lessonKey(l)" class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l" @mouseenter="preloadRoomPhoto(l.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(l.roomSchemeUrl)">
             <div class="time-col">
               <div class="time-start">{{ l.start }}</div>
-              <div class="pair-num">{{ pN(l.start) }}</div>
+              <div class="pair-num">{{ pN(l) }}</div>
               <div class="time-end">{{ l.end }}</div>
             </div>
             <div class="bar" :class="barClass(l)"></div>
@@ -294,7 +294,7 @@
 
             <div class="settings-section" style="margin-top: 24px;">
               <div class="settings-section-title">Предпросмотр</div>
-              <div class="settings-card" style="padding; overflow: hidden;">
+              <div class="settings-card" style="overflow: hidden;">
                 <div class="appearance-preview">
                   <div class="preview-day-header">
                     <span class="preview-day-title">Понедельник, 14 апреля</span>
@@ -421,8 +421,8 @@
         </div>
         <div class="lesson-modal-body">
           <h2 class="lesson-modal-subject">{{ selectedLesson.subject }}</h2>
-          <div class="lesson-modal-photo" v-if="selectedLesson.room && roomPhotoPath(selectedLesson.room)">
-            <img :src="roomPhotoPath(selectedLesson.room)" :alt="'Аудитория ' + selectedLesson.room" @error="$event.target.parentElement.style.display='none'">
+          <div class="lesson-modal-photo" v-if="roomPhotoPath(selectedLesson)">
+            <img :src="roomPhotoPath(selectedLesson)" :alt="'Схема аудитории ' + selectedLesson.room" @error="$event.target.parentElement.style.display='none'">
           </div>
           <div class="lesson-modal-info">
             <div class="lesson-modal-info-row" v-if="selectedLesson.teacher">

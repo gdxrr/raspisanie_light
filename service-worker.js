@@ -1,5 +1,4 @@
-/* Статика: сначала сеть, при офлайне — из кэша */
-const CACHE = 'raspisanie-light-v2';
+const CACHE = 'raspisanie-3333';
 const PRECACHE = [
   './',
   './index.html',
