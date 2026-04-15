@@ -675,10 +675,7 @@ createApp({
         loadAbort.abort();
       }, FETCH_TIMEOUT_MS);
 
-      const hasCache = sch.value.length > 0;
-      if (!hasCache) {
-        loading.value = true;
-      }
+      loading.value = true;
 
       try {
         const rows = await fetchRowsFromConfig(cfg, { signal });

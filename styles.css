@@ -85,9 +85,10 @@ html {
 body {
   background: var(--bg); color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  min-height: 100%;
+  min-height: 100dvh;
   overflow-x: hidden;
-  overflow-y: visible;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   transition: background .25s, color .25s;
 }
 
@@ -317,11 +318,20 @@ html.light .header-lk-icon { filter: invert(1); }
 }
 .skeleton-line.w-20 { width: 20%; }
 .skeleton-line.w-40 { width: 40%; }
+.skeleton-line.w-45 { width: 45%; }
+.skeleton-line.w-55 { width: 55%; }
 .skeleton-line.w-60 { width: 60%; }
+.skeleton-line.w-70 { width: 70%; }
+.skeleton-line.w-72 { width: 72%; }
 .skeleton-line.w-80 { width: 80%; }
+.skeleton-line.w-90 { width: 90%; }
 .skeleton-line.w-100 { width: 100%; }
+.skeleton-line.w-25 { width: 25%; }
+.skeleton-line.w-35 { width: 35%; }
 .skeleton-line.h-16 { height: 16px; }
 .skeleton-line.h-20 { height: 20px; }
+.skeleton-line.h-14 { height: 14px; }
+.skeleton-line.h-12 { height: 12px; }
 
 @keyframes skeleton-pulse {
   0%, 100% { opacity: 1; }
