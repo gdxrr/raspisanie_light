@@ -421,6 +421,8 @@ createApp({
     const showSettings = ref(false);
     const settingsTab = ref('schedule');
     const selectedLesson = ref(null);
+    const calWrapRef = ref(null);
+    const settingsBodyRef = ref(null);
 
     function preloadRoomPhoto(room) {
       if (!room) return;
@@ -540,13 +542,14 @@ createApp({
     const scheduleVisList = computed(() => sch.value.filter((l) => l.subject !== 'ВУЦ'));
 
     const calM = ref(new Date(today.value.getFullYear(), today.value.getMonth(), 1));
+    const calDir = ref('next');
     const selD = ref(new Date(today.value));
     const mTitle = computed(() => {
       const m = calM.value, n = MN[m.getMonth()];
       return n.charAt(0).toUpperCase() + n.slice(1) + ' ' + m.getFullYear();
     });
-    function prevM() { const m = calM.value; calM.value = new Date(m.getFullYear(), m.getMonth() - 1, 1); }
-    function nextM() { const m = calM.value; calM.value = new Date(m.getFullYear(), m.getMonth() + 1, 1); }
+    function prevM() { calDir.value = 'prev'; const m = calM.value; calM.value = new Date(m.getFullYear(), m.getMonth() - 1, 1); }
+    function nextM() { calDir.value = 'next'; const m = calM.value; calM.value = new Date(m.getFullYear(), m.getMonth() + 1, 1); }
 
     const FIXED_HOLIDAYS = [
       [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8],
@@ -717,6 +720,31 @@ createApp({
       if (document.visibilityState === 'visible') bumpToday();
     }
 
+    function handleSwipe(el, onLeft, onRight) {
+      let startX = 0, startY = 0, startTime = 0;
+      const minSwipe = 50, maxTime = 300, maxVertical = 50;
+
+      el.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        startTime = Date.now();
+      }, { passive: true });
+
+      el.addEventListener('touchend', (e) => {
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        const diffX = endX - startX;
+        const diffY = endY - startY;
+        const time = Date.now() - startTime;
+
+        if (time > maxTime || Math.abs(diffY) > maxVertical) return;
+        if (Math.abs(diffX) < minSwipe) return;
+
+        if (diffX > 0 && onRight) onRight();
+        else if (diffX < 0 && onLeft) onLeft();
+      }, { passive: true });
+    }
+
     onMounted(() => {
       bumpToday();
       loadSchedule();
@@ -729,15 +757,28 @@ createApp({
       applyLessonColorScheme(lessonColorScheme.value);
     });
 
+    watch(vm, () => {
+      if (vm.value === 'calendar') {
+        setTimeout(() => {
+          if (calWrapRef.value) {
+            handleSwipe(calWrapRef.value, () => { vibrate(); nextM(); }, () => { vibrate(); prevM(); });
+          }
+        }, 100);
+      }
+    });
+
     watch(showSettings, (open) => {
       document.documentElement.classList.toggle('settings-open', open);
-    });
-    onUnmounted(() => {
-      document.documentElement.classList.remove('settings-open');
-      if (todayTickId) clearInterval(todayTickId);
-      document.removeEventListener('visibilitychange', onVisibility);
-      if (loadTimeoutId) clearTimeout(loadTimeoutId);
-      if (loadAbort) loadAbort.abort();
+      if (open) {
+        setTimeout(() => {
+          if (settingsBodyRef.value) {
+            handleSwipe(settingsBodyRef.value,
+              () => { vibrate(); settingsTab.value = settingsTab.value === 'schedule' ? 'appearance' : 'schedule'; },
+              () => { vibrate(); settingsTab.value = settingsTab.value === 'appearance' ? 'schedule' : 'appearance'; }
+            );
+          }
+        }, 100);
+      }
     });
 
     return {
@@ -748,7 +789,7 @@ createApp({
       accentColor, setAccentColor, accentColors,
       lessonColorScheme, setLessonColorScheme, lessonColorSchemes,
       glassBackground, setGlassBackground, glassBackgrounds,
-      calM, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
+      calM, calDir, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
       loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,
       lessonKey: lessonStableKey,
@@ -756,6 +797,8 @@ createApp({
       vibrate,
       roomPhotoPath,
       preloadRoomPhoto,
+      calWrapRef,
+      settingsBodyRef,
     };
   },
 }).mount('#app');

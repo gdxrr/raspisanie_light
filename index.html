@@ -150,13 +150,16 @@
     </template>
 
     <transition name="slide-right">
-    <div class="cal-wrap" v-if="vm==='calendar'">
+    <div class="cal-wrap" v-if="vm==='calendar'" ref="calWrapRef">
       <div class="cal-nav">
-        <button type="button" class="cal-nav-btn" aria-label="Предыдущий месяц" @click="vibrate(); prevM"><span class="lucide-wrap lucide-wrap-cal-nav" v-html="lucideIcon('chevron-left', 20)"></span></button>
-        <span class="cal-month">{{ mTitle }}</span>
-        <button type="button" class="cal-nav-btn" aria-label="Следующий месяц" @click="vibrate(); nextM"><span class="lucide-wrap lucide-wrap-cal-nav" v-html="lucideIcon('chevron-right', 20)"></span></button>
+        <button type="button" class="cal-nav-btn" aria-label="Предыдущий месяц" @click="vibrate(); prevM()"><span class="lucide-wrap lucide-wrap-cal-nav" v-html="lucideIcon('chevron-left', 20)"></span></button>
+        <transition name="cal-month-fade" mode="out-in">
+          <span class="cal-month" :key="mTitle">{{ mTitle }}</span>
+        </transition>
+        <button type="button" class="cal-nav-btn" aria-label="Следующий месяц" @click="vibrate(); nextM()"><span class="lucide-wrap lucide-wrap-cal-nav" v-html="lucideIcon('chevron-right', 20)"></span></button>
       </div>
-      <div class="cal-grid">
+      <transition :name="'cal-slide-' + calDir" mode="out-in">
+      <div class="cal-grid" :key="mTitle">
         <div class="cal-dow" v-for="d in ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']" :key="d">{{ d }}</div>
         <div v-for="(c,i) in calCells" :key="i" class="cal-cell"
           :class="[{empty:!c}, c?c.cls:'', c&&isTd(c.date)?'today':'', c&&selD&&sD(c.date,selD)?'sel':'']"
@@ -170,6 +173,7 @@
           </template>
         </div>
       </div>
+      </transition>
       <div class="cal-legend">
         <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#bf5af2"></span>Лекция</div>
         <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#32aaff"></span>Лаб.</div>
@@ -225,7 +229,7 @@
         </button>
       </div>
 
-      <div class="settings-body">
+      <div class="settings-body" ref="settingsBodyRef">
 
         <transition name="settings-tab-fade" mode="out-in">
           <div v-if="settingsTab==='appearance'" key="appearance">

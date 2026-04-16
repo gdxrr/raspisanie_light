@@ -895,6 +895,45 @@ html.light .settings-row-vis.vis-row-hide { background: rgba(255, 59, 48, 0.1); 
   opacity: 0.6;
 }
 
+.cal-month-fade-enter-active,
+.cal-month-fade-leave-active {
+  transition: opacity .2s ease, transform .2s ease;
+}
+.cal-month-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.cal-month-fade-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.cal-slide-next-enter-active,
+.cal-slide-next-leave-active,
+.cal-slide-prev-enter-active,
+.cal-slide-prev-leave-active {
+  transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1), opacity .3s ease;
+}
+
+.cal-slide-next-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.cal-slide-next-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.cal-slide-prev-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.cal-slide-prev-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+
 .sync-meta-wrap {
   padding: 16px 16px 0;
   margin-bottom: -4px;
