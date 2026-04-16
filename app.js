@@ -406,10 +406,15 @@ createApp({
       });
     }
 
-    function filterVUC(lessons) {
+    function filterVUC(lessons, forDay = null) {
       if (vucDay.value === 'hide') return lessons.filter(l => l.subject !== 'ВУЦ');
       const targetDay = vucDay.value === 'wed' ? 'Среда' : 'Четверг';
       const noVuc = lessons.filter(l => l.subject !== 'ВУЦ');
+
+      if (forDay && forDay !== targetDay) {
+        return noVuc;
+      }
+
       const vucLessons = [
         { id: 'vuc-1', day: targetDay, start: '8:30', end: '17:30', type: 'lec', subject: 'ВУЦ', room: 'Б. Морская | ВУЦ', teacher: '', week: 'both' },
       ];
@@ -422,7 +427,6 @@ createApp({
     const settingsTab = ref('schedule');
     const selectedLesson = ref(null);
     const calWrapRef = ref(null);
-    const settingsBodyRef = ref(null);
 
     function preloadRoomPhoto(room) {
       if (!room) return;
@@ -471,7 +475,7 @@ createApp({
       return 'раз';
     }
     function vucRemainderForDate(date) {
-      if (vucDay.value !== 'thu') return '';
+      if (vucDay.value === 'hide') return '';
       const anchorMon = mondayOfCalendarWeek(new Date(VUC_ANCHOR_DT.y, VUC_ANCHOR_DT.m, VUC_ANCHOR_DT.d));
       const thisMon = mondayOfCalendarWeek(date);
       const weekDelta = Math.round((thisMon - anchorMon) / (7 * 24 * 60 * 60 * 1000));
@@ -607,7 +611,7 @@ createApp({
           continue;
         }
         const idx = date.getDay() === 0 ? 6 : date.getDay() - 1;
-        let ls = filterVUC(sch.value.filter(x => x.day === DAYS[idx] && wm(x, wt(date))));
+        let ls = filterVUC(sch.value.filter(x => x.day === DAYS[idx] && wm(x, wt(date))), DAYS[idx]);
         if (meta && meta.preHoliday) ls = ls.filter(x => timeToMin(x.start) <= timeToMin('14:30'));
         ls = ls.filter((x) => lessonShownLesson(x));
         const dotTypes = [...new Set(ls.map(x => x.type === 'lec' && x.subject === 'ВУЦ' ? 'lec-vuc' : x.type))];
@@ -626,7 +630,7 @@ createApp({
       const date = selD.value, meta = getCellMeta(date);
       if (meta && ['weekend', 'holiday', 'credit-week', 'session', 'practice', 'vacation'].includes(meta.cls)) return [];
       const i = date.getDay() === 0 ? 6 : date.getDay() - 1;
-      let ls = filterVUC(sch.value.filter(l => l.day === DAYS[i] && wm(l, wt(date))));
+      let ls = filterVUC(sch.value.filter(l => l.day === DAYS[i] && wm(l, wt(date))), DAYS[i]);
       if (meta && meta.preHoliday) ls = ls.filter(l => timeToMin(l.start) <= timeToMin('14:30'));
       ls = ls.filter((l) => lessonShownLesson(l));
       return sortL(ls);
@@ -769,16 +773,14 @@ createApp({
 
     watch(showSettings, (open) => {
       document.documentElement.classList.toggle('settings-open', open);
-      if (open) {
-        setTimeout(() => {
-          if (settingsBodyRef.value) {
-            handleSwipe(settingsBodyRef.value,
-              () => { vibrate(); settingsTab.value = settingsTab.value === 'schedule' ? 'appearance' : 'schedule'; },
-              () => { vibrate(); settingsTab.value = settingsTab.value === 'appearance' ? 'schedule' : 'appearance'; }
-            );
-          }
-        }, 100);
-      }
+    });
+
+    onUnmounted(() => {
+      document.documentElement.classList.remove('settings-open');
+      if (todayTickId) clearInterval(todayTickId);
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (loadTimeoutId) clearTimeout(loadTimeoutId);
+      if (loadAbort) loadAbort.abort();
     });
 
     return {
@@ -798,7 +800,6 @@ createApp({
       roomPhotoPath,
       preloadRoomPhoto,
       calWrapRef,
-      settingsBodyRef,
     };
   },
 }).mount('#app');
