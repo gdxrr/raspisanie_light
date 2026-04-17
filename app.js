@@ -691,6 +691,15 @@ createApp({
         sch.value = lessons;
         fetchedAt = new Date().toISOString();
         localStorage.setItem('sch3', JSON.stringify({ lessons, fetchedAt }));
+
+        // Предзагрузка всех фотографий аудиторий
+        setTimeout(() => {
+          lessons.forEach(lesson => {
+            if (lesson.roomSchemeUrl) {
+              preloadRoomPhoto(lesson.roomSchemeUrl);
+            }
+          });
+        }, 500);
       } catch (e) {
         if (seq !== loadSeq) return;
         if (e && e.name === 'AbortError') {
@@ -775,8 +784,20 @@ createApp({
       document.documentElement.classList.toggle('settings-open', open);
     });
 
+    watch(selectedLesson, (lesson) => {
+      if (lesson) {
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+      }
+    });
+
     onUnmounted(() => {
       document.documentElement.classList.remove('settings-open');
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
       if (todayTickId) clearInterval(todayTickId);
       document.removeEventListener('visibilitychange', onVisibility);
       if (loadTimeoutId) clearTimeout(loadTimeoutId);

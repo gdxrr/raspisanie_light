@@ -432,19 +432,19 @@
           </div>
           <div class="lesson-modal-info">
             <div class="lesson-modal-info-row" v-if="selectedLesson.teacher">
-              <span class="lucide-wrap" v-html="lucideIcon('user', 18)"></span>
+              <span class="lesson-modal-icon lucide-wrap" v-html="lucideIcon('user', 18)"></span>
               <span>{{ selectedLesson.teacher }}</span>
             </div>
             <div class="lesson-modal-info-row" v-if="selectedLesson.room">
-              <span class="lucide-wrap" v-html="lucideIcon('map-pin', 18)"></span>
+              <span class="lesson-modal-icon lucide-wrap" v-html="lucideIcon('map-pin', 18)"></span>
               <span>{{ selectedLesson.room }}</span>
             </div>
             <div class="lesson-modal-info-row">
-              <span class="lucide-wrap" v-html="lucideIcon('clock', 18)"></span>
+              <span class="lesson-modal-icon lucide-wrap" v-html="lucideIcon('clock', 18)"></span>
               <span>{{ selectedLesson.start }} — {{ selectedLesson.end }}</span>
             </div>
             <div class="lesson-modal-info-row">
-              <span class="lucide-wrap" v-html="lucideIcon('calendar', 18)"></span>
+              <span class="lesson-modal-icon lucide-wrap" v-html="lucideIcon('calendar', 18)"></span>
               <span>{{ selectedLesson.day }} · {{ wLbl(selectedLesson.week) }}</span>
             </div>
           </div>
