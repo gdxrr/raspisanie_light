@@ -772,11 +772,16 @@ createApp({
 
     watch(vm, () => {
       if (vm.value === 'calendar') {
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
         setTimeout(() => {
           if (calWrapRef.value) {
             handleSwipe(calWrapRef.value, () => { vibrate(); nextM(); }, () => { vibrate(); prevM(); });
           }
         }, 100);
+      } else {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
       }
     });
 

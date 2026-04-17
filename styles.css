@@ -369,6 +369,8 @@ html.light .header-lk-icon { filter: invert(1); }
   overflow-y: auto;
   overflow-x: hidden;
   padding: 8px 12px 24px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .cal-nav { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 14px; }
 .cal-nav-btn { width: 34px; height: 34px; border-radius: 10px; border: none; background: var(--bg2); color: var(--text); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
