@@ -227,28 +227,6 @@ html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shad
   position: relative;
 }
 
-.dropdown-btn-desktop {
-  display: flex;
-}
-.dropdown-select-mobile {
-  display: none;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  text-align: center;
-  font-size: 18px;
-  padding: 0;
-}
-
-@media (max-width: 768px) {
-  .dropdown-btn-desktop {
-    display: none;
-  }
-  .dropdown-select-mobile {
-    display: flex;
-  }
-}
-
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
@@ -262,7 +240,9 @@ html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shad
   z-index: 10000;
 }
 .dropdown-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px 14px;
   color: var(--text);
   text-decoration: none;
@@ -280,6 +260,15 @@ html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shad
 }
 .dropdown-item:active {
   background: var(--bg4);
+}
+.dropdown-item-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.dropdown-item:hover .dropdown-item-icon {
+  opacity: 1;
 }
 
 .dropdown-fade-enter-active, .dropdown-fade-leave-active {
