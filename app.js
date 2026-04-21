@@ -180,7 +180,7 @@ createApp({
     } catch (_) {}
 
     const settingsRaw = JSON.parse(localStorage.getItem('settings3') || '{}');
-    const theme = ref(settingsRaw.theme || 'dark');
+    const theme = ref(settingsRaw.theme || 'system');
     const vucDay = ref(settingsRaw.vucDay || 'hide');
     const accentColor = ref(settingsRaw.accentColor || 'blue');
     const lessonColorScheme = ref(settingsRaw.lessonColorScheme || 'default');
@@ -427,6 +427,7 @@ createApp({
     const settingsTab = ref('schedule');
     const selectedLesson = ref(null);
     const calWrapRef = ref(null);
+    const showLinksDropdown = ref(false);
 
     function preloadRoomPhoto(room) {
       if (!room) return;
@@ -768,6 +769,12 @@ createApp({
       }
       applyAccentColor(accentColor.value);
       applyLessonColorScheme(lessonColorScheme.value);
+
+      document.addEventListener('click', (e) => {
+        if (showLinksDropdown.value && !e.target.closest('.dropdown-wrap')) {
+          showLinksDropdown.value = false;
+        }
+      });
     });
 
     watch(vm, () => {
@@ -826,6 +833,7 @@ createApp({
       roomPhotoPath,
       preloadRoomPhoto,
       calWrapRef,
+      showLinksDropdown,
     };
   },
 }).mount('#app');

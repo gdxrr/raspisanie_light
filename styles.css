@@ -222,6 +222,48 @@ html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shad
   background: var(--bg3); color: var(--text); text-decoration: none;
   flex-shrink: 0; -webkit-tap-highlight-color: transparent;
 }
+
+.dropdown-wrap {
+  position: relative;
+}
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg2);
+  border: 1px solid var(--sep);
+  border-radius: 12px;
+  min-width: 200px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  overflow: hidden;
+  z-index: 10000;
+}
+.dropdown-item {
+  display: block;
+  padding: 12px 16px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s;
+  border-bottom: 1px solid var(--sep);
+}
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+.dropdown-item:hover {
+  background: var(--bg3);
+}
+.dropdown-item:active {
+  background: var(--bg4);
+}
+
+.dropdown-fade-enter-active, .dropdown-fade-leave-active {
+  transition: opacity 0.2s, transform 0.2s;
+}
+.dropdown-fade-enter-from, .dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
 .header-lk:active { opacity: 0.85; }
 .header-lk-icon { display: block; width: 18px; height: 18px; object-fit: contain; }
 html.light .header-lk-icon { filter: invert(1); }
@@ -1077,6 +1119,19 @@ html.glass .header-lk {
   background: rgba(255,255,255,0.11);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.14);
+}
+html.glass .dropdown-menu {
+  background: rgba(255,255,255,0.11);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+html.glass .dropdown-item {
+  border-bottom-color: rgba(255,255,255,0.14);
+}
+html.glass .dropdown-item:hover {
+  background: rgba(255,255,255,0.16);
 }
 html.glass .header-loading-spinner {
   border-color: rgba(255,255,255,0.3);
