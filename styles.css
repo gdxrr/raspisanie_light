@@ -80,24 +80,19 @@ html {
   transition: background .25s, color .25s;
   height: 100%;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll;
   overscroll-behavior-y: none;
   overscroll-behavior-x: none;
-  position: fixed;
-  width: 100%;
 }
 body {
   background: var(--bg); color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100dvh;
   overflow-x: hidden;
-  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   transition: background .25s, color .25s;
   overscroll-behavior-y: none;
   overscroll-behavior-x: none;
-  position: relative;
-  width: 100%;
 }
 
 html, .settings-body {
