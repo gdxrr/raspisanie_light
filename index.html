@@ -51,15 +51,18 @@
         </transition>
       </div>
       <div class="header-right" v-if="vm==='list'">
-        <a class="header-lk" href="https://pro.guap.ru/inside/profile" target="_blank" rel="noopener noreferrer" title="Личный кабинет" aria-label="Личный кабинет">
-          <img class="header-lk-icon" src="https://src.guap.ru/logos/guap/guap-sign_w.svg" width="18" height="18" alt="ГУАП" loading="lazy" decoding="async">
-        </a>
+        <button type="button" class="icon-btn-hdr" @click="vibrate(); vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon(vm==='list'?'calendar':'list', 18)"></span></button>
+        <button type="button" class="icon-btn-hdr" @click="vibrate(); showSettings=true" aria-label="Настройки"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('settings', 18)"></span></button>
         <div class="dropdown-wrap">
           <button type="button" class="icon-btn-hdr" @click="vibrate(); showLinksDropdown=!showLinksDropdown" aria-label="Полезные ссылки">
-            <span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('table-2', 18)"></span>
+            <span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('list', 18)"></span>
           </button>
           <transition name="dropdown-fade">
             <div class="dropdown-menu" v-if="showLinksDropdown" @click="showLinksDropdown=false">
+              <a href="https://pro.guap.ru/inside/profile" target="_blank" rel="noopener noreferrer" class="dropdown-item" @click="vibrate()">
+                <img class="dropdown-item-icon" src="https://src.guap.ru/logos/guap/guap-sign_w.svg" width="16" height="16" alt="" loading="lazy" decoding="async" style="filter: var(--icon-filter);">
+                <span>ЛК ГУАП</span>
+              </a>
               <a href="https://docs.google.com/spreadsheets/u/0/d/1r6Tmp2l60dQ9Atao4F1e1ITEgvskrM468asiUIs1svg/htmlview#gid=1324537187" target="_blank" rel="noopener noreferrer" class="dropdown-item" @click="vibrate()">
                 <span class="lucide-wrap dropdown-item-icon" v-html="lucideIcon('key-round', 16)"></span>
                 <span>МСКЗИ | Давыдов</span>
@@ -71,8 +74,6 @@
             </div>
           </transition>
         </div>
-        <button type="button" class="icon-btn-hdr" @click="vibrate(); vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon(vm==='list'?'calendar':'list', 18)"></span></button>
-        <button type="button" class="icon-btn-hdr" @click="vibrate(); showSettings=true" aria-label="Настройки"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('settings', 18)"></span></button>
       </div>
       <div class="header-right" v-else>
         <button type="button" class="icon-btn-hdr" @click="vibrate(); vm='list'" aria-label="Закрыть календарь"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('x', 18)"></span></button>
@@ -481,7 +482,7 @@
         </div>
         <div class="lesson-modal-body">
           <div class="lesson-modal-photo">
-            <img src="assets/images/signs/gazprom_0.jpg" alt="Газпром">
+            <img src="assets/images/signs/gazprom_0.jpg" alt="Газпром" loading="eager" style="max-width: 100%; height: auto;">
           </div>
           <div v-if="gazpromStep===1" style="text-align: center; margin-top: 20px;">
             <h2 class="lesson-modal-subject" style="margin-bottom: 20px;">Устроиться на работу в газпром?</h2>
