@@ -81,6 +81,7 @@ html {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: none;
 }
 body {
   background: var(--bg); color: var(--text);
@@ -90,6 +91,7 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   transition: background .25s, color .25s;
+  overscroll-behavior: none;
 }
 
 html, .settings-body {
