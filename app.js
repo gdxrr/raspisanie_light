@@ -429,6 +429,14 @@ createApp({
     const calWrapRef = ref(null);
     const showLinksDropdown = ref(false);
 
+    function handleLinkSelect(event) {
+      const url = event.target.value;
+      if (url) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        event.target.value = '';
+      }
+    }
+
     function preloadRoomPhoto(room) {
       if (!room) return;
       const img = new Image();
@@ -834,6 +842,7 @@ createApp({
       preloadRoomPhoto,
       calWrapRef,
       showLinksDropdown,
+      handleLinkSelect,
     };
   },
 }).mount('#app');

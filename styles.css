@@ -226,12 +226,35 @@ html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shad
 .dropdown-wrap {
   position: relative;
 }
+
+.dropdown-btn-desktop {
+  display: flex;
+}
+.dropdown-select-mobile {
+  display: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  text-align: center;
+  font-size: 18px;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .dropdown-btn-desktop {
+    display: none;
+  }
+  .dropdown-select-mobile {
+    display: flex;
+  }
+}
+
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: var(--bg2);
-  border: 1px solid var(--sep);
+  background: var(--bg3);
+  border: 1.5px solid var(--bg4);
   border-radius: 12px;
   min-width: 200px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.2);
@@ -240,18 +263,20 @@ html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shad
 }
 .dropdown-item {
   display: block;
-  padding: 12px 16px;
+  padding: 12px 14px;
   color: var(--text);
   text-decoration: none;
-  font-size: 14px;
-  transition: background 0.2s;
-  border-bottom: 1px solid var(--sep);
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.2s, border-color 0.2s;
+  border-bottom: 1px solid var(--bg4);
 }
 .dropdown-item:last-child {
   border-bottom: none;
 }
 .dropdown-item:hover {
-  background: var(--bg3);
+  background: var(--bg4);
+  color: var(--accent);
 }
 .dropdown-item:active {
   background: var(--bg4);
@@ -1124,7 +1149,7 @@ html.glass .dropdown-menu {
   background: rgba(255,255,255,0.11);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255,255,255,0.22);
+  border: 1.5px solid rgba(255,255,255,0.22);
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 html.glass .dropdown-item {
@@ -1132,6 +1157,17 @@ html.glass .dropdown-item {
 }
 html.glass .dropdown-item:hover {
   background: rgba(255,255,255,0.16);
+}
+
+html.light .dropdown-menu {
+  background: #fff;
+  border-color: #d1d1d6;
+}
+html.light .dropdown-item {
+  border-bottom-color: #e5e5ea;
+}
+html.light .dropdown-item:hover {
+  background: #f2f2f7;
 }
 html.glass .header-loading-spinner {
   border-color: rgba(255,255,255,0.3);
