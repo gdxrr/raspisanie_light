@@ -321,7 +321,7 @@ html.light .header-lk-icon { filter: invert(1); }
 .week-separator-line { flex: 1; height: 1px; background: var(--sep); }
 .week-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; letter-spacing: .3px; }
 .week-tag.odd  { background: rgba(255,69,58,.12); color: var(--odd); }
-.week-tag.even { background: rgba(10,132,255,.12); color: var(--accent); }
+.week-tag.even { background: rgba(10,132,255,.12); color: var(--even); }
 
 .lessons-block { background: var(--bg2); border-radius: 14px; margin: 0 12px 8px; overflow: hidden; }
 .lesson-row {
@@ -1109,7 +1109,7 @@ html.glass .header {
   border-bottom: 1px solid rgba(255,255,255,0.14);
 }
 html.glass .header-title {
-  background: linear-gradient(135deg, #fff 30%, rgba(199,125,255,0.9) 100%);
+  background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 html.glass .header-group-icon {
@@ -1160,7 +1160,7 @@ html.light .dropdown-item:hover {
 }
 html.glass .header-loading-spinner {
   border-color: rgba(255,255,255,0.3);
-  border-top-color: #48cae4;
+  border-top-color: var(--accent);
 }
 html.glass .header-loading-text {
   color: rgba(255,255,255,0.65);
@@ -1176,7 +1176,7 @@ html.glass .filter-pill.active {
 }
 
 html.glass .week-separator-dot.odd  { box-shadow: 0 0 8px rgba(255,107,107,0.35); }
-html.glass .week-separator-dot.even { box-shadow: 0 0 8px var(--accent); }
+html.glass .week-separator-dot.even { box-shadow: 0 0 8px rgba(72,202,228,0.35); }
 html.glass .week-separator-line { background: rgba(255,255,255,0.14); }
 html.glass .day-hdr-title.today { text-shadow: 0 0 12px var(--accent); }
 

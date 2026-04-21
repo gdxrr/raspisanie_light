@@ -428,6 +428,29 @@ createApp({
     const selectedLesson = ref(null);
     const calWrapRef = ref(null);
     const showLinksDropdown = ref(false);
+    const showGazpromModal = ref(false);
+    const gazpromStep = ref(1);
+    let gazpromClickCount = 0;
+    let gazpromClickTimeout = null;
+
+    function handleGazpromClick() {
+      gazpromClickCount++;
+
+      if (gazpromClickTimeout) {
+        clearTimeout(gazpromClickTimeout);
+      }
+
+      gazpromClickTimeout = setTimeout(() => {
+        gazpromClickCount = 0;
+      }, 2000);
+
+      if (gazpromClickCount === 5) {
+        vibrate(50);
+        showGazpromModal.value = true;
+        gazpromStep.value = 1;
+        gazpromClickCount = 0;
+      }
+    }
 
     function handleLinkSelect(event) {
       const url = event.target.value;
@@ -843,6 +866,9 @@ createApp({
       calWrapRef,
       showLinksDropdown,
       handleLinkSelect,
+      showGazpromModal,
+      gazpromStep,
+      handleGazpromClick,
     };
   },
 }).mount('#app');

@@ -42,7 +42,7 @@
         <transition name="header-title" mode="out-in">
           <div class="header-brand" key="brand" v-if="!loading">
             <span class="header-title">3333</span>
-            <img class="header-group-icon" src="assets/images/signs/3333-sign.png" width="36" height="36" alt="Группа 3333">
+            <img class="header-group-icon" src="assets/images/signs/3333-sign.png" width="36" height="36" alt="Группа 3333" @click="handleGazpromClick" style="cursor: pointer;">
           </div>
           <div class="header-loading-state" key="loading" v-else>
             <span class="header-loading-spinner"></span>
@@ -464,6 +464,34 @@
               <span class="lesson-modal-icon lucide-wrap" v-html="lucideIcon('calendar', 18)"></span>
               <span>{{ selectedLesson.day }} · {{ wLbl(selectedLesson.week) }}</span>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+  <transition name="modal-fade">
+    <div class="lesson-modal-overlay" v-if="showGazpromModal" @click="vibrate(); showGazpromModal=false; gazpromStep=1">
+      <div class="lesson-modal" @click.stop>
+        <div class="lesson-modal-header">
+          <div class="lesson-modal-type" style="background: #0066cc; color: white;">Газпром</div>
+          <button type="button" class="lesson-modal-close" @click="vibrate(); showGazpromModal=false; gazpromStep=1" aria-label="Закрыть">
+            <span class="lucide-wrap" v-html="lucideIcon('x', 20)"></span>
+          </button>
+        </div>
+        <div class="lesson-modal-body">
+          <div class="lesson-modal-photo">
+            <img src="assets/images/signs/gazprom_0.jpg" alt="Газпром">
+          </div>
+          <div v-if="gazpromStep===1" style="text-align: center; margin-top: 20px;">
+            <h2 class="lesson-modal-subject" style="margin-bottom: 20px;">Устроиться на работу в газпром?</h2>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+              <button type="button" class="theme-btn" style="min-width: 100px;" @click="vibrate(); gazpromStep=2">Да</button>
+              <button type="button" class="theme-btn" style="min-width: 100px;" @click="vibrate(); showGazpromModal=false; gazpromStep=1">Нет</button>
+            </div>
+          </div>
+          <div v-if="gazpromStep===2" style="text-align: center; margin-top: 20px;">
+            <h2 class="lesson-modal-subject">Тогда учи Delphi</h2>
           </div>
         </div>
       </div>
