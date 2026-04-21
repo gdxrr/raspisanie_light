@@ -81,8 +81,6 @@ html {
   height: 100%;
   overflow-x: hidden;
   overflow-y: scroll;
-  overscroll-behavior-y: none;
-  overscroll-behavior-x: none;
 }
 body {
   background: var(--bg); color: var(--text);
@@ -91,8 +89,6 @@ body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   transition: background .25s, color .25s;
-  overscroll-behavior-y: none;
-  overscroll-behavior-x: none;
 }
 
 html, .settings-body {
@@ -117,8 +113,10 @@ html::-webkit-scrollbar-thumb,
 }
 
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 250;
   background: var(--bg);
   border-bottom: 1px solid var(--sep);
@@ -241,7 +239,7 @@ html.light .header-lk-icon { filter: invert(1); }
 }
 .filter-pill.active { background: var(--accent); color: #fff; }
 
-.main { padding: 0 0 24px; overflow-x: hidden; }
+.main { padding: 0 0 24px; overflow-x: hidden; margin-top: 120px; }
 
 .week-section-hdr { display: flex; align-items: center; gap: 8px; padding: 16px 16px 8px; }
 .ws-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
