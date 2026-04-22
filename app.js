@@ -809,6 +809,14 @@ createApp({
           showLinksDropdown.value = false;
         }
       });
+
+      let lastScrollY = window.scrollY;
+      window.addEventListener('scroll', () => {
+        if (showLinksDropdown.value && Math.abs(window.scrollY - lastScrollY) > 5) {
+          showLinksDropdown.value = false;
+        }
+        lastScrollY = window.scrollY;
+      }, { passive: true });
     });
 
     watch(vm, () => {

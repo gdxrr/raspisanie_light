@@ -1137,11 +1137,11 @@ html.glass .header-lk {
   border: 1px solid rgba(255,255,255,0.14);
 }
 html.glass .dropdown-menu {
-  background: rgba(255,255,255,0.11);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1.5px solid rgba(255,255,255,0.22);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  background: rgba(30,30,40,0.75);
+  backdrop-filter: blur(60px) saturate(200%) brightness(1.1);
+  -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(1.1);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
 }
 html.glass .dropdown-item {
   border-bottom-color: rgba(255,255,255,0.14);
