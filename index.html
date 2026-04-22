@@ -475,7 +475,7 @@
     <div class="lesson-modal-overlay" v-if="showGazpromModal" @click="vibrate(); showGazpromModal=false; gazpromStep=1">
       <div class="lesson-modal" @click.stop>
         <div class="lesson-modal-header">
-          <div class="lesson-modal-type" style="background: #0066cc; color: white;">Газпром</div>
+          <div style="flex: 1;"></div>
           <button type="button" class="lesson-modal-close" @click="vibrate(); showGazpromModal=false; gazpromStep=1" aria-label="Закрыть">
             <span class="lucide-wrap" v-html="lucideIcon('x', 20)"></span>
           </button>
@@ -487,8 +487,8 @@
           <div v-if="gazpromStep===1" style="text-align: center; margin-top: 20px;">
             <h2 class="lesson-modal-subject" style="margin-bottom: 20px;">Устроиться на работу в газпром?</h2>
             <div style="display: flex; gap: 12px; justify-content: center;">
-              <button type="button" class="theme-btn" style="min-width: 100px;" @click="vibrate(); gazpromStep=2">Да</button>
               <button type="button" class="theme-btn" style="min-width: 100px;" @click="vibrate(); showGazpromModal=false; gazpromStep=1">Нет</button>
+              <button type="button" class="theme-btn" style="min-width: 100px;" @click="vibrate(); gazpromStep=2">Да</button>
             </div>
           </div>
           <div v-if="gazpromStep===2" style="text-align: center; margin-top: 20px;">

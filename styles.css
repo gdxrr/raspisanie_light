@@ -11,6 +11,7 @@ html.light, html.light body {
   --bg: #f2f2f7; --bg2: #ffffff; --bg3: #e5e5ea; --bg4: #d1d1d6;
   --sep: rgba(0,0,0,0.08);
   --text: #000; --text2: rgba(0,0,0,.5); --text3: rgba(0,0,0,.3);
+  --lec: #af52de; --lab: #007aff; --prac: #ff9500; --kurs: #ff2d55;
   --odd: #ff3b30; --even: #0a84ff;
   background: #f2f2f7 !important;
   color: #000 !important;
@@ -21,6 +22,7 @@ html.light, html.light body {
     --bg: #f2f2f7; --bg2: #ffffff; --bg3: #e5e5ea; --bg4: #d1d1d6;
     --sep: rgba(0,0,0,0.08);
     --text: #000; --text2: rgba(0,0,0,.5); --text3: rgba(0,0,0,.3);
+    --lec: #af52de; --lab: #007aff; --prac: #ff9500; --kurs: #ff2d55;
     --odd: #ff3b30; --even: #0a84ff;
     background: #f2f2f7 !important;
     color: #000 !important;
@@ -736,8 +738,8 @@ html.light .vuc-select option { background: #fff; color: #000; }
 }
 .lesson-scheme-btn.active {
   border-color: var(--accent);
-  background: rgba(10,132,255,.08);
-  box-shadow: 0 0 0 2px rgba(10,132,255,.15);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 .lesson-scheme-preview {
   display: flex;
@@ -912,11 +914,11 @@ html.light .vuc-select option { background: #fff; color: #000; }
   background: rgba(48, 209, 88, 0.09);
 }
 .settings-row-vis.vis-row-dim {
-  box-shadow: inset 3px 0 0 var(--prac);
+  box-shadow: inset 3px 0 0 #ff9f0a;
   background: rgba(255, 159, 10, 0.09);
 }
 .settings-row-vis.vis-row-hide {
-  box-shadow: inset 3px 0 0 var(--odd);
+  box-shadow: inset 3px 0 0 #ff453a;
   background: rgba(255, 69, 58, 0.09);
 }
 html.light .settings-row-vis.vis-row-show { background: rgba(52, 199, 89, 0.12); }

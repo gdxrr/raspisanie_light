@@ -267,9 +267,11 @@ createApp({
       if (t === 'light') {
         el.style.background = '#f2f2f7';
         el.style.colorScheme = 'light';
+        el.style.removeProperty('--glass-bg');
       } else if (t === 'system') {
         el.style.background = '';
         el.style.colorScheme = 'light dark';
+        el.style.removeProperty('--glass-bg');
       } else if (t === 'glass') {
         el.style.background = '#12121c';
         el.style.colorScheme = 'dark';
@@ -277,6 +279,7 @@ createApp({
       } else {
         el.style.background = '#1c1c1e';
         el.style.colorScheme = 'dark';
+        el.style.removeProperty('--glass-bg');
       }
       setTimeout(() => {
         applyAccentColor(accentColor.value);
