@@ -263,21 +263,26 @@ createApp({
 
     function applyTheme(t) {
       const el = document.documentElement;
+      const body = document.body;
       el.className = t === 'dark' ? '' : t;
       if (t === 'light') {
         el.style.background = '#f2f2f7';
+        body.style.background = '#f2f2f7';
         el.style.colorScheme = 'light';
         el.style.removeProperty('--glass-bg');
       } else if (t === 'system') {
         el.style.background = '';
+        body.style.background = '';
         el.style.colorScheme = 'light dark';
         el.style.removeProperty('--glass-bg');
       } else if (t === 'glass') {
         el.style.background = '#12121c';
+        body.style.background = '#12121c';
         el.style.colorScheme = 'dark';
         applyGlassBackground(glassBackground.value);
       } else {
         el.style.background = '#1c1c1e';
+        body.style.background = '#1c1c1e';
         el.style.colorScheme = 'dark';
         el.style.removeProperty('--glass-bg');
       }
