@@ -299,14 +299,6 @@
                   </button>
                 </div>
               </div>
-              <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:10px; border-top: 1px solid var(--sep); padding-top: 14px; margin-top: 4px;">
-                <div class="settings-row-label">Размер текста</div>
-                <div class="font-size-opts" style="width:100%">
-                  <button type="button" class="theme-btn" :class="{active: fontSize==='small'}" @click="vibrate(); setFontSize('small')">Маленький</button>
-                  <button type="button" class="theme-btn" :class="{active: fontSize==='medium'}" @click="vibrate(); setFontSize('medium')">Средний</button>
-                  <button type="button" class="theme-btn" :class="{active: fontSize==='large'}" @click="vibrate(); setFontSize('large')">Большой</button>
-                </div>
-              </div>
               <div v-if="theme==='glass'" class="settings-row" style="flex-direction:column; align-items:flex-start; gap:10px; border-top: 1px solid var(--sep); padding-top: 14px; margin-top: 4px;">
                 <div class="settings-row-label">Фон стекла</div>
                 <div class="glass-bg-grid">

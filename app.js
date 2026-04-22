@@ -185,7 +185,6 @@ createApp({
     const accentColor = ref(settingsRaw.accentColor || 'blue');
     const lessonColorScheme = ref(settingsRaw.lessonColorScheme || 'default');
     const glassBackground = ref(settingsRaw.glassBackground || 'aurora');
-    const fontSize = ref(settingsRaw.fontSize || 'medium');
     const visSettings = reactive(settingsRaw.vis || {});
 
     const loading = ref(false);
@@ -203,7 +202,6 @@ createApp({
         accentColor: accentColor.value,
         lessonColorScheme: lessonColorScheme.value,
         glassBackground: glassBackground.value,
-        fontSize: fontSize.value,
         vis: { ...visSettings },
       }));
     }
@@ -263,23 +261,6 @@ createApp({
       saveSettings();
     }
 
-    function applyFontSize(size) {
-      const el = document.documentElement;
-      if (size === 'small') {
-        el.style.fontSize = '14px';
-      } else if (size === 'large') {
-        el.style.fontSize = '18px';
-      } else {
-        el.style.fontSize = '16px';
-      }
-    }
-
-    function setFontSize(size) {
-      fontSize.value = size;
-      applyFontSize(size);
-      saveSettings();
-    }
-
     function applyTheme(t) {
       const el = document.documentElement;
       el.className = t === 'dark' ? '' : t;
@@ -306,7 +287,6 @@ createApp({
       }, 0);
     }
     applyTheme(theme.value);
-    applyFontSize(fontSize.value);
     function setTheme(t) { theme.value = t; applyTheme(t); saveSettings(); }
 
     const accentColors = {
@@ -878,7 +858,6 @@ createApp({
       accentColor, setAccentColor, accentColors,
       lessonColorScheme, setLessonColorScheme, lessonColorSchemes,
       glassBackground, setGlassBackground, glassBackgrounds,
-      fontSize, setFontSize,
       calM, calDir, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
       loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,
