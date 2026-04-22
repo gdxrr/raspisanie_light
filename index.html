@@ -51,11 +51,9 @@
         </transition>
       </div>
       <div class="header-right" v-if="vm==='list'">
-        <button type="button" class="icon-btn-hdr" @click="vibrate(); vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon(vm==='list'?'calendar':'list', 18)"></span></button>
-        <button type="button" class="icon-btn-hdr" @click="vibrate(); showSettings=true" aria-label="Настройки"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('settings', 18)"></span></button>
         <div class="dropdown-wrap">
           <button type="button" class="icon-btn-hdr" @click="vibrate(); showLinksDropdown=!showLinksDropdown" aria-label="Полезные ссылки">
-            <span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('list', 18)"></span>
+            <span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('book-open', 18)"></span>
           </button>
           <transition name="dropdown-fade">
             <div class="dropdown-menu" v-if="showLinksDropdown" @click="showLinksDropdown=false">
@@ -74,6 +72,8 @@
             </div>
           </transition>
         </div>
+        <button type="button" class="icon-btn-hdr" @click="vibrate(); vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon(vm==='list'?'calendar':'list', 18)"></span></button>
+        <button type="button" class="icon-btn-hdr" @click="vibrate(); showSettings=true" aria-label="Настройки"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('settings', 18)"></span></button>
       </div>
       <div class="header-right" v-else>
         <button type="button" class="icon-btn-hdr" @click="vibrate(); vm='list'" aria-label="Закрыть календарь"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('x', 18)"></span></button>
