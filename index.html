@@ -309,8 +309,21 @@
                     class="glass-bg-btn"
                     :class="{active: glassBackground===bgKey}"
                     @click="vibrate(); setGlassBackground(bgKey)">
-                    <div class="glass-bg-preview" :class="'glass-bg-preview-' + bgKey"></div>
+                    <div class="glass-bg-preview" :class="'glass-bg-preview-' + bgKey" :style="bgKey === 'custom' && customGlassImage ? {backgroundImage: customGlassImage, backgroundSize: 'cover', backgroundPosition: 'center'} : {}"></div>
                     <span class="glass-bg-name">{{ bgData.name }}</span>
+                  </button>
+                </div>
+                <div v-if="glassBackground === 'custom'" class="custom-image-upload" style="width: 100%; margin-top: 8px;">
+                  <label class="custom-image-label">
+                    <input type="file" accept="image/*" @change="handleCustomImageUpload" style="display: none;">
+                    <span class="custom-image-btn">
+                      <span class="lucide-wrap" v-html="lucideIcon('upload', 16)"></span>
+                      <span>{{ customGlassImage ? 'Изменить фото' : 'Загрузить фото' }}</span>
+                    </span>
+                  </label>
+                  <button v-if="customGlassImage" type="button" class="custom-image-clear" @click="vibrate(); clearCustomImage()">
+                    <span class="lucide-wrap" v-html="lucideIcon('x', 16)"></span>
+                    <span>Удалить</span>
                   </button>
                 </div>
               </div>

@@ -185,6 +185,7 @@ createApp({
     const accentColor = ref(settingsRaw.accentColor || 'blue');
     const lessonColorScheme = ref(settingsRaw.lessonColorScheme || 'default');
     const glassBackground = ref(settingsRaw.glassBackground || 'aurora');
+    const customGlassImage = ref(settingsRaw.customGlassImage || '');
     const visSettings = reactive(settingsRaw.vis || {});
 
     const loading = ref(false);
@@ -202,6 +203,7 @@ createApp({
         accentColor: accentColor.value,
         lessonColorScheme: lessonColorScheme.value,
         glassBackground: glassBackground.value,
+        customGlassImage: customGlassImage.value,
         vis: { ...visSettings },
       }));
     }
@@ -240,6 +242,7 @@ createApp({
       forest: { name: 'Лес' },
       rose: { name: 'Роза' },
       minimal: { name: 'Минимал' },
+      custom: { name: 'Своё фото' },
     };
 
     function applyGlassBackground(bg) {
@@ -253,11 +256,45 @@ createApp({
       if (bg && glassBackgrounds[bg]) {
         el.classList.add('glass-bg-' + bg);
       }
+
+      if (bg === 'custom' && customGlassImage.value) {
+        el.style.setProperty('--custom-glass-image', `url(${customGlassImage.value})`);
+      } else {
+        el.style.removeProperty('--custom-glass-image');
+      }
     }
 
     function setGlassBackground(bg) {
       glassBackground.value = bg;
       applyGlassBackground(bg);
+      saveSettings();
+    }
+
+    function handleCustomImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('Пожалуйста, выберите изображение');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        customGlassImage.value = e.target.result;
+        glassBackground.value = 'custom';
+        applyGlassBackground('custom');
+        saveSettings();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearCustomImage() {
+      customGlassImage.value = '';
+      if (glassBackground.value === 'custom') {
+        glassBackground.value = 'aurora';
+        applyGlassBackground('aurora');
+      }
       saveSettings();
     }
 
@@ -871,6 +908,7 @@ createApp({
       accentColor, setAccentColor, accentColors,
       lessonColorScheme, setLessonColorScheme, lessonColorSchemes,
       glassBackground, setGlassBackground, glassBackgrounds,
+      customGlassImage, handleCustomImageUpload, clearCustomImage,
       calM, calDir, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
       loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
       lastFetchedLabel,
