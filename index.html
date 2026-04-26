@@ -89,10 +89,10 @@
 
   <div class="main">
     <div class="sync-meta-wrap" v-if="loadError">
-      <div class="sync-meta sync-meta-err">{{ loadError }}<template v-if="!schedule.length"> Проверьте <code style="font-size:12px">config.js</code>.</template><button type="button" class="sync-meta-btn" @click="vibrate(); loadSchedule()">Обновить</button></div>
+      <div class="sync-meta sync-meta-err">{{ loadError }}<template v-if="!schedule.length"> Проверьте <code style="font-size:12px">config.js</code>.</template><button type="button" class="sync-meta-btn sync-meta-btn-icon" @click="vibrate(); loadSchedule()" aria-label="Повторить загрузку"><span class="lucide-wrap" v-html="lucideIcon('rotate-cw', 15)"></span></button></div>
     </div>
     <div class="sync-meta-wrap" v-if="schedule.length && loadErrorStale">
-      <div class="sync-meta sync-meta-err">Не удалось обновить с сервера, показан кэш.<button type="button" class="sync-meta-btn" @click="vibrate(); loadSchedule()">Повторить</button></div>
+      <div class="sync-meta sync-meta-err">Не удалось обновить с сервера, показан кэш.<button type="button" class="sync-meta-btn sync-meta-btn-icon" @click="vibrate(); loadSchedule()" aria-label="Повторить загрузку"><span class="lucide-wrap" v-html="lucideIcon('rotate-cw', 15)"></span></button></div>
     </div>
 
     <template v-if="vm==='list'">
