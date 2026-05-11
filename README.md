@@ -90,9 +90,10 @@ raspisanie_light/
 
 MIT
 
-## Автор
+## Авторы
 
-[gdxrr](https://github.com/gdxrr)
+- [gdxrr](https://github.com/gdxrr)
+- [RuslanName](https://github.com/RuslanName)
 
 ---
 
