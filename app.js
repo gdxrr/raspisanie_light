@@ -380,6 +380,10 @@ createApp({
       }
     };
 
+    const accentPalette = Object.entries(accentColors).map(([key, meta]) => ({ key, ...meta }));
+    const lessonSchemeChoices = Object.entries(lessonColorSchemes).map(([key, schemeData]) => ({ key, schemeData }));
+    const glassBgChoices = Object.entries(glassBackgrounds).map(([key, bgData]) => ({ key, bgData }));
+
     function applyLessonColorScheme(schemeName) {
       const scheme = lessonColorSchemes[schemeName];
       if (!scheme) {
@@ -905,9 +909,9 @@ createApp({
       tfl, wLbl, pN, visModeLesson, setVisLesson, barClass, lTypeClass,
       fDays,
       showSettings, settingsTab, selectedLesson, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
-      accentColor, setAccentColor, accentColors,
-      lessonColorScheme, setLessonColorScheme, lessonColorSchemes,
-      glassBackground, setGlassBackground, glassBackgrounds,
+      accentColor, setAccentColor, accentPalette,
+      lessonColorScheme, setLessonColorScheme, lessonSchemeChoices,
+      glassBackground, setGlassBackground, glassBgChoices,
       customGlassImage, handleCustomImageUpload, clearCustomImage,
       calM, calDir, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
       loading, loadError, loadErrorStale, loadSchedule, lucideIcon,

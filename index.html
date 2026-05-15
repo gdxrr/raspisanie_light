@@ -42,7 +42,7 @@
         <transition name="header-title" mode="out-in">
           <div class="header-brand" key="brand" v-if="!loading">
             <span class="header-title">3333</span>
-            <img class="header-group-icon" src="assets/images/signs/3333-sign.png" width="36" height="36" alt="Группа 3333" @click="handleGazpromClick" style="cursor: pointer;">
+            <img class="header-group-icon" src="assets/images/signs/3333-sign.png" alt="Группа 3333" @click="handleGazpromClick" style="cursor: pointer;">
           </div>
           <div class="header-loading-state" key="loading" v-else>
             <span class="header-loading-spinner"></span>
@@ -58,14 +58,14 @@
           <transition name="dropdown-fade">
             <div class="dropdown-menu" v-if="showLinksDropdown" @click="showLinksDropdown=false">
               <a href="https://pro.guap.ru/inside/profile" target="_blank" rel="noopener noreferrer" class="dropdown-item" @click="vibrate()">
-                <img class="dropdown-item-icon" src="https://src.guap.ru/logos/guap/guap-sign_w.svg" width="16" height="16" alt="" loading="lazy" decoding="async" style="filter: var(--icon-filter);">
+                <img class="dropdown-item-icon" src="https://src.guap.ru/logos/guap/guap-sign_w.svg" width="16" height="16" alt="" loading="lazy" decoding="async">
                 <span>ЛК ГУАП</span>
               </a>
-              <a href="" target="_blank" rel="noopener noreferrer" class="dropdown-item" @click="vibrate()">
+              <a href="https://docs.google.com/spreadsheets/u/0/d/1r6Tmp2l60dQ9Atao4F1e1ITEgvskrM468asiUIs1svg/htmlview#gid=1324537187" target="_blank" rel="noopener noreferrer" class="dropdown-item" @click="vibrate()">
                 <span class="lucide-wrap dropdown-item-icon" v-html="lucideIcon('key-round', 16)"></span>
                 <span>МСКЗИ | Давыдов</span>
               </a>
-              <a href="" target="_blank" rel="noopener noreferrer" class="dropdown-item" @click="vibrate()">
+              <a href="https://docs.google.com/spreadsheets/d/1A84JKC8L6ls561CrD5LTrL3Ro81-psnB0stOl9cSLp4/edit?htmlview#gid=1185166563" target="_blank" rel="noopener noreferrer" class="dropdown-item" @click="vibrate()">
                 <span class="lucide-wrap dropdown-item-icon" v-html="lucideIcon('database', 16)"></span>
                 <span>БД | Елина</span>
               </a>
@@ -98,12 +98,12 @@
     <template v-if="vm==='list'">
 
       <template v-if="loading && schedule.length===0">
-        <div v-for="i in 3" :key="'skeleton-'+i">
+        <div v-for="block in [1, 2, 3]" :key="'skeleton-' + block">
           <div class="day-hdr">
             <div class="skeleton-line w-55 h-16"></div>
           </div>
           <div class="skeleton-block">
-            <div v-for="j in 3" :key="'skeleton-row-'+j" class="skeleton-row">
+            <div v-for="row in [1, 2, 3]" :key="'skeleton-row-' + row" class="skeleton-row">
               <div class="skeleton-time">
                 <div class="skeleton-line w-100 h-20"></div>
                 <div class="skeleton-line w-35 h-14"></div>
@@ -124,42 +124,42 @@
       <div style="padding:20px 12px" v-if="!loading && fDays.length===0">
         <div class="no-card"><div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Пар нет</div><div class="no-sub">Заполните таблицу или проверьте подключение.</div></div>
       </div>
-      <div v-for="day in fDays" :key="day.dateStr+day.name" v-show="!loading || schedule.length>0">
-        <div class="week-separator" v-if="day.isWeekStart">
-          <div class="week-separator-dot" :class="day.weekType"></div>
-          <span class="week-separator-label">{{ day.weekType==='odd'?'Нечётная неделя':'Чётная неделя' }}</span>
+      <div v-for="scheduleDay in fDays" :key="scheduleDay.dateStr+scheduleDay.name" v-show="!loading || schedule.length>0">
+        <div class="week-separator" v-if="scheduleDay.isWeekStart">
+          <div class="week-separator-dot" :class="scheduleDay.weekType"></div>
+          <span class="week-separator-label">{{ scheduleDay.weekType==='odd'?'Нечётная неделя':'Чётная неделя' }}</span>
           <div class="week-separator-line"></div>
         </div>
         <div class="day-hdr">
-          <div class="day-hdr-title" :class="{today:day.isToday}">{{ day.name }}, {{ day.dateStr }}</div>
+          <div class="day-hdr-title" :class="{today:scheduleDay.isToday}">{{ scheduleDay.name }}, {{ scheduleDay.dateStr }}</div>
         </div>
-        <div v-if="day.isWeekend" class="no-card">
-          <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon(day.weekendLabel && day.weekendLabel!=='weekend' ? 'party-popper' : 'bed', 36)"></span></div>
-          <div class="no-title">{{ day.weekendLabel && day.weekendLabel!=='weekend' ? day.weekendLabel : 'Выходной' }}</div>
+        <div v-if="scheduleDay.isWeekend" class="no-card">
+          <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon(scheduleDay.weekendLabel && scheduleDay.weekendLabel!=='weekend' ? 'party-popper' : 'bed', 36)"></span></div>
+          <div class="no-title">{{ scheduleDay.weekendLabel && scheduleDay.weekendLabel!=='weekend' ? scheduleDay.weekendLabel : 'Выходной' }}</div>
           <div class="no-sub">Пар нет</div>
         </div>
-        <div v-else-if="day.visibleLessons.length===0" class="no-card">
+        <div v-else-if="scheduleDay.visibleLessons.length===0" class="no-card">
           <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('inbox', 36)"></span></div>
           <div class="no-title">Пар нет</div>
           <div class="no-sub">Можно спать спокойно!</div>
         </div>
         <div v-else class="lessons-block">
-          <template v-for="l in day.visibleLessons" :key="lessonKey(l)">
-            <div class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l" @mouseenter="preloadRoomPhoto(l.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(l.roomSchemeUrl)">
+          <template v-for="lesson in scheduleDay.visibleLessons" :key="lessonKey(lesson)">
+            <div class="lesson-row" :class="{dimmed: visModeLesson(lesson)==='dim'}" @click="vibrate(); selectedLesson=lesson" @mouseenter="preloadRoomPhoto(lesson.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(lesson.roomSchemeUrl)">
               <div class="time-col">
-                <div class="time-start">{{ l.start }}</div>
-                <div class="pair-num">{{ pN(l) }}</div>
-                <div class="time-end">{{ l.end }}</div>
+                <div class="time-start">{{ lesson.start }}</div>
+                <div class="pair-num">{{ pN(lesson) }}</div>
+                <div class="time-end">{{ lesson.end }}</div>
               </div>
-              <div class="bar" :class="barClass(l)"></div>
+              <div class="bar" :class="barClass(lesson)"></div>
               <div class="lesson-body">
-                <div class="l-type" :class="lTypeClass(l)">{{ tfl(l.type) }}</div>
-                <div class="l-subject">{{ l.subject }}</div>
-                <div class="l-chips" v-if="l.room">
-                  <span class="chip">{{ l.room }}</span>
+                <div class="l-type" :class="lTypeClass(lesson)">{{ tfl(lesson.type) }}</div>
+                <div class="l-subject">{{ lesson.subject }}</div>
+                <div class="l-chips" v-if="lesson.room">
+                  <span class="chip">{{ lesson.room }}</span>
                 </div>
-                <div class="l-teacher" v-if="l.teacher">{{ l.teacher }}</div>
-                <div v-if="l.subject==='ВУЦ' && day.vucRemainderLine" class="l-vuc-note">{{ day.vucRemainderLine }}</div>
+                <div class="l-teacher" v-if="lesson.teacher">{{ lesson.teacher }}</div>
+                <div v-if="lesson.subject==='ВУЦ' && scheduleDay.vucRemainderLine" class="l-vuc-note">{{ scheduleDay.vucRemainderLine }}</div>
               </div>
             </div>
           </template>
@@ -178,16 +178,16 @@
       </div>
       <transition :name="'cal-slide-' + calDir" mode="out-in">
       <div class="cal-grid" :key="mTitle">
-        <div class="cal-dow" v-for="d in ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']" :key="d">{{ d }}</div>
-        <div v-for="(c,i) in calCells" :key="i" class="cal-cell"
-          :class="[{empty:!c}, c?c.cls:'', c&&isTd(c.date)?'today':'', c&&selD&&sD(c.date,selD)?'sel':'']"
-          @click="c&&(selD=c.date)">
-          <template v-if="c">
-            <span class="cal-num">{{ c.day }}</span>
-            <div class="cal-dots" v-if="!c.shortLabel">
-              <div v-for="(t,ti) in c.dots" :key="ti" class="cal-dot" :class="t"></div>
+        <div class="cal-dow" v-for="weekday in ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']" :key="weekday">{{ weekday }}</div>
+        <div v-for="(calCell, cellIdx) in calCells" :key="cellIdx" class="cal-cell"
+          :class="[{empty:!calCell}, calCell?calCell.cls:'', calCell&&isTd(calCell.date)?'today':'', calCell&&selD&&sD(calCell.date,selD)?'sel':'']"
+          @click="calCell&&(selD=calCell.date)">
+          <template v-if="calCell">
+            <span class="cal-num">{{ calCell.day }}</span>
+            <div class="cal-dots" v-if="!calCell.shortLabel">
+              <div v-for="(dotClass, dotIdx) in calCell.dots" :key="dotIdx" class="cal-dot" :class="dotClass"></div>
             </div>
-            <div class="cal-cell-label" v-if="c.shortLabel">{{ c.shortLabel }}</div>
+            <div class="cal-cell-label" v-if="calCell.shortLabel">{{ calCell.shortLabel }}</div>
           </template>
         </div>
       </div>
@@ -207,19 +207,19 @@
           <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Пар нет</div><div class="no-sub">Можно спать спокойно!</div>
         </div>
         <div class="lessons-block" v-else>
-          <div v-for="l in selL" :key="lessonKey(l)" class="lesson-row" :class="{dimmed: visModeLesson(l)==='dim'}" @click="vibrate(); selectedLesson=l" @mouseenter="preloadRoomPhoto(l.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(l.roomSchemeUrl)">
+          <div v-for="selLesson in selL" :key="lessonKey(selLesson)" class="lesson-row" :class="{dimmed: visModeLesson(selLesson)==='dim'}" @click="vibrate(); selectedLesson=selLesson" @mouseenter="preloadRoomPhoto(selLesson.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(selLesson.roomSchemeUrl)">
             <div class="time-col">
-              <div class="time-start">{{ l.start }}</div>
-              <div class="pair-num">{{ pN(l) }}</div>
-              <div class="time-end">{{ l.end }}</div>
+              <div class="time-start">{{ selLesson.start }}</div>
+              <div class="pair-num">{{ pN(selLesson) }}</div>
+              <div class="time-end">{{ selLesson.end }}</div>
             </div>
-            <div class="bar" :class="barClass(l)"></div>
+            <div class="bar" :class="barClass(selLesson)"></div>
             <div class="lesson-body">
-              <div class="l-type" :class="lTypeClass(l)">{{ tfl(l.type) }}</div>
-              <div class="l-subject">{{ l.subject }}</div>
-              <div class="l-chips" v-if="l.room"><span class="chip">{{ l.room }}</span></div>
-              <div class="l-teacher" v-if="l.teacher">{{ l.teacher }}</div>
-              <div v-if="l.subject==='ВУЦ' && vucRemainderForDate(selD)" class="l-vuc-note">{{ vucRemainderForDate(selD) }}</div>
+              <div class="l-type" :class="lTypeClass(selLesson)">{{ tfl(selLesson.type) }}</div>
+              <div class="l-subject">{{ selLesson.subject }}</div>
+              <div class="l-chips" v-if="selLesson.room"><span class="chip">{{ selLesson.room }}</span></div>
+              <div class="l-teacher" v-if="selLesson.teacher">{{ selLesson.teacher }}</div>
+              <div v-if="selLesson.subject==='ВУЦ' && vucRemainderForDate(selD)" class="l-vuc-note">{{ vucRemainderForDate(selD) }}</div>
             </div>
           </div>
         </div>
@@ -267,15 +267,15 @@
                 <div class="settings-row-label">Акцентный цвет</div>
                 <div class="accent-colors-grid">
                   <button
-                    v-for="(colorData, colorKey) in accentColors"
-                    :key="colorKey"
+                    v-for="swatch in accentPalette"
+                    :key="swatch.key"
                     type="button"
                     class="accent-color-btn"
-                    :class="{active: accentColor===colorKey}"
-                    :style="{backgroundColor: colorData.color}"
-                    @click="vibrate(); setAccentColor(colorKey)"
-                    :aria-label="colorData.name">
-                    <span class="accent-color-check" v-if="accentColor===colorKey">✓</span>
+                    :class="{active: accentColor===swatch.key}"
+                    :style="{backgroundColor: swatch.color}"
+                    @click="vibrate(); setAccentColor(swatch.key)"
+                    :aria-label="swatch.name">
+                    <span class="accent-color-check" v-if="accentColor===swatch.key">✓</span>
                   </button>
                 </div>
               </div>
@@ -283,19 +283,19 @@
                 <div class="settings-row-label">Цвета пар</div>
                 <div class="lesson-scheme-grid">
                   <button
-                    v-for="(schemeData, schemeKey) in lessonColorSchemes"
-                    :key="schemeKey"
+                    v-for="choice in lessonSchemeChoices"
+                    :key="choice.key"
                     type="button"
                     class="lesson-scheme-btn"
-                    :class="{active: lessonColorScheme===schemeKey}"
-                    @click="vibrate(); setLessonColorScheme(schemeKey)">
-                    <div class="lesson-scheme-preview">
-                      <span class="lesson-scheme-dot" :style="{backgroundColor: schemeData.dark.lec}"></span>
-                      <span class="lesson-scheme-dot" :style="{backgroundColor: schemeData.dark.lab}"></span>
-                      <span class="lesson-scheme-dot" :style="{backgroundColor: schemeData.dark.prac}"></span>
-                      <span class="lesson-scheme-dot" :style="{backgroundColor: schemeData.dark.kurs}"></span>
-                    </div>
-                    <span class="lesson-scheme-name">{{ schemeData.name }}</span>
+                    :class="{active: lessonColorScheme===choice.key}"
+                    @click="vibrate(); setLessonColorScheme(choice.key)">
+                    <span class="lesson-scheme-preview">
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.lec}"></span>
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.lab}"></span>
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.prac}"></span>
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.kurs}"></span>
+                    </span>
+                    <span class="lesson-scheme-name">{{ choice.schemeData.name }}</span>
                   </button>
                 </div>
               </div>
@@ -303,14 +303,14 @@
                 <div class="settings-row-label">Фон стекла</div>
                 <div class="glass-bg-grid">
                   <button
-                    v-for="(bgData, bgKey) in glassBackgrounds"
-                    :key="bgKey"
+                    v-for="bgChoice in glassBgChoices"
+                    :key="bgChoice.key"
                     type="button"
                     class="glass-bg-btn"
-                    :class="{active: glassBackground===bgKey}"
-                    @click="vibrate(); setGlassBackground(bgKey)">
-                    <div class="glass-bg-preview" :class="'glass-bg-preview-' + bgKey" :style="bgKey === 'custom' && customGlassImage ? {backgroundImage: customGlassImage, backgroundSize: 'cover', backgroundPosition: 'center'} : {}"></div>
-                    <span class="glass-bg-name">{{ bgData.name }}</span>
+                    :class="{active: glassBackground===bgChoice.key}"
+                    @click="vibrate(); setGlassBackground(bgChoice.key)">
+                    <span class="glass-bg-preview" :class="'glass-bg-preview-' + bgChoice.key" :style="bgChoice.key === 'custom' && customGlassImage ? {backgroundImage: customGlassImage, backgroundSize: 'cover', backgroundPosition: 'center'} : {}"></span>
+                    <span class="glass-bg-name">{{ bgChoice.bgData.name }}</span>
                   </button>
                 </div>
                 <div v-if="glassBackground === 'custom'" class="custom-image-upload" style="width: 100%; margin-top: 8px;">
@@ -409,8 +409,8 @@
               <div class="settings-section-title">Учёба</div>
             <div class="settings-card">
               <div class="settings-row settings-row-stack">
-                <div class="settings-row-label">ВУЦ</div>
-                <select class="vuc-select" :value="vucDay" @change="vibrate(); setVucDay($event.target.value)">
+                <label class="settings-row-label" for="vuc-day-select">ВУЦ</label>
+                <select id="vuc-day-select" class="vuc-select" :value="vucDay" @change="vibrate(); setVucDay($event.target.value)">
                   <option value="hide">Нет</option>
                   <option value="wed">Среда</option>
                   <option value="thu">Четверг</option>
@@ -425,17 +425,17 @@
               <div v-if="scheduleVisList.length===0" class="settings-row">
                 <div class="settings-row-sub">Нет пар для настройки — загрузите расписание.</div>
               </div>
-              <div v-for="l in scheduleVisList" :key="lessonKey(l)" class="settings-row settings-row-vis" :class="'vis-row-' + visModeLesson(l)">
+              <div v-for="visLesson in scheduleVisList" :key="lessonKey(visLesson)" class="settings-row settings-row-vis" :class="'vis-row-' + visModeLesson(visLesson)">
                 <div class="settings-row-left">
-                  <div class="settings-row-label" style="font-size:14px">{{ l.subject }}</div>
+                  <div class="settings-row-label" style="font-size:14px">{{ visLesson.subject }}</div>
                   <div class="settings-row-sub">
-                    {{ l.day }} · {{ l.start }} · {{ wLbl(l.week) }}<template v-if="l.teacher"> · {{ l.teacher }}</template>
+                    {{ visLesson.day }} · {{ visLesson.start }} · {{ wLbl(visLesson.week) }}<template v-if="visLesson.teacher"> · {{ visLesson.teacher }}</template>
                   </div>
                 </div>
                 <div class="vis-opts">
-                  <button type="button" class="vis-btn" :class="{'active-show':  visModeLesson(l)==='show'}" @click="vibrate(); setVisLesson(l,'show')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye', 15)"></span></button>
-                  <button type="button" class="vis-btn" :class="{'active-dim':   visModeLesson(l)==='dim'}"  @click="vibrate(); setVisLesson(l,'dim')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('sun-medium', 15)"></span></button>
-                  <button type="button" class="vis-btn" :class="{'active-hide':  visModeLesson(l)==='hide'}" @click="vibrate(); setVisLesson(l,'hide')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye-off', 15)"></span></button>
+                  <button type="button" class="vis-btn" :class="{'active-show':  visModeLesson(visLesson)==='show'}" @click="vibrate(); setVisLesson(visLesson,'show')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye', 15)"></span></button>
+                  <button type="button" class="vis-btn" :class="{'active-dim':   visModeLesson(visLesson)==='dim'}"  @click="vibrate(); setVisLesson(visLesson,'dim')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('sun-medium', 15)"></span></button>
+                  <button type="button" class="vis-btn" :class="{'active-hide':  visModeLesson(visLesson)==='hide'}" @click="vibrate(); setVisLesson(visLesson,'hide')"><span class="lucide-wrap lucide-wrap-vis" v-html="lucideIcon('eye-off', 15)"></span></button>
                 </div>
               </div>
             </div>
