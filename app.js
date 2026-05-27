@@ -697,6 +697,9 @@ createApp({
       activeSheet.value = sheet;
       if (sheet !== 'schedule') vm.value = 'list';
       sheetSwitchAnim.value = true;
+      nextTick(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      });
       loadActiveSheet();
     }
 
