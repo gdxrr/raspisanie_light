@@ -15,7 +15,10 @@
       var s = JSON.parse(localStorage.getItem('settings3')||'{}');
       var t = s.theme || 'system';
       var el = document.documentElement;
-      el.className = t === 'dark' ? '' : t;
+      el.classList.remove('light', 'glass');
+      if (t === 'light') el.classList.add('light');
+      else if (t === 'glass') el.classList.add('glass');
+      if (t === 'glass' && s.glassBackground) el.classList.add('glass-bg-' + s.glassBackground);
       var bg = t === 'light' ? '#f2f2f7' : (t === 'glass' ? '#12121c' : '#1c1c1e');
       var cs = t === 'light' ? 'light' : (t === 'system' ? 'light dark' : 'dark');
       el.style.background = bg;

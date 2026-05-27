@@ -53,7 +53,7 @@ html.light, html.light body {
     color-scheme: light;
   }
 }
-html.glass, html.glass body {
+html.glass {
   --bg-raw: 18, 18, 28;
   --bg: #12121c;
   --glass: rgba(255,255,255,0.07);
@@ -73,8 +73,11 @@ html.glass, html.glass body {
   --holiday: var(--danger);
   --vacation: #4ade80;
   --glow-odd: color-mix(in srgb, var(--odd) 45%, transparent); --glow-even: color-mix(in srgb, var(--even) 45%, transparent);
-  background: #12121c !important; color: #ffffff !important;
   color-scheme: dark;
+}
+html.glass body {
+  background: #12121c !important;
+  color: #ffffff !important;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -164,9 +167,10 @@ html::-webkit-scrollbar-thumb,
   overflow: visible;
 }
 .header--scroll-replaces-line {
-  border-bottom: none;
+  border-bottom: 1px solid var(--sep);
 }
 .header-hscroll {
+  display: none;
   position: relative;
   height: 4px;
   width: 100%;
@@ -277,7 +281,7 @@ html::-webkit-scrollbar-thumb,
   color: var(--text2);
   white-space: nowrap;
 }
-.header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .week-hdr-badge {
   display: inline-flex; align-items: center; justify-content: center;
   padding: 5px 11px; border-radius: 8px; flex-shrink: 0;
@@ -382,10 +386,10 @@ html.light .header-lk-icon { filter: invert(1); }
 }
 .filter-strip-scroll {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   min-width: 0;
-  overflow-x: auto;
+  overflow-x: visible;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -396,12 +400,12 @@ html.light .header-lk-icon { filter: invert(1); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   box-sizing: border-box;
-  height: 32px;
-  white-space: nowrap; padding: 6px 14px; border-radius: 20px;
+  height: 30px;
+  white-space: nowrap; padding: 6px 10px; border-radius: 20px;
   border: none; background: var(--bg3); color: var(--text2);
-  font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;
+  font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit;
   transition: background-color .2s ease, color .2s ease;
 }
 .filter-pill-icon {
@@ -426,7 +430,7 @@ html.light .header-lk-icon { filter: invert(1); }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding-right: 14px;
+  padding-right: 10px;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -1550,6 +1554,12 @@ html.glass .header-group-icon-shell::before {
   border-color: color-mix(in srgb, var(--accent) 52%, rgba(255,255,255,0.22));
   box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 24%, transparent);
 }
+html.glass .header-group-icon-shell.loading::before {
+  border-color: rgba(255,255,255,0.18);
+  border-top-color: var(--accent);
+  -webkit-animation: header-spin 0.85s linear infinite;
+  animation: header-spin 0.85s linear infinite;
+}
 html.glass .week-hdr-badge.odd {
   background: rgba(255, 107, 107, 0.16); color: var(--odd);
   box-shadow: 0 0 12px rgba(255, 107, 107, 0.28);
@@ -1671,7 +1681,10 @@ html.glass .skeleton-block {
 }
 html.glass .skeleton-row + .skeleton-row::before { background: rgba(255,255,255,0.14); }
 html.glass .skeleton-line { background: rgba(255,255,255,0.11); }
-html.glass .skeleton-bar { background: rgba(255,255,255,0.11); }
+html.glass .skeleton-bar {
+  background: color-mix(in srgb, var(--accent) 42%, rgba(255,255,255,0.1));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 28%, transparent);
+}
 
 html.glass .cal-nav-btn {
   background: rgba(255,255,255,0.11);

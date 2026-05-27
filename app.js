@@ -463,10 +463,27 @@ createApp({
       saveSettings();
     }
 
+    const THEME_CSS_VARS = ['--lec', '--lab', '--prac', '--kurs', '--accent'];
+
+    function setThemeCssVar(name, value) {
+      document.documentElement.style.setProperty(name, value, 'important');
+      if (document.body) document.body.style.setProperty(name, value, 'important');
+    }
+
+    function clearThemeCssVars() {
+      [document.documentElement, document.body].forEach((el) => {
+        if (!el) return;
+        THEME_CSS_VARS.forEach((name) => el.style.removeProperty(name));
+      });
+    }
+
     function applyTheme(t) {
       const el = document.documentElement;
       const body = document.body;
-      el.className = t === 'dark' ? '' : t;
+      clearThemeCssVars();
+      el.classList.remove('light', 'glass');
+      if (t === 'light') el.classList.add('light');
+      else if (t === 'glass') el.classList.add('glass');
       if (t === 'light') {
         el.style.background = '#f2f2f7';
         body.style.background = '#f2f2f7';
@@ -556,7 +573,6 @@ createApp({
         return;
       }
 
-      const root = document.documentElement;
       const currentTheme = theme.value;
       let colors;
 
@@ -571,10 +587,10 @@ createApp({
         colors = scheme.dark;
       }
 
-      root.style.setProperty('--lec', colors.lec, 'important');
-      root.style.setProperty('--lab', colors.lab, 'important');
-      root.style.setProperty('--prac', colors.prac, 'important');
-      root.style.setProperty('--kurs', colors.kurs, 'important');
+      setThemeCssVar('--lec', colors.lec);
+      setThemeCssVar('--lab', colors.lab);
+      setThemeCssVar('--prac', colors.prac);
+      setThemeCssVar('--kurs', colors.kurs);
     }
 
     function setLessonColorScheme(schemeName) {
@@ -586,7 +602,6 @@ createApp({
     function applyAccentColor(color) {
       const colorData = accentColors[color];
       if (!colorData) return;
-      const root = document.documentElement;
       const currentTheme = theme.value;
       let isLight = false;
 
@@ -597,7 +612,7 @@ createApp({
       }
 
       const accentValue = isLight ? colorData.colorLight : colorData.color;
-      root.style.setProperty('--accent', accentValue);
+      setThemeCssVar('--accent', accentValue);
     }
 
     function setAccentColor(color) {
