@@ -601,6 +601,7 @@ html.light .filter-pill-menu--teleport {
   transform: translateY(12px);
 }
 .session-days .schedule-day { margin-bottom: 4px; }
+.session-days .schedule-day:first-child .day-hdr { padding-top: 6px; }
 .sheet-row-session { align-items: center; }
 .sheet-row-session .time-col-single {
   justify-content: center;
@@ -687,7 +688,7 @@ html.light .filter-pill-menu--teleport {
 .day-hdr-title.today { color: var(--accent); }
 .week-separator {
   display: flex; align-items: center; gap: 10px;
-  padding: 12px 12px 4px;
+  padding: 4px 12px;
 }
 .week-separator-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .week-separator-dot.odd  { background: var(--odd); box-shadow: 0 0 6px var(--odd); }
