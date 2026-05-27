@@ -601,7 +601,7 @@ html.light .filter-pill-menu--teleport {
   transform: translateY(12px);
 }
 .session-days .schedule-day { margin-bottom: 4px; }
-.session-days .schedule-day:first-child .day-hdr { padding-top: 6px; }
+.session-days .schedule-day:first-child .day-hdr { padding-top: 3px; }
 .sheet-row-session { align-items: center; }
 .sheet-row-session .time-col-single {
   justify-content: center;
