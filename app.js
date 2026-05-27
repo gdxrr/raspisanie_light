@@ -641,6 +641,11 @@ createApp({
     const sheetSwitchAnim = ref(true);
     const sheetSwitchKey = computed(() => activeSheet.value + ':' + fil.value);
     const showScheduleFilMenu = ref(false);
+    const filterStripScrollRef = ref(null);
+    const filterStripBarRef = ref(null);
+    const hasFilterOverflow = ref(false);
+    const filterBarThumbStyle = ref({ width: '0px', left: '0px' });
+    let filterBarDrag = null;
     const schedulePillPressing = ref(false);
     const schedulePillRef = ref(null);
     const scheduleFilMenuStyle = ref({});
@@ -683,6 +688,113 @@ createApp({
           zIndex: 10050,
         };
       }
+    }
+
+    function updateFilterBarThumb() {
+      const el = filterStripScrollRef.value;
+      const bar = filterStripBarRef.value;
+      if (!el || !bar || !hasFilterOverflow.value) {
+        filterBarThumbStyle.value = { width: '0px', left: '0px' };
+        return;
+      }
+      const trackW = bar.clientWidth;
+      const ratio = el.clientWidth / el.scrollWidth;
+      const thumbW = Math.max(20, trackW * ratio);
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      const maxThumbTravel = Math.max(0, trackW - thumbW);
+      const left = maxScroll > 0 ? (el.scrollLeft / maxScroll) * maxThumbTravel : 0;
+      filterBarThumbStyle.value = {
+        width: `${thumbW}px`,
+        left: `${left}px`,
+      };
+    }
+
+    function updateFilterStripOverflow() {
+      const el = filterStripScrollRef.value;
+      hasFilterOverflow.value = !!el && (el.scrollWidth - el.clientWidth > 1);
+      nextTick(updateFilterBarThumb);
+    }
+
+    function scrollActiveFilterTabIntoView(behavior) {
+      const container = filterStripScrollRef.value;
+      if (!container || vm.value !== 'list') return;
+      const scrollBehavior = behavior || 'smooth';
+      nextTick(() => {
+        if (container.scrollWidth - container.clientWidth <= 1) return;
+        let target = container.querySelector('.filter-pill.active');
+        if (!target && activeSheet.value === 'schedule') {
+          target = container.querySelector('.schedule-fil-wrap .filter-pill')
+            || container.querySelector('.schedule-fil-wrap');
+        }
+        if (!target) return;
+        const pad = 6;
+        const cRect = container.getBoundingClientRect();
+        const tRect = target.getBoundingClientRect();
+        let delta = 0;
+        if (tRect.left < cRect.left + pad) {
+          delta = tRect.left - cRect.left - pad;
+        } else if (tRect.right > cRect.right - pad) {
+          delta = tRect.right - cRect.right + pad;
+        }
+        if (!delta) return;
+        container.scrollBy({ left: delta, behavior: scrollBehavior });
+        if (scrollBehavior === 'smooth') {
+          setTimeout(updateFilterBarThumb, 280);
+        } else {
+          updateFilterBarThumb();
+        }
+      });
+    }
+
+    function onFilterStripScroll() {
+      updateFilterBarThumb();
+    }
+
+    function onFilterBarPointerDown(e) {
+      const el = filterStripScrollRef.value;
+      const bar = filterStripBarRef.value;
+      if (!el || !bar || e.button !== undefined && e.button !== 0) return;
+      e.preventDefault();
+      const trackW = bar.clientWidth;
+      const ratio = el.clientWidth / el.scrollWidth;
+      const thumbW = Math.max(20, trackW * ratio);
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      const maxThumbTravel = Math.max(0, trackW - thumbW);
+      const barRect = bar.getBoundingClientRect();
+      const thumbLeft = maxScroll > 0 ? (el.scrollLeft / maxScroll) * maxThumbTravel : 0;
+      const clickX = e.clientX - barRect.left;
+      const onThumb = clickX >= thumbLeft && clickX <= thumbLeft + thumbW;
+
+      if (!onThumb && maxThumbTravel > 0) {
+        const targetLeft = Math.max(0, Math.min(maxThumbTravel, clickX - thumbW / 2));
+        el.scrollLeft = (targetLeft / maxThumbTravel) * maxScroll;
+        updateFilterBarThumb();
+      }
+
+      filterBarDrag = {
+        startX: e.clientX,
+        startScroll: el.scrollLeft,
+        maxScroll,
+        maxThumbTravel,
+      };
+
+      const onMove = (ev) => {
+        if (!filterBarDrag) return;
+        const dx = ev.clientX - filterBarDrag.startX;
+        if (filterBarDrag.maxThumbTravel > 0) {
+          el.scrollLeft = filterBarDrag.startScroll + (dx / filterBarDrag.maxThumbTravel) * filterBarDrag.maxScroll;
+        }
+        updateFilterBarThumb();
+      };
+      const onUp = () => {
+        filterBarDrag = null;
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onUp);
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
     }
 
     function clearSchedulePressTimer() {
@@ -1274,6 +1386,10 @@ createApp({
       loadActiveSheet();
       const cfg = typeof window.SCHEDULE_CONFIG === 'object' && window.SCHEDULE_CONFIG ? window.SCHEDULE_CONFIG : {};
       loadLinks(cfg);
+      nextTick(() => {
+        updateFilterStripOverflow();
+        scrollActiveFilterTabIntoView('auto');
+      });
       todayTickId = setInterval(bumpToday, 60 * 1000);
       document.addEventListener('visibilitychange', onVisibility);
       if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
@@ -1307,6 +1423,7 @@ createApp({
 
     function onScheduleFilMenuLayout() {
       if (showScheduleFilMenu.value) updateScheduleFilMenuPos();
+      updateFilterStripOverflow();
     }
 
     watch(showScheduleFilMenu, (open) => {
@@ -1317,6 +1434,18 @@ createApp({
       if (!isVisible && activeSheet.value === 'session') {
         activeSheet.value = 'schedule';
       }
+      nextTick(() => {
+        updateFilterStripOverflow();
+        scrollActiveFilterTabIntoView('auto');
+      });
+    });
+
+    watch(activeSheet, () => {
+      scrollActiveFilterTabIntoView();
+    });
+
+    watch(() => usefulLinks.value.length, () => {
+      nextTick(updateFilterStripOverflow);
     });
 
     watch(vm, () => {
@@ -1331,6 +1460,10 @@ createApp({
       } else {
         document.documentElement.style.overflow = '';
         document.body.style.overflow = '';
+        nextTick(() => {
+          updateFilterStripOverflow();
+          scrollActiveFilterTabIntoView('auto');
+        });
       }
     });
 
@@ -1379,6 +1512,12 @@ createApp({
       roomPhotoPath,
       preloadRoomPhoto,
       calWrapRef,
+      filterStripScrollRef,
+      filterStripBarRef,
+      hasFilterOverflow,
+      filterBarThumbStyle,
+      onFilterStripScroll,
+      onFilterBarPointerDown,
       showLinksDropdown,
       usefulLinks,
       handleLinkSelect,

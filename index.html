@@ -36,7 +36,7 @@
 <body>
 <div id="app" v-cloak>
 
-  <div class="header" v-show="!showSettings">
+  <div class="header" :class="{ 'header--scroll-replaces-line': hasFilterOverflow }" v-show="!showSettings">
     <div class="header-top">
       <div class="header-title-wrap">
         <transition name="header-title" mode="out-in">
@@ -99,31 +99,35 @@
     </div>
 
     <div class="filter-strip" v-if="vm==='list'">
-      <div
-        class="filter-pill-dropdown-wrap schedule-fil-wrap"
-        :class="{ open: showScheduleFilMenu, pressing: schedulePillPressing }"
-      >
-        <button
-          ref="schedulePillRef"
-          type="button"
-          class="filter-pill filter-pill--schedule"
-          :class="{ active: activeSheet === 'schedule', 'has-sub': fil !== 'all' }"
-          aria-haspopup="listbox"
-          :aria-expanded="showScheduleFilMenu"
-          @pointerdown="onSchedulePillPointerDown"
-          @pointerup="onSchedulePillPointerUp"
-          @pointerleave="onSchedulePillPointerUp"
-          @pointercancel="onSchedulePillPointerUp"
-          @click="onSchedulePillClick"
-          @contextmenu.prevent="openScheduleFilMenu()"
+      <div ref="filterStripScrollRef" class="filter-strip-scroll" @scroll="onFilterStripScroll">
+        <div
+          class="filter-pill-dropdown-wrap schedule-fil-wrap"
+          :class="{ open: showScheduleFilMenu, pressing: schedulePillPressing }"
         >
-          <span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('schedule-tab', 14)" aria-hidden="true"></span>
-          <span class="filter-pill-label">Расписание</span>
-          <span class="filter-pill-sub-dots" aria-hidden="true">
-            <span class="fil-dot" :class="fil==='odd' || fil==='all' ? 'fil-dot-odd' : 'fil-dot-muted'"></span>
-            <span class="fil-dot" :class="fil==='even' || fil==='all' ? 'fil-dot-even' : 'fil-dot-muted'"></span>
-          </span>
-        </button>
+          <button
+            ref="schedulePillRef"
+            type="button"
+            class="filter-pill filter-pill--schedule"
+            :class="{ active: activeSheet === 'schedule', 'has-sub': fil !== 'all' }"
+            aria-haspopup="listbox"
+            :aria-expanded="showScheduleFilMenu"
+            @pointerdown="onSchedulePillPointerDown"
+            @pointerup="onSchedulePillPointerUp"
+            @pointerleave="onSchedulePillPointerUp"
+            @pointercancel="onSchedulePillPointerUp"
+            @click="onSchedulePillClick"
+            @contextmenu.prevent="openScheduleFilMenu()"
+          >
+            <span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('schedule-tab', 14)" aria-hidden="true"></span>
+            <span class="filter-pill-label">Расписание</span>
+            <span class="filter-pill-sub-dots" aria-hidden="true">
+              <span class="fil-dot" :class="fil==='odd' || fil==='all' ? 'fil-dot-odd' : 'fil-dot-muted'"></span>
+              <span class="fil-dot" :class="fil==='even' || fil==='all' ? 'fil-dot-even' : 'fil-dot-muted'"></span>
+            </span>
+          </button>
+        </div>
+        <button v-if="showSessionTab" type="button" class="filter-pill" :class="{active:activeSheet==='session'}" @click="vibrate(); setActiveSheet('session')"><span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('session-tab', 14)" aria-hidden="true"></span><span>Сессия</span></button>
+        <button type="button" class="filter-pill" :class="{active:activeSheet==='disciplines'}" @click="vibrate(); setActiveSheet('disciplines')"><span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('list', 14)" aria-hidden="true"></span><span>Дисциплины</span></button>
       </div>
       <teleport to="body">
         <transition name="filter-menu-pop">
@@ -152,10 +156,15 @@
           </div>
         </transition>
       </teleport>
-      <div class="filter-strip-scroll">
-        <button v-if="showSessionTab" type="button" class="filter-pill" :class="{active:activeSheet==='session'}" @click="vibrate(); setActiveSheet('session')"><span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('session-tab', 14)" aria-hidden="true"></span><span>Сессия</span></button>
-        <button type="button" class="filter-pill" :class="{active:activeSheet==='disciplines'}" @click="vibrate(); setActiveSheet('disciplines')"><span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('list', 14)" aria-hidden="true"></span><span>Дисциплины</span></button>
-      </div>
+    </div>
+    <div
+      v-if="hasFilterOverflow && vm==='list'"
+      ref="filterStripBarRef"
+      class="header-hscroll"
+      aria-hidden="true"
+      @pointerdown="onFilterBarPointerDown"
+    >
+      <div class="header-hscroll__thumb" :style="filterBarThumbStyle"></div>
     </div>
   </div>
 
