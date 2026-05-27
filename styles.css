@@ -481,7 +481,8 @@ html.light .filter-pill-menu--teleport {
   }
 }
 
-.sheet-list-block { padding-bottom: 8px; }
+.sheet-switch-stage { padding: 8px 0; }
+.sheet-list-block { padding: 0; }
 .sheet-switch-enter-active,
 .sheet-switch-leave-active {
   transition: opacity .26s ease, transform .26s ease;
@@ -749,6 +750,14 @@ html.light .filter-pill-menu--teleport {
 .cal-legend { display: flex; flex-wrap: wrap; gap: 8px 12px; padding: 12px 4px 4px; }
 .cal-legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text3); }
 .cal-legend-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+.cal-legend-dot.lec { background: var(--lec); }
+.cal-legend-dot.lab { background: var(--lab); }
+.cal-legend-dot.prac { background: var(--prac); }
+.cal-legend-dot.session { background: var(--kurs); }
+.cal-legend-dot.holiday { background: #ff453a; }
+.cal-legend-dot.pre-holiday { background: var(--prac); }
+.cal-legend-dot.vacation { background: #32d74b; }
+.cal-legend-dot.square { border-radius: 3px; }
 
 .settings-panel {
   position: fixed; inset: 0; background: var(--bg); z-index: 300;

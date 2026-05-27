@@ -327,13 +327,13 @@
       </div>
       </transition>
       <div class="cal-legend">
-        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#bf5af2"></span>Лекция</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#32aaff"></span>Лаб.</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#ff9f0a"></span>Практика</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#ff453a"></span>Праздник</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#ff9f0a;border-radius:3px"></span>Зач.нед</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#ff375f;border-radius:3px"></span>Сессия</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#32d74b;border-radius:3px"></span>Каникулы</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot lec"></span>Лекция</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot lab"></span>Лаб.</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot prac"></span>Практика</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot holiday"></span>Праздник</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot pre-holiday square"></span>Зач. нед</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot session square"></span>Сессия</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot vacation square"></span>Каникулы</div>
       </div>
       <div class="cal-detail" v-if="selD">
         <div class="cal-detail-title">{{ fmtD(selD) }}{{ selPeriod?' · '+selPeriod:'' }}</div>
