@@ -662,47 +662,12 @@ createApp({
     const filterBarThumbStyle = ref({ width: '0px', left: '0px' });
     let filterBarDrag = null;
     const schedulePillPressing = ref(false);
-    const schedulePillRef = ref(null);
-    const scheduleFilMenuStyle = ref({});
-    const scheduleFilMenuPlacement = ref('down');
     const SCHEDULE_LONG_PRESS_MS = 480;
-    const SCHEDULE_FIL_MENU_H = 168;
     let schedulePressTimer = null;
     let schedulePressOpened = false;
 
     function filLbl(f) {
       return { all: '2 недели', odd: 'Нечётная', even: 'Чётная' }[f] || f;
-    }
-
-    function updateScheduleFilMenuPos() {
-      const el = schedulePillRef.value;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      const gap = 8;
-      const menuW = 156;
-      const left = Math.max(8, Math.min(r.left, window.innerWidth - menuW - 8));
-      const spaceBelow = window.innerHeight - r.bottom - gap;
-      const spaceAbove = r.top - gap;
-      const openDown = spaceBelow >= SCHEDULE_FIL_MENU_H || spaceBelow >= spaceAbove;
-      scheduleFilMenuPlacement.value = openDown ? 'down' : 'up';
-      if (openDown) {
-        scheduleFilMenuStyle.value = {
-          position: 'fixed',
-          top: `${r.bottom + gap}px`,
-          left: `${left}px`,
-          width: `${menuW}px`,
-          zIndex: 10050,
-        };
-      } else {
-        scheduleFilMenuStyle.value = {
-          position: 'fixed',
-          top: 'auto',
-          bottom: `${window.innerHeight - r.top + gap}px`,
-          left: `${left}px`,
-          width: `${menuW}px`,
-          zIndex: 10050,
-        };
-      }
     }
 
     function updateFilterBarThumb() {
@@ -837,7 +802,6 @@ createApp({
     function openScheduleFilMenu() {
       activeSheet.value = 'schedule';
       showScheduleFilMenu.value = true;
-      nextTick(() => updateScheduleFilMenuPos());
     }
 
     function closeScheduleFilMenu() {
@@ -974,6 +938,7 @@ createApp({
         event.target.value = '';
       }
     }
+
 
     async function loadLinks(cfg) {
       if (!cfg || !cfg.webAppUrl) return;
@@ -1451,13 +1416,8 @@ createApp({
     });
 
     function onScheduleFilMenuLayout() {
-      if (showScheduleFilMenu.value) updateScheduleFilMenuPos();
       updateFilterTabsScale();
     }
-
-    watch(showScheduleFilMenu, (open) => {
-      if (open) nextTick(() => updateScheduleFilMenuPos());
-    });
 
     watch(showSessionTab, (isVisible) => {
       if (!isVisible && activeSheet.value === 'session') {
@@ -1519,7 +1479,7 @@ createApp({
 
     return {
       schedule: sch, scheduleVisList, vm, fil, filLbl, setFil, activeSheet, setActiveSheet, toggleCalendarView, loadingLabel,
-      showScheduleFilMenu, schedulePillPressing, schedulePillRef, scheduleFilMenuStyle, scheduleFilMenuPlacement,
+      showScheduleFilMenu, schedulePillPressing,
       onSchedulePillPointerDown, onSchedulePillPointerUp, onSchedulePillClick,
       openScheduleFilMenu, selectScheduleFil,
       sheetSwitchAnim, sheetSwitchKey,

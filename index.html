@@ -39,8 +39,8 @@
 <body>
 <div id="app" v-cloak>
 
-  <div class="header" :class="{ 'header--scroll-replaces-line': hasFilterOverflow }" v-show="!showSettings">
-    <div class="header-top">
+  <div class="header" :class="{ 'header--scroll-replaces-line': hasFilterOverflow, 'header--calendar': vm==='calendar' }" v-show="!showSettings">
+    <div class="header-top" v-if="vm==='list'">
       <div class="header-title-wrap">
         <transition name="header-title" mode="out-in">
           <div class="header-brand" key="brand" v-if="!loading">
@@ -57,7 +57,7 @@
           </div>
         </transition>
       </div>
-      <div class="header-right" v-if="vm==='list'">
+      <div class="header-right">
         <div class="dropdown-wrap">
           <button type="button" class="icon-btn-hdr" @click="vibrate(); showLinksDropdown=!showLinksDropdown" aria-label="Полезные ссылки">
             <span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('book-open', 18)"></span>
@@ -96,9 +96,10 @@
         <button type="button" class="icon-btn-hdr" @click="vibrate(); toggleCalendarView()" aria-label="Календарь"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('calendar', 18)"></span></button>
         <button type="button" class="icon-btn-hdr" @click="vibrate(); openSettings()" aria-label="Настройки"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('settings', 18)"></span></button>
       </div>
-      <div class="header-right" v-else>
-        <button type="button" class="icon-btn-hdr" @click="vibrate(); toggleCalendarView()" aria-label="Закрыть календарь"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('x', 18)"></span></button>
-      </div>
+    </div>
+    <div class="settings-nav cal-settings-nav" v-else>
+      <span class="settings-nav-title">Календарь</span>
+      <button type="button" class="icon-btn" aria-label="Закрыть календарь" @click="vibrate(); toggleCalendarView()"><span class="lucide-wrap lucide-wrap-settings-close" v-html="lucideIcon('x', 18)"></span></button>
     </div>
 
     <div class="filter-strip" v-if="vm==='list'">
@@ -108,7 +109,6 @@
           :class="{ open: showScheduleFilMenu, pressing: schedulePillPressing }"
         >
           <button
-            ref="schedulePillRef"
             type="button"
             class="filter-pill filter-pill--schedule"
             :class="{ active: activeSheet === 'schedule', 'has-sub': fil !== 'all' }"
@@ -128,37 +128,33 @@
               <span class="fil-dot" :class="fil==='even' || fil==='all' ? 'fil-dot-even' : 'fil-dot-muted'"></span>
             </span>
           </button>
+          <transition name="filter-menu-pop">
+            <div
+              v-if="showScheduleFilMenu"
+              class="filter-pill-menu filter-pill-menu--teleport"
+              role="listbox"
+              @click.stop
+            >
+              <button type="button" role="option" class="filter-pill-menu-item" :class="{ selected: fil === 'all' }" :aria-selected="fil === 'all'" @click="selectScheduleFil('all')">
+                <span class="filter-pill-menu-text">2 недели</span>
+                <span class="filter-pill-menu-check lucide-wrap" v-if="fil === 'all'" v-html="lucideIcon('check', 16)" aria-hidden="true"></span>
+              </button>
+              <button type="button" role="option" class="filter-pill-menu-item" :class="{ selected: fil === 'odd' }" :aria-selected="fil === 'odd'" @click="selectScheduleFil('odd')">
+                <span class="filter-pill-menu-dot odd" aria-hidden="true"></span>
+                <span class="filter-pill-menu-text">Нечётная</span>
+                <span class="filter-pill-menu-check lucide-wrap" v-if="fil === 'odd'" v-html="lucideIcon('check', 16)" aria-hidden="true"></span>
+              </button>
+              <button type="button" role="option" class="filter-pill-menu-item" :class="{ selected: fil === 'even' }" :aria-selected="fil === 'even'" @click="selectScheduleFil('even')">
+                <span class="filter-pill-menu-dot even" aria-hidden="true"></span>
+                <span class="filter-pill-menu-text">Чётная</span>
+                <span class="filter-pill-menu-check lucide-wrap" v-if="fil === 'even'" v-html="lucideIcon('check', 16)" aria-hidden="true"></span>
+              </button>
+            </div>
+          </transition>
         </div>
         <button v-if="showSessionTab" type="button" class="filter-pill" :class="{active:activeSheet==='session'}" @click="vibrate(); setActiveSheet('session')"><span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('session-tab', 14)" aria-hidden="true"></span><span>Сессия</span></button>
         <button type="button" class="filter-pill" :class="{active:activeSheet==='disciplines'}" @click="vibrate(); setActiveSheet('disciplines')"><span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('list', 14)" aria-hidden="true"></span><span>Дисциплины</span></button>
       </div>
-      <teleport to="body">
-        <transition name="filter-menu-pop">
-          <div
-            v-if="showScheduleFilMenu"
-            class="filter-pill-menu filter-pill-menu--teleport"
-            :class="'filter-pill-menu--' + scheduleFilMenuPlacement"
-            :style="scheduleFilMenuStyle"
-            role="listbox"
-            @click.stop
-          >
-            <button type="button" role="option" class="filter-pill-menu-item" :class="{ selected: fil === 'all' }" :aria-selected="fil === 'all'" @click="selectScheduleFil('all')">
-              <span class="filter-pill-menu-text">2 недели</span>
-              <span class="filter-pill-menu-check lucide-wrap" v-if="fil === 'all'" v-html="lucideIcon('check', 16)" aria-hidden="true"></span>
-            </button>
-            <button type="button" role="option" class="filter-pill-menu-item" :class="{ selected: fil === 'odd' }" :aria-selected="fil === 'odd'" @click="selectScheduleFil('odd')">
-              <span class="filter-pill-menu-dot odd" aria-hidden="true"></span>
-              <span class="filter-pill-menu-text">Нечётная</span>
-              <span class="filter-pill-menu-check lucide-wrap" v-if="fil === 'odd'" v-html="lucideIcon('check', 16)" aria-hidden="true"></span>
-            </button>
-            <button type="button" role="option" class="filter-pill-menu-item" :class="{ selected: fil === 'even' }" :aria-selected="fil === 'even'" @click="selectScheduleFil('even')">
-              <span class="filter-pill-menu-dot even" aria-hidden="true"></span>
-              <span class="filter-pill-menu-text">Чётная</span>
-              <span class="filter-pill-menu-check lucide-wrap" v-if="fil === 'even'" v-html="lucideIcon('check', 16)" aria-hidden="true"></span>
-            </button>
-          </div>
-        </transition>
-      </teleport>
     </div>
     <div
       v-if="hasFilterOverflow && vm==='list'"
