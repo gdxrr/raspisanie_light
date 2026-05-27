@@ -386,7 +386,8 @@ html.light .header-lk-icon { filter: invert(1); }
 }
 .filter-strip-scroll {
   display: flex;
-  gap: 6px;
+  --tabs-scale: 1;
+  gap: calc(6px * var(--tabs-scale));
   flex: 1;
   min-width: 0;
   overflow-x: visible;
@@ -402,15 +403,15 @@ html.light .header-lk-icon { filter: invert(1); }
   justify-content: center;
   gap: 5px;
   box-sizing: border-box;
-  height: 30px;
-  white-space: nowrap; padding: 6px 10px; border-radius: 20px;
+  height: calc(30px * var(--tabs-scale));
+  white-space: nowrap; padding: calc(6px * var(--tabs-scale)) calc(10px * var(--tabs-scale)); border-radius: 20px;
   border: none; background: var(--bg3); color: var(--text2);
-  font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit;
+  font-size: calc(12px * var(--tabs-scale)); font-weight: 500; cursor: pointer; font-family: inherit;
   transition: background-color .2s ease, color .2s ease;
 }
 .filter-pill-icon {
-  width: 14px;
-  height: 14px;
+  width: calc(14px * var(--tabs-scale));
+  height: calc(14px * var(--tabs-scale));
   opacity: 0.8;
   display: inline-flex;
 }
@@ -429,8 +430,8 @@ html.light .header-lk-icon { filter: invert(1); }
 .filter-pill--schedule {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding-right: 10px;
+  gap: calc(6px * var(--tabs-scale));
+  padding-right: calc(10px * var(--tabs-scale));
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -441,14 +442,14 @@ html.light .header-lk-icon { filter: invert(1); }
 .filter-pill-sub-dots {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: calc(4px * var(--tabs-scale));
   margin-left: 1px;
 }
 .fil-dot {
-  width: 7px;
-  height: 7px;
+  width: calc(7px * var(--tabs-scale));
+  height: calc(7px * var(--tabs-scale));
   border-radius: 50%;
-  border: 1.5px solid transparent;
+  border: calc(1.5px * var(--tabs-scale)) solid transparent;
   transition: background-color .2s ease, opacity .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
 .fil-dot-odd {

@@ -730,6 +730,20 @@ createApp({
       nextTick(updateFilterBarThumb);
     }
 
+    function updateFilterTabsScale() {
+      const el = filterStripScrollRef.value;
+      if (!el) return;
+      el.style.setProperty('--tabs-scale', '1');
+      const available = el.clientWidth;
+      const required = el.scrollWidth;
+      let scale = 1;
+      if (required > available && available > 0) {
+        scale = Math.max(0.82, available / required);
+      }
+      el.style.setProperty('--tabs-scale', String(scale));
+      nextTick(updateFilterStripOverflow);
+    }
+
     function scrollActiveFilterTabIntoView(behavior) {
       const container = filterStripScrollRef.value;
       if (!container || vm.value !== 'list') return;
@@ -1402,7 +1416,7 @@ createApp({
       const cfg = typeof window.SCHEDULE_CONFIG === 'object' && window.SCHEDULE_CONFIG ? window.SCHEDULE_CONFIG : {};
       loadLinks(cfg);
       nextTick(() => {
-        updateFilterStripOverflow();
+        updateFilterTabsScale();
         scrollActiveFilterTabIntoView('auto');
       });
       todayTickId = setInterval(bumpToday, 60 * 1000);
@@ -1438,7 +1452,7 @@ createApp({
 
     function onScheduleFilMenuLayout() {
       if (showScheduleFilMenu.value) updateScheduleFilMenuPos();
-      updateFilterStripOverflow();
+      updateFilterTabsScale();
     }
 
     watch(showScheduleFilMenu, (open) => {
@@ -1450,7 +1464,7 @@ createApp({
         activeSheet.value = 'schedule';
       }
       nextTick(() => {
-        updateFilterStripOverflow();
+        updateFilterTabsScale();
         scrollActiveFilterTabIntoView('auto');
       });
     });
@@ -1460,7 +1474,7 @@ createApp({
     });
 
     watch(() => usefulLinks.value.length, () => {
-      nextTick(updateFilterStripOverflow);
+      nextTick(updateFilterTabsScale);
     });
 
     watch(vm, () => {
@@ -1476,7 +1490,7 @@ createApp({
         document.documentElement.style.overflow = '';
         document.body.style.overflow = '';
         nextTick(() => {
-          updateFilterStripOverflow();
+          updateFilterTabsScale();
           scrollActiveFilterTabIntoView('auto');
         });
       }
