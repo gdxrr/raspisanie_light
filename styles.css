@@ -589,7 +589,7 @@ html.light .filter-pill-menu--teleport {
   }
 }
 
-.sheet-switch-stage { padding: 8px 0; }
+.sheet-switch-stage { padding: 0; }
 .sheet-list-block { padding: 0; }
 .sheet-switch-enter-active,
 .sheet-switch-leave-active {
@@ -642,6 +642,7 @@ html.light .filter-pill-menu--teleport {
 
 .schedule-filter-stage {
   position: relative;
+  padding: 0;
 }
 .schedule-days .lesson-row {
   animation: none;
@@ -681,12 +682,12 @@ html.light .filter-pill-menu--teleport {
 .ws-dot.even { background: var(--even); }
 .ws-lbl { font-size: 15px; font-weight: 600; }
 
-.day-hdr { padding: 12px 16px 6px; display: flex; align-items: center; gap: 8px; }
+.day-hdr { padding: 12px 12px 6px; display: flex; align-items: center; gap: 8px; }
 .day-hdr-title { font-size: 15px; font-weight: 600; color: var(--text2); }
 .day-hdr-title.today { color: var(--accent); }
 .week-separator {
   display: flex; align-items: center; gap: 10px;
-  padding: 10px 16px 4px;
+  padding: 12px 12px 4px;
 }
 .week-separator-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .week-separator-dot.odd  { background: var(--odd); box-shadow: 0 0 6px var(--odd); }
