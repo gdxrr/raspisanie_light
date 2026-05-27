@@ -314,11 +314,10 @@ html.light .header-lk-icon { filter: invert(1); }
   white-space: nowrap; padding: 6px 14px; border-radius: 20px;
   border: none; background: var(--bg3); color: var(--text2);
   font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;
-  transition: all .2s ease;
+  transition: background-color .2s ease, color .2s ease;
 }
 .filter-pill:hover {
   background: var(--bg4);
-  transform: translateY(-2px);
 }
 .filter-pill.active { background: var(--accent); color: #fff; }
 
@@ -395,11 +394,9 @@ html.light .filter-pill-sub.fil-sub-even {
   opacity: 1;
 }
 .filter-pill-dropdown-wrap.pressing .filter-pill--schedule:not(.active) {
-  transform: scale(0.96);
   background: var(--bg4);
 }
 .filter-pill-dropdown-wrap.pressing .filter-pill--schedule.active {
-  transform: scale(0.96);
   filter: brightness(0.95);
 }
 .filter-pill-menu--teleport {

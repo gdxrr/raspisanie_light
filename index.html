@@ -150,12 +150,12 @@
     <div class="list-under-overlay">
 
       <template v-if="activeSheet==='schedule' && loading && schedule.length===0">
-        <div v-for="block in [1, 2, 3]" :key="'skeleton-' + block">
+        <div v-for="n in 3" :key="'skeleton-' + n">
           <div class="day-hdr">
             <div class="skeleton-line w-55 h-16"></div>
           </div>
           <div class="skeleton-block">
-            <div v-for="row in [1, 2, 3]" :key="'skeleton-row-' + row" class="skeleton-row">
+            <div v-for="m in 3" :key="'skeleton-row-' + m" class="skeleton-row">
               <div class="skeleton-time">
                 <div class="skeleton-line w-100 h-20"></div>
                 <div class="skeleton-line w-35 h-14"></div>
@@ -182,11 +182,7 @@
       <div v-if="!loading || schedule.length>0" class="schedule-filter-stage">
         <transition name="week-filter" mode="out-in">
           <div :key="fil" class="schedule-days">
-            <div
-              v-for="scheduleDay in fDays"
-              :key="scheduleDay.dateStr + '|' + scheduleDay.name"
-              class="schedule-day"
-            >
+            <div v-for="scheduleDay in fDays" :key="scheduleDay.dateStr + '|' + scheduleDay.name" class="schedule-day">
               <div class="week-separator" v-if="scheduleDay.isWeekStart">
                 <div class="week-separator-dot" :class="scheduleDay.weekType"></div>
                 <span class="week-separator-label">{{ scheduleDay.weekType==='odd'?'Нечётная неделя':'Чётная неделя' }}</span>
@@ -206,25 +202,23 @@
                 <div class="no-sub">Можно спать спокойно!</div>
               </div>
               <div v-else class="lessons-block">
-                <template v-for="lesson in scheduleDay.visibleLessons" :key="lessonKey(lesson)">
-                  <div class="lesson-row" :class="{dimmed: visModeLesson(lesson)==='dim'}" @click="vibrate(); selectedLesson=lesson" @mouseenter="preloadRoomPhoto(lesson.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(lesson.roomSchemeUrl)">
-                    <div class="time-col">
-                      <div class="time-start">{{ lesson.start }}</div>
-                      <div class="pair-num">{{ pN(lesson) }}</div>
-                      <div class="time-end">{{ lesson.end }}</div>
-                    </div>
-                    <div class="bar" :class="barClass(lesson)"></div>
-                    <div class="lesson-body">
-                      <div class="l-type" :class="lTypeClass(lesson)">{{ tfl(lesson.type) }}</div>
-                      <div class="l-subject">{{ lesson.subject }}</div>
-                      <div class="l-chips" v-if="lesson.room">
-                        <span class="chip">{{ lesson.room }}</span>
-                      </div>
-                      <div class="l-teacher" v-if="lesson.teacher">{{ lesson.teacher }}</div>
-                      <div v-if="lesson.subject==='ВУЦ' && scheduleDay.vucRemainderLine" class="l-vuc-note">{{ scheduleDay.vucRemainderLine }}</div>
-                    </div>
+                <div v-for="lesson in scheduleDay.visibleLessons" :key="lessonKey(lesson)" class="lesson-row" :class="{dimmed: visModeLesson(lesson)==='dim'}" @click="vibrate(); selectedLesson=lesson" @mouseenter="preloadRoomPhoto(lesson.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(lesson.roomSchemeUrl)">
+                  <div class="time-col">
+                    <div class="time-start">{{ lesson.start }}</div>
+                    <div class="pair-num">{{ pN(lesson) }}</div>
+                    <div class="time-end">{{ lesson.end }}</div>
                   </div>
-                </template>
+                  <div class="bar" :class="barClass(lesson)"></div>
+                  <div class="lesson-body">
+                    <div class="l-type" :class="lTypeClass(lesson)">{{ tfl(lesson.type) }}</div>
+                    <div class="l-subject">{{ lesson.subject }}</div>
+                    <div class="l-chips" v-if="lesson.room">
+                      <span class="chip">{{ lesson.room }}</span>
+                    </div>
+                    <div class="l-teacher" v-if="lesson.teacher">{{ lesson.teacher }}</div>
+                    <div v-if="lesson.subject==='ВУЦ' && scheduleDay.vucRemainderLine" class="l-vuc-note">{{ scheduleDay.vucRemainderLine }}</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -234,10 +228,10 @@
 
       <template v-if="activeSheet==='session'">
         <template v-if="loading && sessions.length===0">
-          <div v-for="block in [1, 2]" :key="'sess-skeleton-' + block" class="sheet-list-block">
+          <div v-for="n in 2" :key="'sess-skeleton-' + n" class="sheet-list-block">
             <div class="day-hdr"><div class="skeleton-line w-55 h-16"></div></div>
             <div class="skeleton-block">
-              <div v-for="row in [1, 2]" :key="'sess-sk-' + row" class="skeleton-row">
+              <div v-for="m in 2" :key="'sess-sk-' + m" class="skeleton-row">
                 <div class="skeleton-time"><div class="skeleton-line w-100 h-20"></div></div>
                 <div class="skeleton-bar skeleton-line"></div>
                 <div class="skeleton-body"><div class="skeleton-line w-90 h-16"></div><div class="skeleton-line w-72 h-12"></div></div>
@@ -274,9 +268,9 @@
 
       <template v-if="activeSheet==='disciplines'">
         <template v-if="loading && disciplines.length===0">
-          <div v-for="block in [1, 2]" :key="'disc-skeleton-' + block" class="sheet-list-block">
+          <div v-for="n in 2" :key="'disc-skeleton-' + n" class="sheet-list-block">
             <div class="skeleton-block">
-              <div v-for="row in [1, 2, 3]" :key="'disc-sk-' + row" class="skeleton-row">
+              <div v-for="m in 3" :key="'disc-sk-' + m" class="skeleton-row">
                 <div class="skeleton-bar skeleton-line"></div>
                 <div class="skeleton-body"><div class="skeleton-line w-90 h-16"></div><div class="skeleton-line w-72 h-12"></div></div>
               </div>
@@ -319,13 +313,13 @@
       <transition :name="'cal-slide-' + calDir" mode="out-in">
       <div class="cal-grid" :key="mTitle">
         <div class="cal-dow" v-for="weekday in ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']" :key="weekday">{{ weekday }}</div>
-        <div v-for="(calCell, cellIdx) in calCells" :key="cellIdx" class="cal-cell"
+        <div v-for="(calCell, i) in calCells" :key="i" class="cal-cell"
           :class="[{empty:!calCell}, calCell?calCell.cls:'', calCell&&isTd(calCell.date)?'today':'', calCell&&selD&&sD(calCell.date,selD)?'sel':'']"
           @click="calCell&&(selD=calCell.date)">
           <template v-if="calCell">
             <span class="cal-num">{{ calCell.day }}</span>
             <div class="cal-dots" v-if="!calCell.shortLabel">
-              <div v-for="(dotClass, dotIdx) in calCell.dots" :key="dotIdx" class="cal-dot" :class="dotClass"></div>
+              <div v-for="(dotClass, i) in calCell.dots" :key="i" class="cal-dot" :class="dotClass"></div>
             </div>
             <div class="cal-cell-label" v-if="calCell.shortLabel">{{ calCell.shortLabel }}</div>
           </template>
