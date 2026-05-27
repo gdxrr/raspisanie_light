@@ -42,10 +42,14 @@
         <transition name="header-title" mode="out-in">
           <div class="header-brand" key="brand" v-if="!loading">
             <span class="header-title">3333</span>
-            <img class="header-group-icon" src="assets/images/signs/3333-sign.png" alt="Группа 3333" @click="handleGazpromClick" style="cursor: pointer;">
+            <span class="header-group-icon-shell" @click="handleGazpromClick" style="cursor: pointer;">
+              <img class="header-group-icon" src="assets/images/signs/3333-sign.png" alt="Группа 3333">
+            </span>
           </div>
           <div class="header-loading-state" key="loading" v-else>
-            <span class="header-loading-spinner"></span>
+            <span class="header-group-icon-shell loading" aria-hidden="true">
+              <img class="header-group-icon" src="assets/images/signs/3333-sign.png" alt="">
+            </span>
             <span class="header-loading-text">{{ loadingLabel }}</span>
           </div>
         </transition>
@@ -57,17 +61,31 @@
           </button>
           <transition name="dropdown-fade">
             <div class="dropdown-menu" v-if="showLinksDropdown" @click="showLinksDropdown=false">
-              <a href="https://pro.guap.ru/inside/profile" target="_blank" rel="noopener noreferrer" class="dropdown-item" @click="vibrate()">
-                <img class="dropdown-item-icon" src="https://src.guap.ru/logos/guap/guap-sign_w.svg" width="16" height="16" alt="" loading="lazy" decoding="async">
-                <span>ЛК ГУАП</span>
-              </a>
-              <a href="https://docs.google.com/spreadsheets/u/0/d/1r6Tmp2l60dQ9Atao4F1e1ITEgvskrM468asiUIs1svg/htmlview#gid=1324537187" target="_blank" rel="noopener noreferrer" class="dropdown-item" @click="vibrate()">
-                <span class="lucide-wrap dropdown-item-icon" v-html="lucideIcon('key-round', 16)"></span>
-                <span>МСКЗИ | Давыдов</span>
-              </a>
-              <a href="https://docs.google.com/spreadsheets/d/1A84JKC8L6ls561CrD5LTrL3Ro81-psnB0stOl9cSLp4/edit?htmlview#gid=1185166563" target="_blank" rel="noopener noreferrer" class="dropdown-item" @click="vibrate()">
-                <span class="lucide-wrap dropdown-item-icon" v-html="lucideIcon('database', 16)"></span>
-                <span>БД | Елина</span>
+              <a
+                v-for="item in usefulLinks"
+                :key="item.id"
+                :href="item.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="dropdown-item"
+                @click="vibrate()"
+              >
+                <img
+                  v-if="item.iconUrl"
+                  class="dropdown-item-icon"
+                  :src="item.iconUrl"
+                  width="16"
+                  height="16"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                >
+                <span
+                  v-else
+                  class="lucide-wrap dropdown-item-icon"
+                  v-html="lucideIcon(item.iconName || 'link', 16)"
+                ></span>
+                <span>{{ item.title }}</span>
               </a>
             </div>
           </transition>
@@ -99,9 +117,12 @@
           @click="onSchedulePillClick"
           @contextmenu.prevent="openScheduleFilMenu()"
         >
+          <span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('schedule-tab', 14)" aria-hidden="true"></span>
           <span class="filter-pill-label">Расписание</span>
-          <span class="filter-pill-sub" v-if="fil !== 'all'" :class="'fil-sub-' + fil">{{ filLbl(fil) }}</span>
-          <span class="filter-pill-chevron lucide-wrap" v-html="lucideIcon('chevron-down', 14)" aria-hidden="true"></span>
+          <span class="filter-pill-sub-dots" aria-hidden="true">
+            <span class="fil-dot" :class="fil==='odd' || fil==='all' ? 'fil-dot-odd' : 'fil-dot-muted'"></span>
+            <span class="fil-dot" :class="fil==='even' || fil==='all' ? 'fil-dot-even' : 'fil-dot-muted'"></span>
+          </span>
         </button>
       </div>
       <teleport to="body">
@@ -132,8 +153,8 @@
         </transition>
       </teleport>
       <div class="filter-strip-scroll">
-        <button type="button" class="filter-pill" :class="{active:activeSheet==='session'}" @click="vibrate(); setActiveSheet('session')">Сессия</button>
-        <button type="button" class="filter-pill" :class="{active:activeSheet==='disciplines'}" @click="vibrate(); setActiveSheet('disciplines')">Дисциплины</button>
+        <button v-if="showSessionTab" type="button" class="filter-pill" :class="{active:activeSheet==='session'}" @click="vibrate(); setActiveSheet('session')"><span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('session-tab', 14)" aria-hidden="true"></span><span>Сессия</span></button>
+        <button type="button" class="filter-pill" :class="{active:activeSheet==='disciplines'}" @click="vibrate(); setActiveSheet('disciplines')"><span class="filter-pill-icon lucide-wrap" v-html="lucideIcon('list', 14)" aria-hidden="true"></span><span>Дисциплины</span></button>
       </div>
     </div>
   </div>
@@ -328,7 +349,8 @@
       </transition>
       <div class="cal-legend">
         <div class="cal-legend-item"><span class="cal-legend-dot lec"></span>Лекция</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot lab"></span>Лаб.</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot vuc"></span>ВУЦ</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot lab"></span>Лаб. раб.</div>
         <div class="cal-legend-item"><span class="cal-legend-dot prac"></span>Практика</div>
         <div class="cal-legend-item"><span class="cal-legend-dot holiday"></span>Праздник</div>
         <div class="cal-legend-item"><span class="cal-legend-dot pre-holiday square"></span>Зач. нед</div>

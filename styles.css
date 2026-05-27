@@ -2,8 +2,14 @@
   --bg: #1c1c1e; --bg2: #2c2c2e; --bg3: #3a3a3c; --bg4: #48484a;
   --sep: rgba(255,255,255,0.08);
   --text: #fff; --text2: rgba(255,255,255,.55); --text3: rgba(255,255,255,.3);
-  --lec: #bf5af2; --lab: #32aaff; --prac: #ff9f0a; --kurs: #ff375f;
-  --accent: #0a84ff; --odd: #ff453a; --even: #0a84ff;
+  --lec: #a78bfa; --lab: #38bdf8; --prac: #f59e0b; --kurs: #f472b6;
+  --accent: #4f8cff; --odd: #fb7185; --even: #22d3ee;
+  --vuc: #84cc16;
+  --success: #34d399;
+  --warning: #f59e0b;
+  --danger: #f87171;
+  --holiday: var(--danger);
+  --vacation: #4ade80;
   --scrollbar-w: 6px;
   --scrollbar-pad: 2px;
   --custom-glass-image: none;
@@ -15,8 +21,14 @@ html.light, html.light body {
   --bg: #f2f2f7; --bg2: #ffffff; --bg3: #e5e5ea; --bg4: #d1d1d6;
   --sep: rgba(0,0,0,0.08);
   --text: #000; --text2: rgba(0,0,0,.5); --text3: rgba(0,0,0,.3);
-  --lec: #af52de; --lab: #007aff; --prac: #ff9500; --kurs: #ff2d55;
-  --odd: #ff3b30; --even: #0a84ff;
+  --lec: #8b5cf6; --lab: #0284c7; --prac: #d97706; --kurs: #db2777;
+  --accent: #2563eb; --odd: #e11d48; --even: #0891b2;
+  --vuc: #65a30d;
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --holiday: var(--danger);
+  --vacation: #16a34a;
   --icon-filter: brightness(0);
   background: #f2f2f7 !important;
   color: #000 !important;
@@ -27,8 +39,14 @@ html.light, html.light body {
     --bg: #f2f2f7; --bg2: #ffffff; --bg3: #e5e5ea; --bg4: #d1d1d6;
     --sep: rgba(0,0,0,0.08);
     --text: #000; --text2: rgba(0,0,0,.5); --text3: rgba(0,0,0,.3);
-    --lec: #af52de; --lab: #007aff; --prac: #ff9500; --kurs: #ff2d55;
-    --odd: #ff3b30; --even: #0a84ff;
+    --lec: #8b5cf6; --lab: #0284c7; --prac: #d97706; --kurs: #db2777;
+    --accent: #2563eb; --odd: #e11d48; --even: #0891b2;
+    --vuc: #65a30d;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --holiday: var(--danger);
+    --vacation: #16a34a;
     --icon-filter: brightness(0);
     background: #f2f2f7 !important;
     color: #000 !important;
@@ -45,8 +63,16 @@ html.glass, html.glass body {
   --glass-border2: rgba(255,255,255,0.22);
   --sep: rgba(255,255,255,0.08);
   --text: #ffffff; --text2: rgba(255,255,255,.6); --text3: rgba(255,255,255,.32);
-  --odd: #ff6b6b; --even: #48cae4;
-  --glow-odd: rgba(255,107,107,0.35); --glow-even: rgba(72,202,228,0.35);
+  --lec: #c4b5fd; --lab: #67e8f9; --prac: #fbbf24; --kurs: #f9a8d4;
+  --accent: #60a5fa;
+  --odd: #fb7185; --even: #22d3ee;
+  --vuc: #a3e635;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #fb7185;
+  --holiday: var(--danger);
+  --vacation: #4ade80;
+  --glow-odd: color-mix(in srgb, var(--odd) 45%, transparent); --glow-even: color-mix(in srgb, var(--even) 45%, transparent);
   background: #12121c !important; color: #ffffff !important;
   color-scheme: dark;
 }
@@ -138,7 +164,31 @@ html::-webkit-scrollbar-thumb,
 .header-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 4px; }
 .header-title-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; position: relative; min-height: 40px; }
 .header-brand { display: flex; align-items: center; gap: 10px; }
-.header-title { font-size: 28px; font-weight: 700; user-select: none; letter-spacing: -.5px; }
+.header-title { font-size: 28px; font-weight: 700; user-select: none; letter-spacing: -.5px; color: var(--accent); }
+.header-group-icon-shell {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-group-icon-shell::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--accent) 45%, var(--sep));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+  pointer-events: none;
+}
+.header-group-icon-shell.loading::before {
+  border-color: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-top-color: var(--accent);
+  -webkit-animation: header-spin 0.85s linear infinite;
+  animation: header-spin 0.85s linear infinite;
+}
 .header-group-icon {
   width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
   flex-shrink: 0; border: 2px solid var(--sep); box-shadow: 0 2px 8px rgba(0,0,0,.2);
@@ -176,17 +226,6 @@ html::-webkit-scrollbar-thumb,
   gap: 12px;
   flex-shrink: 0;
 }
-.header-loading-spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  -webkit-animation: header-spin 0.8s linear infinite;
-  animation: header-spin 0.8s linear infinite;
-  border: 2.5px solid rgba(128, 128, 128, 0.3);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-}
 @-webkit-keyframes header-spin {
   to { transform: rotate(360deg); }
 }
@@ -206,18 +245,18 @@ html::-webkit-scrollbar-thumb,
   font-size: 13px; font-weight: 600; line-height: 1.2;
 }
 .week-hdr-badge.odd {
-  background: rgba(255, 69, 58, 0.18); color: var(--odd);
-  box-shadow: 0 0 10px rgba(255, 69, 58, 0.22);
+  background: color-mix(in srgb, var(--odd) 20%, transparent); color: var(--odd);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--odd) 30%, transparent);
 }
 .week-hdr-badge.even {
-  background: rgba(10, 132, 255, 0.18); color: var(--even);
-  box-shadow: 0 0 10px rgba(10, 132, 255, 0.22);
+  background: color-mix(in srgb, var(--even) 20%, transparent); color: var(--even);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--even) 30%, transparent);
 }
-html.light .week-hdr-badge.odd { background: rgba(255, 59, 48, 0.14); box-shadow: none; }
-html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shadow: none; }
+html.light .week-hdr-badge.odd { background: color-mix(in srgb, var(--odd) 14%, transparent); box-shadow: none; }
+html.light .week-hdr-badge.even { background: color-mix(in srgb, var(--even) 14%, transparent); box-shadow: none; }
 @media (prefers-color-scheme: light) {
-  html.system .week-hdr-badge.odd { background: rgba(255, 59, 48, 0.14); box-shadow: none; }
-  html.system .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shadow: none; }
+  html.system .week-hdr-badge.odd { background: color-mix(in srgb, var(--odd) 14%, transparent); box-shadow: none; }
+  html.system .week-hdr-badge.even { background: color-mix(in srgb, var(--even) 14%, transparent); box-shadow: none; }
 }
 .icon-btn-hdr {
   background: var(--bg3); border: none; border-radius: 8px;
@@ -251,6 +290,7 @@ html.light .week-hdr-badge.even { background: rgba(10, 132, 255, 0.14); box-shad
   display: flex;
   align-items: center;
   gap: 10px;
+  white-space: nowrap;
   padding: 12px 14px;
   color: var(--text);
   text-decoration: none;
@@ -314,12 +354,22 @@ html.light .header-lk-icon { filter: invert(1); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   box-sizing: border-box;
   height: 32px;
   white-space: nowrap; padding: 6px 14px; border-radius: 20px;
   border: none; background: var(--bg3); color: var(--text2);
   font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;
   transition: background-color .2s ease, color .2s ease;
+}
+.filter-pill-icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.8;
+  display: inline-flex;
+}
+.filter-pill.active .filter-pill-icon {
+  opacity: 1;
 }
 .filter-pill:hover {
   background: var(--bg4);
@@ -334,7 +384,7 @@ html.light .header-lk-icon { filter: invert(1); }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding-right: 10px;
+  padding-right: 14px;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -342,48 +392,38 @@ html.light .header-lk-icon { filter: invert(1); }
 .filter-pill--schedule .filter-pill-label {
   line-height: 1.2;
 }
-.filter-pill--schedule .filter-pill-sub {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 10px;
-  line-height: 1.1;
-  letter-spacing: 0.01em;
-  flex-shrink: 0;
+.filter-pill-sub-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 1px;
 }
-.filter-pill-sub.fil-sub-odd {
-  color: var(--odd);
-  background: rgba(255, 69, 58, 0.16);
-  border: 1.5px solid color-mix(in srgb, var(--odd) 55%, transparent);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--odd) 22%, transparent);
+.fil-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  transition: background-color .2s ease, opacity .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
-.filter-pill-sub.fil-sub-even {
-  color: var(--even);
-  background: rgba(10, 132, 255, 0.16);
-  border: 1.5px solid color-mix(in srgb, var(--even) 55%, transparent);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--even) 22%, transparent);
+.fil-dot-odd {
+  background: color-mix(in srgb, var(--odd) 78%, #fff 22%);
+  border-color: color-mix(in srgb, var(--odd) 72%, #fff 28%);
 }
-.filter-pill--schedule.active .filter-pill-sub.fil-sub-odd {
-  color: #fff;
-  background: var(--odd);
-  border-color: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--odd) 45%, transparent);
+.fil-dot-even {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--even) 78%, #fff 22%);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--even) 60%, transparent);
 }
-.filter-pill--schedule.active .filter-pill-sub.fil-sub-even {
-  color: #fff;
-  background: var(--even);
-  border-color: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--even) 45%, transparent);
+.fil-dot-muted { background: color-mix(in srgb, var(--text2) 35%, transparent); }
+.filter-pill--schedule.active .fil-dot-odd,
+.filter-pill--schedule.active .fil-dot-even {
+  border-color: rgba(255,255,255,0.9);
 }
-html.light .filter-pill-sub.fil-sub-odd,
-html.light .filter-pill-sub.fil-sub-even {
-  box-shadow: none;
+.filter-pill--schedule.active .fil-dot-odd {
+  background: rgba(255,255,255,0.95);
 }
-@media (prefers-color-scheme: light) {
-  html.system .filter-pill-sub.fil-sub-odd,
-  html.system .filter-pill-sub.fil-sub-even {
-    box-shadow: none;
-  }
+.filter-pill--schedule.active .fil-dot-even {
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.95);
 }
 .filter-pill-chevron {
   display: inline-flex;
@@ -586,8 +626,8 @@ html.light .filter-pill-menu--teleport {
 .week-separator-label { font-size: 15px; font-weight: 700; color: var(--text); }
 .week-separator-line { flex: 1; height: 1px; background: var(--sep); }
 .week-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; letter-spacing: .3px; }
-.week-tag.odd  { background: rgba(255,69,58,.12); color: var(--odd); }
-.week-tag.even { background: rgba(10,132,255,.12); color: var(--even); }
+.week-tag.odd  { background: color-mix(in srgb, var(--odd) 14%, transparent); color: var(--odd); }
+.week-tag.even { background: color-mix(in srgb, var(--even) 14%, transparent); color: var(--even); }
 
 .lessons-block { background: var(--bg2); border-radius: 14px; margin: 0 12px 8px; overflow: hidden; }
 .lesson-row {
@@ -613,7 +653,7 @@ html.light .filter-pill-menu--teleport {
 
 .bar { width: 3px; border-radius: 2px; margin-right: 14px; flex-shrink: 0; align-self: stretch; }
 .bar.lec  { background: var(--lec); }
-.bar.lec-vuc { background: #6b7c3e; }
+.bar.lec-vuc { background: var(--vuc); }
 .bar.lab  { background: var(--lab); }
 .bar.prac { background: var(--prac); }
 .bar.kurs { background: var(--kurs); }
@@ -621,7 +661,7 @@ html.light .filter-pill-menu--teleport {
 .lesson-body { flex: 1; min-width: 0; }
 .l-type { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
 .l-type.lec  { color: var(--lec); }
-.l-type.lec-vuc { color: #6b7c3e; }
+.l-type.lec-vuc { color: var(--vuc); }
 .l-type.lab  { color: var(--lab); }
 .l-type.prac { color: var(--prac); }
 .l-type.kurs { color: var(--kurs); }
@@ -720,28 +760,28 @@ html.light .filter-pill-menu--teleport {
 .cal-cell.sel .cal-num { color: #fff; font-weight: 700; }
 .cal-num { font-size: 14px; color: var(--text2); line-height: 1; margin-bottom: 3px; }
 .cal-cell.today .cal-num { color: var(--text); font-weight: 600; }
-.cal-cell.holiday .cal-num { color: #ff453a; }
-.cal-cell.weekend .cal-num { color: #ff453a; }
-.cal-cell.credit-week { background: rgba(255,159,10,0.08); }
-.cal-cell.credit-week .cal-num { color: #ff9f0a; }
-.cal-cell.session { background: rgba(255,55,95,0.08); }
-.cal-cell.session .cal-num { color: #ff375f; }
-.cal-cell.practice { background: rgba(50,170,255,0.08); }
-.cal-cell.practice .cal-num { color: #32aaff; }
-.cal-cell.vacation { background: rgba(50,215,75,0.08); }
-.cal-cell.vacation .cal-num { color: #32d74b; }
-.cal-cell.pre-holiday .cal-num { color: #ff9f0a; }
+.cal-cell.holiday .cal-num { color: var(--holiday); }
+.cal-cell.weekend .cal-num { color: var(--holiday); }
+.cal-cell.credit-week { background: color-mix(in srgb, var(--warning) 10%, transparent); }
+.cal-cell.credit-week .cal-num { color: var(--warning); }
+.cal-cell.session { background: color-mix(in srgb, var(--kurs) 11%, transparent); }
+.cal-cell.session .cal-num { color: var(--kurs); }
+.cal-cell.practice { background: color-mix(in srgb, var(--lab) 10%, transparent); }
+.cal-cell.practice .cal-num { color: var(--lab); }
+.cal-cell.vacation { background: color-mix(in srgb, var(--vacation) 10%, transparent); }
+.cal-cell.vacation .cal-num { color: var(--vacation); }
+.cal-cell.pre-holiday .cal-num { color: var(--warning); }
 .cal-cell-label { font-size: 8px; font-weight: 600; text-align: center; line-height: 1.1; max-width: 100%; word-break: break-word; opacity: .85; }
-.cal-cell.credit-week .cal-cell-label { color: #ff9f0a; }
-.cal-cell.session      .cal-cell-label { color: #ff375f; }
-.cal-cell.practice     .cal-cell-label { color: #32aaff; }
-.cal-cell.vacation     .cal-cell-label { color: #32d74b; }
-.cal-cell.holiday      .cal-cell-label { color: #ff453a; }
-.cal-cell.pre-holiday  .cal-cell-label { color: #ff9f0a; }
+.cal-cell.credit-week .cal-cell-label { color: var(--warning); }
+.cal-cell.session      .cal-cell-label { color: var(--kurs); }
+.cal-cell.practice     .cal-cell-label { color: var(--lab); }
+.cal-cell.vacation     .cal-cell-label { color: var(--vacation); }
+.cal-cell.holiday      .cal-cell-label { color: var(--holiday); }
+.cal-cell.pre-holiday  .cal-cell-label { color: var(--warning); }
 .cal-dots { display: flex; gap: 2px; }
 .cal-dot { width: 4px; height: 4px; border-radius: 50%; }
 .cal-dot.lec  { background: var(--lec); }
-.cal-dot.lec-vuc { background: #6b7c3e; }
+.cal-dot.lec-vuc { background: var(--vuc); }
 .cal-dot.lab  { background: var(--lab); }
 .cal-dot.prac { background: var(--prac); }
 .cal-dot.kurs { background: var(--kurs); }
@@ -751,12 +791,13 @@ html.light .filter-pill-menu--teleport {
 .cal-legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text3); }
 .cal-legend-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
 .cal-legend-dot.lec { background: var(--lec); }
+.cal-legend-dot.vuc { background: var(--vuc); }
 .cal-legend-dot.lab { background: var(--lab); }
 .cal-legend-dot.prac { background: var(--prac); }
 .cal-legend-dot.session { background: var(--kurs); }
-.cal-legend-dot.holiday { background: #ff453a; }
+.cal-legend-dot.holiday { background: var(--holiday); }
 .cal-legend-dot.pre-holiday { background: var(--prac); }
-.cal-legend-dot.vacation { background: #32d74b; }
+.cal-legend-dot.vacation { background: var(--vacation); }
 .cal-legend-dot.square { border-radius: 3px; }
 
 .settings-panel {
@@ -885,7 +926,7 @@ html.settings-open body {
   transition: transform .25s ease;
 }
 .toggle-switch input:checked + .toggle-track {
-  background: #34c759;
+  background: var(--success);
 }
 .toggle-switch input:checked + .toggle-track::after {
   transform: translateX(20px);
@@ -917,7 +958,7 @@ html.settings-open body {
   transition: border-color .15s, box-shadow .15s;
 }
 .vuc-select:hover { border-color: var(--accent); }
-.vuc-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(10,132,255,.15); }
+.vuc-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
 html.light .vuc-select { background-color: #fff; border-color: #d1d1d6; }
 html.light .vuc-select:hover { border-color: var(--accent); }
 html.light .vuc-select option { background: #fff; color: #000; }
@@ -1058,8 +1099,8 @@ html.light .vuc-select option { background: #fff; color: #000; }
 }
 .glass-bg-btn.active {
   border-color: var(--accent);
-  background: rgba(10,132,255,.08);
-  box-shadow: 0 0 0 2px rgba(10,132,255,.15);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .glass-bg-preview {
   display: block;
@@ -1077,38 +1118,44 @@ html.light .vuc-select option { background: #fff; color: #000; }
 }
 .glass-bg-preview-aurora::before {
   background:
-    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(120,80,255,0.35) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 60% at 80% 20%, rgba(72,202,228,0.3) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 50% at 50% 80%, rgba(199,125,255,0.25) 0%, transparent 60%);
+    radial-gradient(ellipse 64% 58% at 16% 8%, rgba(99, 102, 241, 0.24) 0%, transparent 66%),
+    radial-gradient(ellipse 60% 56% at 86% 14%, rgba(56, 189, 248, 0.2) 0%, transparent 64%),
+    radial-gradient(ellipse 50% 56% at 50% 88%, rgba(167, 139, 250, 0.18) 0%, transparent 62%),
+    linear-gradient(180deg, rgba(255,255,255,0.02), transparent 45%);
 }
 .glass-bg-preview-sunset::before {
   background:
-    radial-gradient(ellipse 55% 45% at 15% 15%, rgba(255,107,107,0.32) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 50% at 85% 25%, rgba(255,159,10,0.28) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 55% at 50% 85%, rgba(255,55,95,0.24) 0%, transparent 58%);
+    radial-gradient(ellipse 62% 52% at 14% 10%, rgba(251, 113, 133, 0.24) 0%, transparent 62%),
+    radial-gradient(ellipse 58% 54% at 88% 18%, rgba(245, 158, 11, 0.2) 0%, transparent 62%),
+    radial-gradient(ellipse 52% 56% at 52% 90%, rgba(244, 114, 182, 0.17) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.015), transparent 42%);
 }
 .glass-bg-preview-ocean::before {
   background:
-    radial-gradient(ellipse 65% 55% at 25% 20%, rgba(50,170,255,0.32) 0%, transparent 62%),
-    radial-gradient(ellipse 55% 60% at 75% 15%, rgba(72,202,228,0.28) 0%, transparent 58%),
-    radial-gradient(ellipse 45% 50% at 50% 80%, rgba(95,90,255,0.22) 0%, transparent 55%);
+    radial-gradient(ellipse 68% 58% at 22% 14%, rgba(14, 165, 233, 0.24) 0%, transparent 65%),
+    radial-gradient(ellipse 56% 60% at 78% 16%, rgba(45, 212, 191, 0.2) 0%, transparent 62%),
+    radial-gradient(ellipse 48% 52% at 50% 86%, rgba(99, 102, 241, 0.16) 0%, transparent 58%),
+    linear-gradient(180deg, rgba(255,255,255,0.012), transparent 40%);
 }
 .glass-bg-preview-forest::before {
   background:
-    radial-gradient(ellipse 60% 50% at 20% 15%, rgba(106,153,78,0.3) 0%, transparent 58%),
-    radial-gradient(ellipse 50% 55% at 80% 25%, rgba(82,183,136,0.26) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 50% at 45% 85%, rgba(167,201,87,0.24) 0%, transparent 57%);
+    radial-gradient(ellipse 64% 54% at 18% 14%, rgba(101, 163, 13, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 54% 58% at 82% 20%, rgba(16, 185, 129, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 56% 54% at 46% 88%, rgba(132, 204, 22, 0.16) 0%, transparent 58%),
+    linear-gradient(180deg, rgba(255,255,255,0.012), transparent 40%);
 }
 .glass-bg-preview-rose::before {
   background:
-    radial-gradient(ellipse 58% 52% at 18% 12%, rgba(255,107,157,0.32) 0%, transparent 60%),
-    radial-gradient(ellipse 52% 58% at 82% 18%, rgba(199,125,255,0.28) 0%, transparent 58%),
-    radial-gradient(ellipse 48% 52% at 50% 82%, rgba(255,55,95,0.22) 0%, transparent 56%);
+    radial-gradient(ellipse 60% 54% at 16% 10%, rgba(244, 114, 182, 0.23) 0%, transparent 62%),
+    radial-gradient(ellipse 56% 58% at 84% 16%, rgba(168, 85, 247, 0.19) 0%, transparent 60%),
+    radial-gradient(ellipse 48% 52% at 50% 88%, rgba(251, 113, 133, 0.16) 0%, transparent 58%),
+    linear-gradient(180deg, rgba(255,255,255,0.014), transparent 40%);
 }
 .glass-bg-preview-minimal::before {
   background:
-    radial-gradient(ellipse 70% 60% at 30% 20%, rgba(255,255,255,0.12) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 70% at 70% 30%, rgba(255,255,255,0.08) 0%, transparent 60%);
+    radial-gradient(ellipse 72% 62% at 26% 18%, rgba(148, 163, 184, 0.13) 0%, transparent 66%),
+    radial-gradient(ellipse 62% 70% at 74% 28%, rgba(203, 213, 225, 0.09) 0%, transparent 62%),
+    linear-gradient(180deg, rgba(255,255,255,0.02), transparent 45%);
 }
 .glass-bg-preview-custom {
   background-size: cover;
@@ -1191,24 +1238,24 @@ html.light .vuc-select option { background: #fff; color: #000; }
 
 .settings-row-vis { transition: background .2s ease, box-shadow .2s ease; }
 .settings-row-vis.vis-row-show {
-  box-shadow: inset 3px 0 0 #30d158;
-  background: rgba(48, 209, 88, 0.09);
+  box-shadow: inset 3px 0 0 var(--success);
+  background: color-mix(in srgb, var(--success) 13%, transparent);
 }
 .settings-row-vis.vis-row-dim {
-  box-shadow: inset 3px 0 0 #ff9f0a;
-  background: rgba(255, 159, 10, 0.09);
+  box-shadow: inset 3px 0 0 var(--warning);
+  background: color-mix(in srgb, var(--warning) 13%, transparent);
 }
 .settings-row-vis.vis-row-hide {
-  box-shadow: inset 3px 0 0 #ff453a;
-  background: rgba(255, 69, 58, 0.09);
+  box-shadow: inset 3px 0 0 var(--danger);
+  background: color-mix(in srgb, var(--danger) 13%, transparent);
 }
-html.light .settings-row-vis.vis-row-show { background: rgba(52, 199, 89, 0.12); }
-html.light .settings-row-vis.vis-row-dim { background: rgba(255, 149, 0, 0.1); }
-html.light .settings-row-vis.vis-row-hide { background: rgba(255, 59, 48, 0.1); }
+html.light .settings-row-vis.vis-row-show { background: color-mix(in srgb, var(--success) 16%, transparent); }
+html.light .settings-row-vis.vis-row-dim { background: color-mix(in srgb, var(--warning) 14%, transparent); }
+html.light .settings-row-vis.vis-row-hide { background: color-mix(in srgb, var(--danger) 14%, transparent); }
 @media (prefers-color-scheme: light) {
-  html.system .settings-row-vis.vis-row-show { background: rgba(52, 199, 89, 0.12); }
-  html.system .settings-row-vis.vis-row-dim { background: rgba(255, 149, 0, 0.1); }
-  html.system .settings-row-vis.vis-row-hide { background: rgba(255, 59, 48, 0.1); }
+  html.system .settings-row-vis.vis-row-show { background: color-mix(in srgb, var(--success) 16%, transparent); }
+  html.system .settings-row-vis.vis-row-dim { background: color-mix(in srgb, var(--warning) 14%, transparent); }
+  html.system .settings-row-vis.vis-row-hide { background: color-mix(in srgb, var(--danger) 14%, transparent); }
 }
 
 .vis-opts { display: flex; gap: 4px; }
@@ -1222,20 +1269,20 @@ html.light .settings-row-vis.vis-row-hide { background: rgba(255, 59, 48, 0.1); 
 .vis-btn:hover { opacity: 1; }
 .vis-btn.active-show {
   opacity: 1;
-  border-color: #30d158; color: #30d158; background: rgba(48, 209, 88, 0.18);
-  box-shadow: 0 0 0 2px rgba(48, 209, 88, 0.28), 0 2px 8px rgba(48, 209, 88, 0.15);
+  border-color: var(--success); color: var(--success); background: color-mix(in srgb, var(--success) 20%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--success) 35%, transparent), 0 2px 8px color-mix(in srgb, var(--success) 18%, transparent);
   transform: scale(1.06);
 }
 .vis-btn.active-dim {
   opacity: 1;
-  border-color: var(--prac); color: var(--prac); background: rgba(255, 159, 10, 0.18);
-  box-shadow: 0 0 0 2px rgba(255, 159, 10, 0.28), 0 2px 8px rgba(255, 159, 10, 0.12);
+  border-color: var(--warning); color: var(--warning); background: color-mix(in srgb, var(--warning) 20%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--warning) 35%, transparent), 0 2px 8px color-mix(in srgb, var(--warning) 16%, transparent);
   transform: scale(1.06);
 }
 .vis-btn.active-hide {
   opacity: 1;
-  border-color: var(--odd); color: var(--odd); background: rgba(255, 69, 58, 0.16);
-  box-shadow: 0 0 0 2px rgba(255, 69, 58, 0.28), 0 2px 8px rgba(255, 69, 58, 0.12);
+  border-color: var(--danger); color: var(--danger); background: color-mix(in srgb, var(--danger) 18%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 35%, transparent), 0 2px 8px color-mix(in srgb, var(--danger) 16%, transparent);
   transform: scale(1.06);
 }
 
@@ -1378,52 +1425,59 @@ html.glass body::before {
   content: '';
   position: fixed; inset: 0; z-index: 0;
   background:
-    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(120,80,255,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 60% at 80% 20%, rgba(72,202,228,0.15) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 50% at 50% 80%, rgba(199,125,255,0.12) 0%, transparent 60%);
+    radial-gradient(ellipse 72% 62% at 14% 8%, rgba(99, 102, 241, 0.14) 0%, transparent 68%),
+    radial-gradient(ellipse 64% 60% at 88% 14%, rgba(56, 189, 248, 0.11) 0%, transparent 66%),
+    radial-gradient(ellipse 56% 58% at 52% 90%, rgba(167, 139, 250, 0.1) 0%, transparent 64%),
+    linear-gradient(180deg, rgba(255,255,255,0.018), transparent 42%);
   pointer-events: none;
   transition: background 0.8s ease;
 }
 
 html.glass.glass-bg-aurora body::before {
   background:
-    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(120,80,255,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 60% at 80% 20%, rgba(72,202,228,0.15) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 50% at 50% 80%, rgba(199,125,255,0.12) 0%, transparent 60%);
+    radial-gradient(ellipse 72% 62% at 14% 8%, rgba(99, 102, 241, 0.14) 0%, transparent 68%),
+    radial-gradient(ellipse 64% 60% at 88% 14%, rgba(56, 189, 248, 0.11) 0%, transparent 66%),
+    radial-gradient(ellipse 56% 58% at 52% 90%, rgba(167, 139, 250, 0.1) 0%, transparent 64%),
+    linear-gradient(180deg, rgba(255,255,255,0.018), transparent 42%);
 }
 
 html.glass.glass-bg-sunset body::before {
   background:
-    radial-gradient(ellipse 55% 45% at 15% 15%, rgba(255,107,107,0.16) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 50% at 85% 25%, rgba(255,159,10,0.14) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 55% at 50% 85%, rgba(255,55,95,0.12) 0%, transparent 58%);
+    radial-gradient(ellipse 70% 58% at 12% 10%, rgba(251, 113, 133, 0.14) 0%, transparent 66%),
+    radial-gradient(ellipse 62% 56% at 90% 18%, rgba(245, 158, 11, 0.11) 0%, transparent 64%),
+    radial-gradient(ellipse 54% 58% at 52% 92%, rgba(244, 114, 182, 0.1) 0%, transparent 62%),
+    linear-gradient(180deg, rgba(255,255,255,0.016), transparent 40%);
 }
 
 html.glass.glass-bg-ocean body::before {
   background:
-    radial-gradient(ellipse 65% 55% at 25% 20%, rgba(50,170,255,0.16) 0%, transparent 62%),
-    radial-gradient(ellipse 55% 60% at 75% 15%, rgba(72,202,228,0.14) 0%, transparent 58%),
-    radial-gradient(ellipse 45% 50% at 50% 80%, rgba(95,90,255,0.11) 0%, transparent 55%);
+    radial-gradient(ellipse 74% 62% at 20% 14%, rgba(14, 165, 233, 0.14) 0%, transparent 68%),
+    radial-gradient(ellipse 62% 64% at 80% 14%, rgba(45, 212, 191, 0.11) 0%, transparent 64%),
+    radial-gradient(ellipse 52% 56% at 50% 90%, rgba(99, 102, 241, 0.09) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.014), transparent 38%);
 }
 
 html.glass.glass-bg-forest body::before {
   background:
-    radial-gradient(ellipse 60% 50% at 20% 15%, rgba(106,153,78,0.15) 0%, transparent 58%),
-    radial-gradient(ellipse 50% 55% at 80% 25%, rgba(82,183,136,0.13) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 50% at 45% 85%, rgba(167,201,87,0.12) 0%, transparent 57%);
+    radial-gradient(ellipse 72% 60% at 16% 14%, rgba(101, 163, 13, 0.13) 0%, transparent 66%),
+    radial-gradient(ellipse 58% 62% at 84% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 62%),
+    radial-gradient(ellipse 58% 56% at 46% 90%, rgba(132, 204, 22, 0.09) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.012), transparent 38%);
 }
 
 html.glass.glass-bg-rose body::before {
   background:
-    radial-gradient(ellipse 58% 52% at 18% 12%, rgba(255,107,157,0.16) 0%, transparent 60%),
-    radial-gradient(ellipse 52% 58% at 82% 18%, rgba(199,125,255,0.14) 0%, transparent 58%),
-    radial-gradient(ellipse 48% 52% at 50% 82%, rgba(255,55,95,0.11) 0%, transparent 56%);
+    radial-gradient(ellipse 70% 60% at 14% 10%, rgba(244, 114, 182, 0.14) 0%, transparent 66%),
+    radial-gradient(ellipse 60% 62% at 86% 14%, rgba(168, 85, 247, 0.11) 0%, transparent 62%),
+    radial-gradient(ellipse 50% 54% at 50% 90%, rgba(251, 113, 133, 0.09) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.014), transparent 40%);
 }
 
 html.glass.glass-bg-minimal body::before {
   background:
-    radial-gradient(ellipse 70% 60% at 30% 20%, rgba(255,255,255,0.06) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 70% at 70% 30%, rgba(255,255,255,0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 74% 64% at 24% 18%, rgba(148, 163, 184, 0.08) 0%, transparent 68%),
+    radial-gradient(ellipse 64% 72% at 76% 30%, rgba(203, 213, 225, 0.06) 0%, transparent 64%),
+    linear-gradient(180deg, rgba(255,255,255,0.02), transparent 45%);
 }
 
 html.glass.glass-bg-custom body::before {
@@ -1443,12 +1497,16 @@ html.glass .header {
   border-bottom: 1px solid rgba(255,255,255,0.14);
 }
 html.glass .header-title {
-  background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  color: var(--accent);
+  text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 36%, transparent);
 }
 html.glass .header-group-icon {
   border-color: rgba(255,255,255,0.22);
   box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+html.glass .header-group-icon-shell::before {
+  border-color: color-mix(in srgb, var(--accent) 52%, rgba(255,255,255,0.22));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 24%, transparent);
 }
 html.glass .week-hdr-badge.odd {
   background: rgba(255, 107, 107, 0.16); color: var(--odd);
@@ -1492,10 +1550,6 @@ html.light .dropdown-item {
 html.light .dropdown-item:hover {
   background: #f2f2f7;
 }
-html.glass .header-loading-spinner {
-  border-color: rgba(255,255,255,0.3);
-  border-top-color: var(--accent);
-}
 html.glass .header-loading-text {
   color: rgba(255,255,255,0.65);
 }
@@ -1537,15 +1591,15 @@ html.glass .lessons-block {
 }
 html.glass .lesson-row + .lesson-row::before { background: rgba(255,255,255,0.14); }
 html.glass .lesson-row:active { background: rgba(255,255,255,0.11); }
-html.glass .bar.lec  { box-shadow: 0 0 8px rgba(199,125,255,.5); }
-html.glass .bar.lec-vuc { box-shadow: 0 0 8px rgba(107,124,62,.5); }
-html.glass .bar.lab  { box-shadow: 0 0 8px rgba(72,202,228,.5); }
-html.glass .bar.prac { box-shadow: 0 0 8px rgba(255,183,3,.5); }
-html.glass .bar.kurs { box-shadow: 0 0 8px rgba(255,107,157,.5); }
-html.glass .bar.ctrl-exam { box-shadow: 0 0 8px rgba(255,107,157,.5); }
-html.glass .bar.ctrl-credit { box-shadow: 0 0 8px rgba(72,202,228,.5); }
-html.glass .bar.ctrl-diff { box-shadow: 0 0 8px rgba(255,183,3,.5); }
-html.glass .bar.ctrl-other { box-shadow: 0 0 8px rgba(199,125,255,.5); }
+html.glass .bar.lec  { box-shadow: 0 0 8px color-mix(in srgb, var(--lec) 55%, transparent); }
+html.glass .bar.lec-vuc { box-shadow: 0 0 8px color-mix(in srgb, var(--vuc) 55%, transparent); }
+html.glass .bar.lab  { box-shadow: 0 0 8px color-mix(in srgb, var(--lab) 55%, transparent); }
+html.glass .bar.prac { box-shadow: 0 0 8px color-mix(in srgb, var(--prac) 55%, transparent); }
+html.glass .bar.kurs { box-shadow: 0 0 8px color-mix(in srgb, var(--kurs) 55%, transparent); }
+html.glass .bar.ctrl-exam { box-shadow: 0 0 8px color-mix(in srgb, var(--kurs) 55%, transparent); }
+html.glass .bar.ctrl-credit { box-shadow: 0 0 8px color-mix(in srgb, var(--lab) 55%, transparent); }
+html.glass .bar.ctrl-diff { box-shadow: 0 0 8px color-mix(in srgb, var(--prac) 55%, transparent); }
+html.glass .bar.ctrl-other { box-shadow: 0 0 8px color-mix(in srgb, var(--lec) 55%, transparent); }
 html.glass .chip {
   background: rgba(255,255,255,0.11);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
@@ -1628,25 +1682,25 @@ html.glass .vis-btn {
   backdrop-filter: blur(8px);
 }
 html.glass .settings-row-vis.vis-row-show {
-  box-shadow: inset 3px 0 0 #30d158;
-  background: rgba(48, 209, 88, 0.12);
+  box-shadow: inset 3px 0 0 var(--success);
+  background: color-mix(in srgb, var(--success) 14%, transparent);
 }
 html.glass .settings-row-vis.vis-row-dim {
-  box-shadow: inset 3px 0 0 #ffb703;
-  background: rgba(255, 183, 3, 0.1);
+  box-shadow: inset 3px 0 0 var(--warning);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
 }
 html.glass .settings-row-vis.vis-row-hide {
-  box-shadow: inset 3px 0 0 #ff6b6b;
-  background: rgba(255, 107, 107, 0.1);
+  box-shadow: inset 3px 0 0 var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
 }
 html.glass .vis-btn.active-show {
-  box-shadow: 0 0 0 2px rgba(48, 209, 88, 0.45), 0 0 14px rgba(48, 209, 88, 0.25);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--success) 55%, transparent), 0 0 14px color-mix(in srgb, var(--success) 30%, transparent);
 }
 html.glass .vis-btn.active-dim {
-  box-shadow: 0 0 0 2px rgba(255, 183, 3, 0.45), 0 0 14px rgba(255, 183, 3, 0.2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--warning) 55%, transparent), 0 0 14px color-mix(in srgb, var(--warning) 28%, transparent);
 }
 html.glass .vis-btn.active-hide {
-  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.45), 0 0 14px rgba(255, 107, 107, 0.2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 55%, transparent), 0 0 14px color-mix(in srgb, var(--danger) 28%, transparent);
 }
 
 html.glass .lesson-scheme-btn {
@@ -1736,7 +1790,7 @@ html.glass .custom-color-input:focus {
   background: var(--bg3);
 }
 .lesson-modal-type.lec { color: var(--lec); background: color-mix(in srgb, var(--lec) 15%, var(--bg3)); }
-.lesson-modal-type.lec-vuc { color: #6b7c3e; background: rgba(107, 124, 62, 0.15); }
+.lesson-modal-type.lec-vuc { color: var(--vuc); background: color-mix(in srgb, var(--vuc) 18%, var(--bg3)); }
 .lesson-modal-type.lab { color: var(--lab); background: color-mix(in srgb, var(--lab) 15%, var(--bg3)); }
 .lesson-modal-type.prac { color: var(--prac); background: color-mix(in srgb, var(--prac) 15%, var(--bg3)); }
 .lesson-modal-type.kurs { color: var(--kurs); background: color-mix(in srgb, var(--kurs) 15%, var(--bg3)); }
@@ -1878,38 +1932,44 @@ html.glass .appearance-preview::before {
 }
 html.glass.glass-bg-aurora .appearance-preview::before {
   background:
-    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(120,80,255,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 60% at 80% 20%, rgba(72,202,228,0.15) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 50% at 50% 80%, rgba(199,125,255,0.12) 0%, transparent 60%);
+    radial-gradient(ellipse 72% 62% at 14% 8%, rgba(99, 102, 241, 0.14) 0%, transparent 68%),
+    radial-gradient(ellipse 64% 60% at 88% 14%, rgba(56, 189, 248, 0.11) 0%, transparent 66%),
+    radial-gradient(ellipse 56% 58% at 52% 90%, rgba(167, 139, 250, 0.1) 0%, transparent 64%),
+    linear-gradient(180deg, rgba(255,255,255,0.018), transparent 42%);
 }
 html.glass.glass-bg-sunset .appearance-preview::before {
   background:
-    radial-gradient(ellipse 55% 45% at 15% 15%, rgba(255,107,107,0.16) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 50% at 85% 25%, rgba(255,159,10,0.14) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 55% at 50% 85%, rgba(255,55,95,0.12) 0%, transparent 58%);
+    radial-gradient(ellipse 70% 58% at 12% 10%, rgba(251, 113, 133, 0.14) 0%, transparent 66%),
+    radial-gradient(ellipse 62% 56% at 90% 18%, rgba(245, 158, 11, 0.11) 0%, transparent 64%),
+    radial-gradient(ellipse 54% 58% at 52% 92%, rgba(244, 114, 182, 0.1) 0%, transparent 62%),
+    linear-gradient(180deg, rgba(255,255,255,0.016), transparent 40%);
 }
 html.glass.glass-bg-ocean .appearance-preview::before {
   background:
-    radial-gradient(ellipse 65% 55% at 25% 20%, rgba(50,170,255,0.16) 0%, transparent 62%),
-    radial-gradient(ellipse 55% 60% at 75% 15%, rgba(72,202,228,0.14) 0%, transparent 58%),
-    radial-gradient(ellipse 45% 50% at 50% 80%, rgba(95,90,255,0.11) 0%, transparent 55%);
+    radial-gradient(ellipse 74% 62% at 20% 14%, rgba(14, 165, 233, 0.14) 0%, transparent 68%),
+    radial-gradient(ellipse 62% 64% at 80% 14%, rgba(45, 212, 191, 0.11) 0%, transparent 64%),
+    radial-gradient(ellipse 52% 56% at 50% 90%, rgba(99, 102, 241, 0.09) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.014), transparent 38%);
 }
 html.glass.glass-bg-forest .appearance-preview::before {
   background:
-    radial-gradient(ellipse 60% 50% at 20% 15%, rgba(106,153,78,0.15) 0%, transparent 58%),
-    radial-gradient(ellipse 50% 55% at 80% 25%, rgba(82,183,136,0.13) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 50% at 45% 85%, rgba(167,201,87,0.12) 0%, transparent 57%);
+    radial-gradient(ellipse 72% 60% at 16% 14%, rgba(101, 163, 13, 0.13) 0%, transparent 66%),
+    radial-gradient(ellipse 58% 62% at 84% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 62%),
+    radial-gradient(ellipse 58% 56% at 46% 90%, rgba(132, 204, 22, 0.09) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.012), transparent 38%);
 }
 html.glass.glass-bg-rose .appearance-preview::before {
   background:
-    radial-gradient(ellipse 58% 52% at 18% 12%, rgba(255,107,157,0.16) 0%, transparent 60%),
-    radial-gradient(ellipse 52% 58% at 82% 18%, rgba(199,125,255,0.14) 0%, transparent 58%),
-    radial-gradient(ellipse 48% 52% at 50% 82%, rgba(255,55,95,0.11) 0%, transparent 56%);
+    radial-gradient(ellipse 70% 60% at 14% 10%, rgba(244, 114, 182, 0.14) 0%, transparent 66%),
+    radial-gradient(ellipse 60% 62% at 86% 14%, rgba(168, 85, 247, 0.11) 0%, transparent 62%),
+    radial-gradient(ellipse 50% 54% at 50% 90%, rgba(251, 113, 133, 0.09) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.014), transparent 40%);
 }
 html.glass.glass-bg-minimal .appearance-preview::before {
   background:
-    radial-gradient(ellipse 70% 60% at 30% 20%, rgba(255,255,255,0.06) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 70% at 70% 30%, rgba(255,255,255,0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 74% 64% at 24% 18%, rgba(148, 163, 184, 0.08) 0%, transparent 68%),
+    radial-gradient(ellipse 64% 72% at 76% 30%, rgba(203, 213, 225, 0.06) 0%, transparent 64%),
+    linear-gradient(180deg, rgba(255,255,255,0.02), transparent 45%);
 }
 html.glass.glass-bg-custom .appearance-preview::before {
   background-image: var(--custom-glass-image, none);
@@ -2011,10 +2071,10 @@ html.glass .preview-lesson-row {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.1);
 }
-html.glass .preview-bar.lec { box-shadow: 0 0 6px rgba(199,125,255,.4); }
-html.glass .preview-bar.lab { box-shadow: 0 0 6px rgba(72,202,228,.4); }
-html.glass .preview-bar.prac { box-shadow: 0 0 6px rgba(255,183,3,.4); }
-html.glass .preview-bar.kurs { box-shadow: 0 0 6px rgba(255,107,157,.4); }
+html.glass .preview-bar.lec { box-shadow: 0 0 6px color-mix(in srgb, var(--lec) 50%, transparent); }
+html.glass .preview-bar.lab { box-shadow: 0 0 6px color-mix(in srgb, var(--lab) 50%, transparent); }
+html.glass .preview-bar.prac { box-shadow: 0 0 6px color-mix(in srgb, var(--prac) 50%, transparent); }
+html.glass .preview-bar.kurs { box-shadow: 0 0 6px color-mix(in srgb, var(--kurs) 50%, transparent); }
 html.glass .preview-chip {
   background: rgba(255,255,255,0.11);
   backdrop-filter: blur(8px);
@@ -2069,14 +2129,14 @@ html.glass .preview-day-title {
   height: 100%;
 }
 .custom-image-clear {
-  background: rgba(255, 69, 58, 0.12);
-  border-color: rgba(255, 69, 58, 0.3);
-  color: #ff453a;
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 34%, transparent);
+  color: var(--danger);
   width: 100%;
 }
 .custom-image-clear:hover {
-  background: rgba(255, 69, 58, 0.18);
-  border-color: rgba(255, 69, 58, 0.4);
+  background: color-mix(in srgb, var(--danger) 22%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 44%, transparent);
 }
 
 html.glass .custom-image-btn {
@@ -2089,13 +2149,13 @@ html.glass .custom-image-btn:hover {
   border-color: rgba(255,255,255,0.22);
 }
 html.glass .custom-image-clear {
-  background: rgba(255, 107, 107, 0.16);
-  border-color: rgba(255, 107, 107, 0.3);
-  color: #ff6b6b;
+  background: color-mix(in srgb, var(--danger) 20%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+  color: var(--danger);
 }
 html.glass .custom-image-clear:hover {
-  background: rgba(255, 107, 107, 0.22);
-  border-color: rgba(255, 107, 107, 0.4);
+  background: color-mix(in srgb, var(--danger) 28%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
 }
 
 @media (min-width: 720px) {

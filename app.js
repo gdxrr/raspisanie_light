@@ -1,6 +1,30 @@
 const { createApp, ref, computed, reactive, onMounted, onUnmounted, watch, nextTick } = Vue;
 
 const FETCH_TIMEOUT_MS = 20000;
+const HARDCODED_LK_LINK = {
+  id: 'lk-guap',
+  title: 'ЛК ГУАП',
+  url: 'https://pro.guap.ru/inside/profile',
+  iconName: '',
+  iconUrl: 'https://src.guap.ru/logos/guap/guap-sign_w.svg',
+};
+
+const DEFAULT_LINKS = [
+  {
+    id: 'mskzi-davydov',
+    title: 'МСКЗИ | Давыдов',
+    url: 'https://docs.google.com/spreadsheets/u/0/d/1r6Tmp2l60dQ9Atao4F1e1ITEgvskrM468asiUIs1svg/htmlview#gid=1324537187',
+    iconName: 'key-round',
+    iconUrl: '',
+  },
+  {
+    id: 'db-elina',
+    title: 'БД | Елина',
+    url: 'https://docs.google.com/spreadsheets/d/1A84JKC8L6ls561CrD5LTrL3Ro81-psnB0stOl9cSLp4/edit?htmlview#gid=1185166563',
+    iconName: 'database',
+    iconUrl: '',
+  },
+];
 
 const DAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
 const MN = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
@@ -204,6 +228,34 @@ function parseDisciplinesData(rows) {
   if (!Array.isArray(rows)) return out;
   for (let i = 0; i < rows.length; i++) {
     const item = parseDisciplineItem(rows[i], i + 1);
+    if (item) out.push(item);
+  }
+  return out;
+}
+
+function parseLinkItem(row, sheetRowIndex) {
+  if (!row || typeof row !== 'object') return null;
+  const title = String(getObjectField(row, ['title', 'Title', 'название', 'Название', 'name', 'Name']) ?? '').trim();
+  const url = String(getObjectField(row, ['url', 'URL', 'ссылка', 'Ссылка', 'href', 'link']) ?? '').trim();
+  if (!title || !url) return null;
+
+  const iconName = String(getObjectField(row, [
+    'icon_name', 'iconName', 'icon', 'Иконка', 'иконка', 'iconSlug',
+  ]) ?? '').trim();
+  const iconUrl = String(getObjectField(row, [
+    'icon_url', 'iconUrl', 'image', 'image_url', 'img', 'Картинка', 'картинка',
+  ]) ?? '').trim();
+  const idRaw = getObjectField(row, ['id', 'ID', 'Id']);
+  const idNum = Number(idRaw);
+  const id = Number.isFinite(idNum) && idNum > 0 ? idNum : sheetRowIndex;
+  return { id, title, url, iconName, iconUrl };
+}
+
+function parseLinksData(rows) {
+  const out = [];
+  if (!Array.isArray(rows)) return out;
+  for (let i = 0; i < rows.length; i++) {
+    const item = parseLinkItem(rows[i], i + 1);
     if (item) out.push(item);
   }
   return out;
@@ -445,51 +497,52 @@ createApp({
     function setTheme(t) { theme.value = t; applyTheme(t); saveSettings(); }
 
     const accentColors = {
-      blue: { name: 'Синий', color: '#0a84ff', colorLight: '#007aff' },
-      purple: { name: 'Фиолетовый', color: '#bf5af2', colorLight: '#af52de' },
-      pink: { name: 'Розовый', color: '#ff375f', colorLight: '#ff2d55' },
-      green: { name: 'Зелёный', color: '#32d74b', colorLight: '#34c759' },
-      orange: { name: 'Оранжевый', color: '#ff9f0a', colorLight: '#ff9500' },
-      red: { name: 'Красный', color: '#ff453a', colorLight: '#ff3b30' },
-      teal: { name: 'Бирюзовый', color: '#64d2ff', colorLight: '#5ac8fa' },
+      blue: { name: 'Синий', color: '#4f8cff', colorLight: '#2563eb' },
+      indigo: { name: 'Индиго', color: '#818cf8', colorLight: '#4f46e5' },
+      purple: { name: 'Фиолетовый', color: '#c084fc', colorLight: '#9333ea' },
+      teal: { name: 'Бирюзовый', color: '#2dd4bf', colorLight: '#0f766e' },
+      green: { name: 'Зелёный', color: '#34d399', colorLight: '#059669' },
+      orange: { name: 'Оранжевый', color: '#f59e0b', colorLight: '#d97706' },
+      rose: { name: 'Розовый', color: '#fb7185', colorLight: '#e11d48' },
+      red: { name: 'Красный', color: '#f87171', colorLight: '#dc2626' },
     };
 
     const lessonColorSchemes = {
       default: {
-        name: 'Классика',
-        dark: { lec: '#bf5af2', lab: '#32aaff', prac: '#ff9f0a', kurs: '#ff375f' },
-        light: { lec: '#9b59d4', lab: '#0a7aff', prac: '#c47a00', kurs: '#d63050' },
-        glass: { lec: '#c77dff', lab: '#48cae4', prac: '#ffb703', kurs: '#ff6b9d' }
+        name: 'Баланс',
+        dark: { lec: '#a78bfa', lab: '#38bdf8', prac: '#f59e0b', kurs: '#f472b6' },
+        light: { lec: '#8b5cf6', lab: '#0284c7', prac: '#d97706', kurs: '#db2777' },
+        glass: { lec: '#c4b5fd', lab: '#67e8f9', prac: '#fbbf24', kurs: '#f9a8d4' }
       },
       warm: {
-        name: 'Тёплая',
-        dark: { lec: '#ff6b6b', lab: '#ffa500', prac: '#ffd93d', kurs: '#ff4757' },
-        light: { lec: '#ee5a6f', lab: '#ff8c00', prac: '#f4c430', kurs: '#ff3838' },
-        glass: { lec: '#ff7979', lab: '#ffb347', prac: '#ffe066', kurs: '#ff5e6c' }
+        name: 'Тёплый',
+        dark: { lec: '#fb7185', lab: '#fb923c', prac: '#fbbf24', kurs: '#f43f5e' },
+        light: { lec: '#e11d48', lab: '#ea580c', prac: '#d97706', kurs: '#be123c' },
+        glass: { lec: '#fda4af', lab: '#fdba74', prac: '#fcd34d', kurs: '#fb7185' }
       },
       cool: {
-        name: 'Холодная',
-        dark: { lec: '#4ecdc4', lab: '#45b7d1', prac: '#96ceb4', kurs: '#5f27cd' },
-        light: { lec: '#3bb5ad', lab: '#3498db', prac: '#7fb685', kurs: '#5f27cd' },
-        glass: { lec: '#5eddd3', lab: '#56c5e0', prac: '#a8dcc0', kurs: '#7c3aed' }
+        name: 'Холодный',
+        dark: { lec: '#2dd4bf', lab: '#22d3ee', prac: '#60a5fa', kurs: '#818cf8' },
+        light: { lec: '#0f766e', lab: '#0e7490', prac: '#2563eb', kurs: '#4f46e5' },
+        glass: { lec: '#5eead4', lab: '#67e8f9', prac: '#93c5fd', kurs: '#a5b4fc' }
       },
       pastel: {
-        name: 'Пастель',
-        dark: { lec: '#b4a7d6', lab: '#92c9e8', prac: '#f4c2c2', kurs: '#d4a5a5' },
-        light: { lec: '#9b8fc4', lab: '#7ab8d9', prac: '#e0a8a8', kurs: '#c49393' },
-        glass: { lec: '#c4b5e8', lab: '#a5d8f5', prac: '#ffd4d4', kurs: '#e6b8b8' }
+        name: 'Мягкий',
+        dark: { lec: '#c4b5fd', lab: '#7dd3fc', prac: '#fcd34d', kurs: '#f9a8d4' },
+        light: { lec: '#8b5cf6', lab: '#0284c7', prac: '#b45309', kurs: '#be185d' },
+        glass: { lec: '#ddd6fe', lab: '#bae6fd', prac: '#fde68a', kurs: '#fbcfe8' }
       },
       neon: {
-        name: 'Неон',
-        dark: { lec: '#ff00ff', lab: '#00ffff', prac: '#ffff00', kurs: '#ff0080' },
-        light: { lec: '#d400d4', lab: '#00d4d4', prac: '#d4d400', kurs: '#d40066' },
-        glass: { lec: '#ff33ff', lab: '#33ffff', prac: '#ffff33', kurs: '#ff3399' }
+        name: 'Энергия',
+        dark: { lec: '#e879f9', lab: '#22d3ee', prac: '#facc15', kurs: '#f43f5e' },
+        light: { lec: '#a21caf', lab: '#0e7490', prac: '#ca8a04', kurs: '#be123c' },
+        glass: { lec: '#f0abfc', lab: '#67e8f9', prac: '#fde047', kurs: '#fb7185' }
       },
       forest: {
         name: 'Лес',
-        dark: { lec: '#6a994e', lab: '#52b788', prac: '#a7c957', kurs: '#bc6c25' },
-        light: { lec: '#588b3c', lab: '#40916c', prac: '#95b745', kurs: '#a35a1f' },
-        glass: { lec: '#7db05f', lab: '#63c99a', prac: '#b9d769', kurs: '#ce7d2f' }
+        dark: { lec: '#84cc16', lab: '#34d399', prac: '#f59e0b', kurs: '#65a30d' },
+        light: { lec: '#65a30d', lab: '#059669', prac: '#b45309', kurs: '#4d7c0f' },
+        glass: { lec: '#a3e635', lab: '#6ee7b7', prac: '#fbbf24', kurs: '#84cc16' }
       }
     };
 
@@ -606,8 +659,8 @@ createApp({
       if (!el) return;
       const r = el.getBoundingClientRect();
       const gap = 8;
-      const minW = Math.max(188, r.width);
-      const left = Math.max(8, Math.min(r.left, window.innerWidth - minW - 8));
+      const menuW = 156;
+      const left = Math.max(8, Math.min(r.left, window.innerWidth - menuW - 8));
       const spaceBelow = window.innerHeight - r.bottom - gap;
       const spaceAbove = r.top - gap;
       const openDown = spaceBelow >= SCHEDULE_FIL_MENU_H || spaceBelow >= spaceAbove;
@@ -617,7 +670,7 @@ createApp({
           position: 'fixed',
           top: `${r.bottom + gap}px`,
           left: `${left}px`,
-          minWidth: `${minW}px`,
+          width: `${menuW}px`,
           zIndex: 10050,
         };
       } else {
@@ -626,7 +679,7 @@ createApp({
           top: 'auto',
           bottom: `${window.innerHeight - r.top + gap}px`,
           left: `${left}px`,
-          minWidth: `${minW}px`,
+          width: `${menuW}px`,
           zIndex: 10050,
         };
       }
@@ -692,6 +745,7 @@ createApp({
       sheetSwitchAnim.value = true;
     }
     function setActiveSheet(sheet) {
+      if (sheet === 'session' && !showSessionTab.value) return;
       if (activeSheet.value === sheet) return;
       closeScheduleFilMenu();
       activeSheet.value = sheet;
@@ -742,6 +796,12 @@ createApp({
     const selectedLesson = ref(null);
     const calWrapRef = ref(null);
     const showLinksDropdown = ref(false);
+    const links = ref([]);
+    try {
+      const s = localStorage.getItem('links3');
+      const d = s ? JSON.parse(s) : null;
+      if (d && Array.isArray(d.items)) links.value = d.items;
+    } catch (_) {}
     const showGazpromModal = ref(false);
     const gazpromStep = ref(1);
     let gazpromClickCount = 0;
@@ -773,6 +833,26 @@ createApp({
         event.target.value = '';
       }
     }
+
+    async function loadLinks(cfg) {
+      if (!cfg || !cfg.webAppUrl) return;
+      try {
+        const rows = await fetchSheetFromConfig(cfg, 'links');
+        const items = parseLinksData(rows);
+        if (!items.length) return;
+        links.value = items;
+        localStorage.setItem('links3', JSON.stringify({ items }));
+      } catch (_) {}
+    }
+
+    const usefulLinks = computed(() => {
+      const dynamic = links.value.length ? links.value : DEFAULT_LINKS;
+      const filtered = dynamic.filter((item) => {
+        const itemUrl = String(item && item.url ? item.url : '').trim();
+        return itemUrl !== HARDCODED_LK_LINK.url;
+      });
+      return [HARDCODED_LK_LINK, ...filtered];
+    });
 
     function preloadRoomPhoto(room) {
       if (!room) return;
@@ -921,6 +1001,23 @@ createApp({
         });
       }
       return list;
+    });
+
+    const showSessionTab = computed(() => {
+      if (!sessions.value.length) return false;
+      const dated = sessions.value
+        .map((item) => item.dateSort || 0)
+        .filter((ts) => Number.isFinite(ts) && ts > 0)
+        .sort((a, b) => a - b);
+      if (!dated.length) return true;
+      const firstDate = new Date(dated[0]);
+      const lastDate = new Date(dated[dated.length - 1]);
+      const openDate = new Date(firstDate);
+      openDate.setDate(openDate.getDate() - 21);
+      openDate.setHours(0, 0, 0, 0);
+      lastDate.setHours(23, 59, 59, 999);
+      const now = new Date(today.value);
+      return now >= openDate && now <= lastDate;
     });
 
     const scheduleVisList = computed(() => sch.value.filter((l) => l.subject !== 'ВУЦ'));
@@ -1175,6 +1272,8 @@ createApp({
     onMounted(() => {
       bumpToday();
       loadActiveSheet();
+      const cfg = typeof window.SCHEDULE_CONFIG === 'object' && window.SCHEDULE_CONFIG ? window.SCHEDULE_CONFIG : {};
+      loadLinks(cfg);
       todayTickId = setInterval(bumpToday, 60 * 1000);
       document.addEventListener('visibilitychange', onVisibility);
       if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
@@ -1212,6 +1311,12 @@ createApp({
 
     watch(showScheduleFilMenu, (open) => {
       if (open) nextTick(() => updateScheduleFilMenuPos());
+    });
+
+    watch(showSessionTab, (isVisible) => {
+      if (!isVisible && activeSheet.value === 'session') {
+        activeSheet.value = 'schedule';
+      }
     });
 
     watch(vm, () => {
@@ -1256,7 +1361,7 @@ createApp({
       onSchedulePillPointerDown, onSchedulePillPointerUp, onSchedulePillClick,
       openScheduleFilMenu, selectScheduleFil,
       sheetSwitchAnim, sheetSwitchKey,
-      sessions, sessionDays, disciplines, activeDataCount,
+      sessions, sessionDays, showSessionTab, disciplines, activeDataCount,
       tfl, wLbl, pN, controlTypeClass, visModeLesson, setVisLesson, barClass, lTypeClass,
       fDays, isTd, sD,
       showSettings, openSettings, closeSettings,
@@ -1275,6 +1380,7 @@ createApp({
       preloadRoomPhoto,
       calWrapRef,
       showLinksDropdown,
+      usefulLinks,
       handleLinkSelect,
       showGazpromModal,
       gazpromStep,
