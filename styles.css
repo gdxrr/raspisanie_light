@@ -133,6 +133,7 @@ html::-webkit-scrollbar-thumb,
   isolation: isolate;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  overflow: visible;
 }
 .header-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 4px; }
 .header-title-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; position: relative; min-height: 40px; }
@@ -293,8 +294,22 @@ html.light .header-lk-icon { filter: invert(1); }
   html.system .header-lk-icon { filter: invert(1); }
 }
 
-.filter-strip { display: flex; gap: 8px; padding: 10px 16px 12px; overflow-x: auto; scrollbar-width: none; }
-.filter-strip::-webkit-scrollbar { display: none; }
+.filter-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 16px 12px;
+  overflow: visible;
+}
+.filter-strip-scroll {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filter-strip-scroll::-webkit-scrollbar { display: none; }
 .filter-pill {
   white-space: nowrap; padding: 6px 14px; border-radius: 20px;
   border: none; background: var(--bg3); color: var(--text2);
@@ -306,6 +321,163 @@ html.light .header-lk-icon { filter: invert(1); }
   transform: translateY(-2px);
 }
 .filter-pill.active { background: var(--accent); color: #fff; }
+
+.filter-pill-dropdown-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.filter-pill--schedule {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 10px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.filter-pill--schedule .filter-pill-label {
+  line-height: 1.2;
+}
+.filter-pill--schedule .filter-pill-sub {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+.filter-pill-sub.fil-sub-odd {
+  color: var(--odd);
+  background: rgba(255, 69, 58, 0.16);
+  border: 1.5px solid color-mix(in srgb, var(--odd) 55%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--odd) 22%, transparent);
+}
+.filter-pill-sub.fil-sub-even {
+  color: var(--even);
+  background: rgba(10, 132, 255, 0.16);
+  border: 1.5px solid color-mix(in srgb, var(--even) 55%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--even) 22%, transparent);
+}
+.filter-pill--schedule.active .filter-pill-sub.fil-sub-odd {
+  color: #fff;
+  background: var(--odd);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--odd) 45%, transparent);
+}
+.filter-pill--schedule.active .filter-pill-sub.fil-sub-even {
+  color: #fff;
+  background: var(--even);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--even) 45%, transparent);
+}
+html.light .filter-pill-sub.fil-sub-odd,
+html.light .filter-pill-sub.fil-sub-even {
+  box-shadow: none;
+}
+@media (prefers-color-scheme: light) {
+  html.system .filter-pill-sub.fil-sub-odd,
+  html.system .filter-pill-sub.fil-sub-even {
+    box-shadow: none;
+  }
+}
+.filter-pill-chevron {
+  display: inline-flex;
+  opacity: 0.55;
+  transition: transform 0.22s ease, opacity 0.2s ease;
+  margin-left: 1px;
+}
+.filter-pill--schedule.active .filter-pill-chevron {
+  opacity: 0.92;
+}
+.filter-pill-dropdown-wrap.open .filter-pill-chevron {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+.filter-pill-dropdown-wrap.pressing .filter-pill--schedule:not(.active) {
+  transform: scale(0.96);
+  background: var(--bg4);
+}
+.filter-pill-dropdown-wrap.pressing .filter-pill--schedule.active {
+  transform: scale(0.96);
+  filter: brightness(0.95);
+}
+.filter-pill-menu--teleport {
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--bg3);
+  border: 1.5px solid var(--bg4);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.filter-pill-dropdown-wrap.open {
+  z-index: 2;
+}
+.filter-pill-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.filter-pill-menu-item:hover {
+  background: var(--bg4);
+}
+.filter-pill-menu-item.selected {
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg3));
+  color: var(--accent);
+}
+.filter-pill-menu-item:active {
+  transform: scale(0.98);
+}
+.filter-pill-menu-text {
+  flex: 1;
+  line-height: 1.25;
+}
+.filter-pill-menu-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.filter-pill-menu-dot.odd { background: var(--odd); box-shadow: 0 0 6px color-mix(in srgb, var(--odd) 50%, transparent); }
+.filter-pill-menu-dot.even { background: var(--even); box-shadow: 0 0 6px color-mix(in srgb, var(--even) 50%, transparent); }
+.filter-pill-menu-check {
+  display: inline-flex;
+  color: var(--accent);
+  flex-shrink: 0;
+  opacity: 0.95;
+}
+.filter-menu-pop-enter-active,
+.filter-menu-pop-leave-active {
+  transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+.filter-menu-pop-enter-from,
+.filter-menu-pop-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+}
+.filter-pill-menu--teleport.filter-pill-menu--up.filter-menu-pop-enter-from,
+.filter-pill-menu--teleport.filter-pill-menu--up.filter-menu-pop-leave-to {
+  transform: translateY(6px) scale(0.96);
+}
+html.light .filter-pill-menu--teleport {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+@media (prefers-color-scheme: light) {
+  html.system .filter-pill-menu--teleport {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
 
 .sheet-list-block { padding-bottom: 8px; }
 .sheet-switch-enter-active,
@@ -1324,6 +1496,19 @@ html.glass .filter-pill {
 html.glass .filter-pill.active {
   background: var(--accent); border-color: var(--accent);
   box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+html.glass .filter-pill-menu--teleport {
+  background: rgba(28, 28, 32, 0.92);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+html.glass .filter-pill-menu--teleport .filter-pill-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+html.glass .filter-pill-menu--teleport .filter-pill-menu-item.selected {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 html.glass .week-separator-dot.odd  { box-shadow: 0 0 8px rgba(255,107,107,0.35); }

@@ -587,6 +587,104 @@ createApp({
     const fil = ref('all');
     const sheetSwitchAnim = ref(true);
     const sheetSwitchKey = computed(() => activeSheet.value + ':' + fil.value);
+    const showScheduleFilMenu = ref(false);
+    const schedulePillPressing = ref(false);
+    const schedulePillRef = ref(null);
+    const scheduleFilMenuStyle = ref({});
+    const scheduleFilMenuPlacement = ref('down');
+    const SCHEDULE_LONG_PRESS_MS = 480;
+    const SCHEDULE_FIL_MENU_H = 168;
+    let schedulePressTimer = null;
+    let schedulePressOpened = false;
+
+    function filLbl(f) {
+      return { all: '2 недели', odd: 'Нечётная', even: 'Чётная' }[f] || f;
+    }
+
+    function updateScheduleFilMenuPos() {
+      const el = schedulePillRef.value;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const gap = 8;
+      const minW = Math.max(188, r.width);
+      const left = Math.max(8, Math.min(r.left, window.innerWidth - minW - 8));
+      const spaceBelow = window.innerHeight - r.bottom - gap;
+      const spaceAbove = r.top - gap;
+      const openDown = spaceBelow >= SCHEDULE_FIL_MENU_H || spaceBelow >= spaceAbove;
+      scheduleFilMenuPlacement.value = openDown ? 'down' : 'up';
+      if (openDown) {
+        scheduleFilMenuStyle.value = {
+          position: 'fixed',
+          top: `${r.bottom + gap}px`,
+          left: `${left}px`,
+          minWidth: `${minW}px`,
+          zIndex: 10050,
+        };
+      } else {
+        scheduleFilMenuStyle.value = {
+          position: 'fixed',
+          top: 'auto',
+          bottom: `${window.innerHeight - r.top + gap}px`,
+          left: `${left}px`,
+          minWidth: `${minW}px`,
+          zIndex: 10050,
+        };
+      }
+    }
+
+    function clearSchedulePressTimer() {
+      if (schedulePressTimer) {
+        clearTimeout(schedulePressTimer);
+        schedulePressTimer = null;
+      }
+      schedulePillPressing.value = false;
+    }
+
+    function openScheduleFilMenu() {
+      activeSheet.value = 'schedule';
+      showScheduleFilMenu.value = true;
+      nextTick(() => updateScheduleFilMenuPos());
+    }
+
+    function closeScheduleFilMenu() {
+      showScheduleFilMenu.value = false;
+    }
+
+    function selectScheduleFil(next) {
+      vibrate();
+      setFil(next);
+      closeScheduleFilMenu();
+    }
+
+    function onSchedulePillPointerDown(e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      schedulePressOpened = false;
+      schedulePillPressing.value = true;
+      clearSchedulePressTimer();
+      schedulePressTimer = setTimeout(() => {
+        schedulePressTimer = null;
+        schedulePressOpened = true;
+        schedulePillPressing.value = false;
+        vibrate();
+        openScheduleFilMenu();
+      }, SCHEDULE_LONG_PRESS_MS);
+    }
+
+    function onSchedulePillPointerUp() {
+      clearSchedulePressTimer();
+    }
+
+    function onSchedulePillClick() {
+      if (schedulePressOpened) {
+        schedulePressOpened = false;
+        return;
+      }
+      vibrate();
+      closeScheduleFilMenu();
+      if (activeSheet.value !== 'schedule') {
+        setActiveSheet('schedule');
+      }
+    }
 
     function setFil(next) {
       activeSheet.value = 'schedule';
@@ -595,6 +693,7 @@ createApp({
     }
     function setActiveSheet(sheet) {
       if (activeSheet.value === sheet) return;
+      closeScheduleFilMenu();
       activeSheet.value = sheet;
       if (sheet !== 'schedule') vm.value = 'list';
       sheetSwitchAnim.value = true;
@@ -1085,6 +1184,9 @@ createApp({
         if (showLinksDropdown.value && !e.target.closest('.dropdown-wrap')) {
           showLinksDropdown.value = false;
         }
+        if (showScheduleFilMenu.value && !e.target.closest('.schedule-fil-wrap') && !e.target.closest('.filter-pill-menu--teleport')) {
+          showScheduleFilMenu.value = false;
+        }
       });
 
       let lastScrollY = window.scrollY;
@@ -1092,8 +1194,21 @@ createApp({
         if (showLinksDropdown.value && Math.abs(window.scrollY - lastScrollY) > 5) {
           showLinksDropdown.value = false;
         }
+        if (showScheduleFilMenu.value && Math.abs(window.scrollY - lastScrollY) > 5) {
+          showScheduleFilMenu.value = false;
+        }
         lastScrollY = window.scrollY;
       }, { passive: true });
+
+      window.addEventListener('resize', onScheduleFilMenuLayout);
+    });
+
+    function onScheduleFilMenuLayout() {
+      if (showScheduleFilMenu.value) updateScheduleFilMenuPos();
+    }
+
+    watch(showScheduleFilMenu, (open) => {
+      if (open) nextTick(() => updateScheduleFilMenuPos());
     });
 
     watch(vm, () => {
@@ -1127,12 +1242,16 @@ createApp({
       document.body.style.overflow = '';
       if (todayTickId) clearInterval(todayTickId);
       document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('resize', onScheduleFilMenuLayout);
       if (loadTimeoutId) clearTimeout(loadTimeoutId);
       if (loadAbort) loadAbort.abort();
     });
 
     return {
-      schedule: sch, scheduleVisList, vm, fil, setFil, activeSheet, setActiveSheet, toggleCalendarView, loadingLabel,
+      schedule: sch, scheduleVisList, vm, fil, filLbl, setFil, activeSheet, setActiveSheet, toggleCalendarView, loadingLabel,
+      showScheduleFilMenu, schedulePillPressing, schedulePillRef, scheduleFilMenuStyle, scheduleFilMenuPlacement,
+      onSchedulePillPointerDown, onSchedulePillPointerUp, onSchedulePillClick,
+      openScheduleFilMenu, selectScheduleFil,
       sheetSwitchAnim, sheetSwitchKey,
       sessions, sessionDays, disciplines, activeDataCount,
       tfl, wLbl, pN, controlTypeClass, visModeLesson, setVisLesson, barClass, lTypeClass,

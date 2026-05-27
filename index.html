@@ -81,11 +81,60 @@
     </div>
 
     <div class="filter-strip" v-if="vm==='list'">
-      <button type="button" class="filter-pill" :class="{active:activeSheet==='schedule' && fil==='all'}"   @click="vibrate(); setFil('all')">2 недели</button>
-      <button type="button" class="filter-pill" :class="{active:activeSheet==='schedule' && fil==='odd'}"   @click="vibrate(); setFil('odd')">Нечётная</button>
-      <button type="button" class="filter-pill" :class="{active:activeSheet==='schedule' && fil==='even'}"  @click="vibrate(); setFil('even')">Чётная</button>
-      <button type="button" class="filter-pill" :class="{active:activeSheet==='session'}" @click="vibrate(); setActiveSheet('session')">Сессия</button>
-      <button type="button" class="filter-pill" :class="{active:activeSheet==='disciplines'}" @click="vibrate(); setActiveSheet('disciplines')">Дисциплины</button>
+      <div
+        class="filter-pill-dropdown-wrap schedule-fil-wrap"
+        :class="{ open: showScheduleFilMenu, pressing: schedulePillPressing }"
+      >
+        <button
+          ref="schedulePillRef"
+          type="button"
+          class="filter-pill filter-pill--schedule"
+          :class="{ active: activeSheet === 'schedule', 'has-sub': fil !== 'all' }"
+          aria-haspopup="listbox"
+          :aria-expanded="showScheduleFilMenu"
+          @pointerdown="onSchedulePillPointerDown"
+          @pointerup="onSchedulePillPointerUp"
+          @pointerleave="onSchedulePillPointerUp"
+          @pointercancel="onSchedulePillPointerUp"
+          @click="onSchedulePillClick"
+          @contextmenu.prevent="openScheduleFilMenu()"
+        >
+          <span class="filter-pill-label">Расписание</span>
+          <span class="filter-pill-sub" v-if="fil !== 'all'" :class="'fil-sub-' + fil">{{ filLbl(fil) }}</span>
+          <span class="filter-pill-chevron lucide-wrap" v-html="lucideIcon('chevron-down', 14)" aria-hidden="true"></span>
+        </button>
+      </div>
+      <teleport to="body">
+        <transition name="filter-menu-pop">
+          <div
+            v-if="showScheduleFilMenu"
+            class="filter-pill-menu filter-pill-menu--teleport"
+            :class="'filter-pill-menu--' + scheduleFilMenuPlacement"
+            :style="scheduleFilMenuStyle"
+            role="listbox"
+            @click.stop
+          >
+            <button type="button" role="option" class="filter-pill-menu-item" :class="{ selected: fil === 'all' }" :aria-selected="fil === 'all'" @click="selectScheduleFil('all')">
+              <span class="filter-pill-menu-text">2 недели</span>
+              <span class="filter-pill-menu-check lucide-wrap" v-if="fil === 'all'" v-html="lucideIcon('check', 16)" aria-hidden="true"></span>
+            </button>
+            <button type="button" role="option" class="filter-pill-menu-item" :class="{ selected: fil === 'odd' }" :aria-selected="fil === 'odd'" @click="selectScheduleFil('odd')">
+              <span class="filter-pill-menu-dot odd" aria-hidden="true"></span>
+              <span class="filter-pill-menu-text">Нечётная</span>
+              <span class="filter-pill-menu-check lucide-wrap" v-if="fil === 'odd'" v-html="lucideIcon('check', 16)" aria-hidden="true"></span>
+            </button>
+            <button type="button" role="option" class="filter-pill-menu-item" :class="{ selected: fil === 'even' }" :aria-selected="fil === 'even'" @click="selectScheduleFil('even')">
+              <span class="filter-pill-menu-dot even" aria-hidden="true"></span>
+              <span class="filter-pill-menu-text">Чётная</span>
+              <span class="filter-pill-menu-check lucide-wrap" v-if="fil === 'even'" v-html="lucideIcon('check', 16)" aria-hidden="true"></span>
+            </button>
+          </div>
+        </transition>
+      </teleport>
+      <div class="filter-strip-scroll">
+        <button type="button" class="filter-pill" :class="{active:activeSheet==='session'}" @click="vibrate(); setActiveSheet('session')">Сессия</button>
+        <button type="button" class="filter-pill" :class="{active:activeSheet==='disciplines'}" @click="vibrate(); setActiveSheet('disciplines')">Дисциплины</button>
+      </div>
     </div>
   </div>
 
