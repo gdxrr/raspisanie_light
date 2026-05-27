@@ -46,7 +46,7 @@
           </div>
           <div class="header-loading-state" key="loading" v-else>
             <span class="header-loading-spinner"></span>
-            <span class="header-loading-text">Загрузка расписания</span>
+            <span class="header-loading-text">{{ loadingLabel }}</span>
           </div>
         </transition>
       </div>
@@ -72,32 +72,35 @@
             </div>
           </transition>
         </div>
-        <button type="button" class="icon-btn-hdr" @click="vibrate(); vm=vm==='list'?'calendar':'list'" :aria-label="vm==='list'?'Календарь':'Список'"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon(vm==='list'?'calendar':'list', 18)"></span></button>
-        <button type="button" class="icon-btn-hdr" @click="vibrate(); showSettings=true" aria-label="Настройки"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('settings', 18)"></span></button>
+        <button type="button" class="icon-btn-hdr" @click="vibrate(); toggleCalendarView()" aria-label="Календарь"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('calendar', 18)"></span></button>
+        <button type="button" class="icon-btn-hdr" @click="vibrate(); openSettings()" aria-label="Настройки"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('settings', 18)"></span></button>
       </div>
       <div class="header-right" v-else>
-        <button type="button" class="icon-btn-hdr" @click="vibrate(); vm='list'" aria-label="Закрыть календарь"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('x', 18)"></span></button>
+        <button type="button" class="icon-btn-hdr" @click="vibrate(); toggleCalendarView()" aria-label="Закрыть календарь"><span class="lucide-wrap lucide-wrap-hdr" v-html="lucideIcon('x', 18)"></span></button>
       </div>
     </div>
 
     <div class="filter-strip" v-if="vm==='list'">
-      <button type="button" class="filter-pill" :class="{active:fil==='all'}"   @click="vibrate(); fil='all'">2 недели</button>
-      <button type="button" class="filter-pill" :class="{active:fil==='odd'}"   @click="vibrate(); fil='odd'">Нечётная</button>
-      <button type="button" class="filter-pill" :class="{active:fil==='even'}"  @click="vibrate(); fil='even'">Чётная</button>
+      <button type="button" class="filter-pill" :class="{active:activeSheet==='schedule' && fil==='all'}"   @click="vibrate(); setFil('all')">2 недели</button>
+      <button type="button" class="filter-pill" :class="{active:activeSheet==='schedule' && fil==='odd'}"   @click="vibrate(); setFil('odd')">Нечётная</button>
+      <button type="button" class="filter-pill" :class="{active:activeSheet==='schedule' && fil==='even'}"  @click="vibrate(); setFil('even')">Чётная</button>
+      <button type="button" class="filter-pill" :class="{active:activeSheet==='session'}" @click="vibrate(); setActiveSheet('session')">Сессия</button>
+      <button type="button" class="filter-pill" :class="{active:activeSheet==='disciplines'}" @click="vibrate(); setActiveSheet('disciplines')">Дисциплины</button>
     </div>
   </div>
 
   <div class="main">
     <div class="sync-meta-wrap" v-if="loadError">
-      <div class="sync-meta sync-meta-err">{{ loadError }}<template v-if="!schedule.length"> Проверьте <code style="font-size:12px">config.js</code>.</template><button type="button" class="sync-meta-btn sync-meta-btn-icon" @click="vibrate(); loadSchedule()" aria-label="Повторить загрузку"><span class="lucide-wrap" v-html="lucideIcon('rotate-cw', 15)"></span></button></div>
+      <div class="sync-meta sync-meta-err">{{ loadError }}<template v-if="!activeDataCount"> Проверьте <code style="font-size:12px">config.js</code>.</template><button type="button" class="sync-meta-btn sync-meta-btn-icon" @click="vibrate(); loadActiveSheet()" aria-label="Повторить загрузку"><span class="lucide-wrap" v-html="lucideIcon('rotate-cw', 15)"></span></button></div>
     </div>
-    <div class="sync-meta-wrap" v-if="schedule.length && loadErrorStale">
-      <div class="sync-meta sync-meta-err">Не удалось обновить с сервера, показан кэш.<button type="button" class="sync-meta-btn sync-meta-btn-icon" @click="vibrate(); loadSchedule()" aria-label="Повторить загрузку"><span class="lucide-wrap" v-html="lucideIcon('rotate-cw', 15)"></span></button></div>
+    <div class="sync-meta-wrap" v-if="activeDataCount && loadErrorStale">
+      <div class="sync-meta sync-meta-err">Не удалось обновить с сервера, показан кэш.<button type="button" class="sync-meta-btn sync-meta-btn-icon" @click="vibrate(); loadActiveSheet()" aria-label="Повторить загрузку"><span class="lucide-wrap" v-html="lucideIcon('rotate-cw', 15)"></span></button></div>
     </div>
 
-    <template v-if="vm==='list'">
+    <template v-if="vm==='list' || vm==='calendar'">
+    <div class="list-under-overlay">
 
-      <template v-if="loading && schedule.length===0">
+      <template v-if="activeSheet==='schedule' && loading && schedule.length===0">
         <div v-for="block in [1, 2, 3]" :key="'skeleton-' + block">
           <div class="day-hdr">
             <div class="skeleton-line w-55 h-16"></div>
@@ -121,50 +124,138 @@
         </div>
       </template>
 
+      <transition name="sheet-switch" mode="out-in" :css="sheetSwitchAnim">
+      <div :key="sheetSwitchKey" class="sheet-switch-stage">
+      <template v-if="activeSheet==='schedule'">
       <div style="padding:20px 12px" v-if="!loading && fDays.length===0">
         <div class="no-card"><div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Пар нет</div><div class="no-sub">Заполните таблицу или проверьте подключение.</div></div>
       </div>
-      <div v-for="scheduleDay in fDays" :key="scheduleDay.dateStr+scheduleDay.name" v-show="!loading || schedule.length>0">
-        <div class="week-separator" v-if="scheduleDay.isWeekStart">
-          <div class="week-separator-dot" :class="scheduleDay.weekType"></div>
-          <span class="week-separator-label">{{ scheduleDay.weekType==='odd'?'Нечётная неделя':'Чётная неделя' }}</span>
-          <div class="week-separator-line"></div>
-        </div>
-        <div class="day-hdr">
-          <div class="day-hdr-title" :class="{today:scheduleDay.isToday}">{{ scheduleDay.name }}, {{ scheduleDay.dateStr }}</div>
-        </div>
-        <div v-if="scheduleDay.isWeekend" class="no-card">
-          <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon(scheduleDay.weekendLabel && scheduleDay.weekendLabel!=='weekend' ? 'party-popper' : 'bed', 36)"></span></div>
-          <div class="no-title">{{ scheduleDay.weekendLabel && scheduleDay.weekendLabel!=='weekend' ? scheduleDay.weekendLabel : 'Выходной' }}</div>
-          <div class="no-sub">Пар нет</div>
-        </div>
-        <div v-else-if="scheduleDay.visibleLessons.length===0" class="no-card">
-          <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('inbox', 36)"></span></div>
-          <div class="no-title">Пар нет</div>
-          <div class="no-sub">Можно спать спокойно!</div>
-        </div>
-        <div v-else class="lessons-block">
-          <template v-for="lesson in scheduleDay.visibleLessons" :key="lessonKey(lesson)">
-            <div class="lesson-row" :class="{dimmed: visModeLesson(lesson)==='dim'}" @click="vibrate(); selectedLesson=lesson" @mouseenter="preloadRoomPhoto(lesson.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(lesson.roomSchemeUrl)">
-              <div class="time-col">
-                <div class="time-start">{{ lesson.start }}</div>
-                <div class="pair-num">{{ pN(lesson) }}</div>
-                <div class="time-end">{{ lesson.end }}</div>
+      <div v-if="!loading || schedule.length>0" class="schedule-filter-stage">
+        <transition name="week-filter" mode="out-in">
+          <div :key="fil" class="schedule-days">
+            <div
+              v-for="scheduleDay in fDays"
+              :key="scheduleDay.dateStr + '|' + scheduleDay.name"
+              class="schedule-day"
+            >
+              <div class="week-separator" v-if="scheduleDay.isWeekStart">
+                <div class="week-separator-dot" :class="scheduleDay.weekType"></div>
+                <span class="week-separator-label">{{ scheduleDay.weekType==='odd'?'Нечётная неделя':'Чётная неделя' }}</span>
+                <div class="week-separator-line"></div>
               </div>
-              <div class="bar" :class="barClass(lesson)"></div>
-              <div class="lesson-body">
-                <div class="l-type" :class="lTypeClass(lesson)">{{ tfl(lesson.type) }}</div>
-                <div class="l-subject">{{ lesson.subject }}</div>
-                <div class="l-chips" v-if="lesson.room">
-                  <span class="chip">{{ lesson.room }}</span>
-                </div>
-                <div class="l-teacher" v-if="lesson.teacher">{{ lesson.teacher }}</div>
-                <div v-if="lesson.subject==='ВУЦ' && scheduleDay.vucRemainderLine" class="l-vuc-note">{{ scheduleDay.vucRemainderLine }}</div>
+              <div class="day-hdr">
+                <div class="day-hdr-title" :class="{today:scheduleDay.isToday}">{{ scheduleDay.name }}, {{ scheduleDay.dateStr }}</div>
+              </div>
+              <div v-if="scheduleDay.isWeekend" class="no-card">
+                <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon(scheduleDay.weekendLabel && scheduleDay.weekendLabel!=='weekend' ? 'party-popper' : 'bed', 36)"></span></div>
+                <div class="no-title">{{ scheduleDay.weekendLabel && scheduleDay.weekendLabel!=='weekend' ? scheduleDay.weekendLabel : 'Выходной' }}</div>
+                <div class="no-sub">Пар нет</div>
+              </div>
+              <div v-else-if="scheduleDay.visibleLessons.length===0" class="no-card">
+                <div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('inbox', 36)"></span></div>
+                <div class="no-title">Пар нет</div>
+                <div class="no-sub">Можно спать спокойно!</div>
+              </div>
+              <div v-else class="lessons-block">
+                <template v-for="lesson in scheduleDay.visibleLessons" :key="lessonKey(lesson)">
+                  <div class="lesson-row" :class="{dimmed: visModeLesson(lesson)==='dim'}" @click="vibrate(); selectedLesson=lesson" @mouseenter="preloadRoomPhoto(lesson.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(lesson.roomSchemeUrl)">
+                    <div class="time-col">
+                      <div class="time-start">{{ lesson.start }}</div>
+                      <div class="pair-num">{{ pN(lesson) }}</div>
+                      <div class="time-end">{{ lesson.end }}</div>
+                    </div>
+                    <div class="bar" :class="barClass(lesson)"></div>
+                    <div class="lesson-body">
+                      <div class="l-type" :class="lTypeClass(lesson)">{{ tfl(lesson.type) }}</div>
+                      <div class="l-subject">{{ lesson.subject }}</div>
+                      <div class="l-chips" v-if="lesson.room">
+                        <span class="chip">{{ lesson.room }}</span>
+                      </div>
+                      <div class="l-teacher" v-if="lesson.teacher">{{ lesson.teacher }}</div>
+                      <div v-if="lesson.subject==='ВУЦ' && scheduleDay.vucRemainderLine" class="l-vuc-note">{{ scheduleDay.vucRemainderLine }}</div>
+                    </div>
+                  </div>
+                </template>
               </div>
             </div>
-          </template>
-        </div>
+          </div>
+        </transition>
       </div>
+      </template>
+
+      <template v-if="activeSheet==='session'">
+        <template v-if="loading && sessions.length===0">
+          <div v-for="block in [1, 2]" :key="'sess-skeleton-' + block" class="sheet-list-block">
+            <div class="day-hdr"><div class="skeleton-line w-55 h-16"></div></div>
+            <div class="skeleton-block">
+              <div v-for="row in [1, 2]" :key="'sess-sk-' + row" class="skeleton-row">
+                <div class="skeleton-time"><div class="skeleton-line w-100 h-20"></div></div>
+                <div class="skeleton-bar skeleton-line"></div>
+                <div class="skeleton-body"><div class="skeleton-line w-90 h-16"></div><div class="skeleton-line w-72 h-12"></div></div>
+              </div>
+            </div>
+          </div>
+        </template>
+        <div style="padding:20px 12px" v-if="!loading && sessions.length===0">
+          <div class="no-card"><div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('calendar', 36)"></span></div><div class="no-title">Записей нет</div><div class="no-sub">Заполните лист «Сессия» или проверьте подключение.</div></div>
+        </div>
+        <div v-if="!loading || sessions.length>0" class="sheet-list-block session-days">
+          <div v-for="sessDay in sessionDays" :key="'sess-day-' + sessDay.dateSort + sessDay.dateLabel" class="schedule-day">
+            <div class="day-hdr">
+              <div class="day-hdr-title" :class="{today: sessDay.date && isTd(sessDay.date)}">{{ sessDay.dateLabel }}</div>
+            </div>
+            <div class="lessons-block">
+              <div v-for="sess in sessDay.items" :key="'sess-' + sess.id" class="lesson-row sheet-row-session" @mouseenter="preloadRoomPhoto(sess.roomSchemeUrl)" @touchstart.passive="preloadRoomPhoto(sess.roomSchemeUrl)">
+                <div class="time-col time-col-single">
+                  <div class="time-start">{{ sess.start || '—' }}</div>
+                </div>
+                <div class="bar kurs"></div>
+                <div class="lesson-body">
+                  <div class="l-subject">{{ sess.subject }}</div>
+                  <div class="l-chips" v-if="sess.room">
+                    <span class="chip">{{ sess.room }}</span>
+                  </div>
+                  <div class="l-teacher" v-if="sess.teacher">{{ sess.teacher }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template v-if="activeSheet==='disciplines'">
+        <template v-if="loading && disciplines.length===0">
+          <div v-for="block in [1, 2]" :key="'disc-skeleton-' + block" class="sheet-list-block">
+            <div class="skeleton-block">
+              <div v-for="row in [1, 2, 3]" :key="'disc-sk-' + row" class="skeleton-row">
+                <div class="skeleton-bar skeleton-line"></div>
+                <div class="skeleton-body"><div class="skeleton-line w-90 h-16"></div><div class="skeleton-line w-72 h-12"></div></div>
+              </div>
+            </div>
+          </div>
+        </template>
+        <div style="padding:20px 12px" v-if="!loading && disciplines.length===0">
+          <div class="no-card"><div class="no-icon"><span class="lucide-wrap lucide-wrap-empty" v-html="lucideIcon('book-open', 36)"></span></div><div class="no-title">Дисциплин нет</div><div class="no-sub">Заполните лист «Дисциплины» или проверьте подключение.</div></div>
+        </div>
+        <div v-if="!loading || disciplines.length>0" class="sheet-list-block">
+          <div class="lessons-block">
+            <div v-for="disc in disciplines" :key="'disc-' + disc.id" class="lesson-row sheet-row-discipline">
+              <div class="time-col sheet-disc-index">
+                <div class="pair-num">{{ disc.id }}</div>
+              </div>
+              <div class="bar" :class="controlTypeClass(disc.controlType)"></div>
+              <div class="lesson-body">
+                <div class="l-type" :class="controlTypeClass(disc.controlType)" v-if="disc.controlType">{{ disc.controlType }}</div>
+                <div class="l-subject">{{ disc.subject }}</div>
+                <div class="l-teacher" v-if="disc.teacher">{{ disc.teacher }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+      </div>
+      </transition>
+    </div>
     </template>
 
     <transition name="slide-right">
@@ -233,7 +324,7 @@
     <div class="settings-panel" v-if="showSettings">
       <div class="settings-nav">
         <span class="settings-nav-title">Настройки</span>
-        <button type="button" class="icon-btn" aria-label="Закрыть" @click="vibrate(); showSettings=false"><span class="lucide-wrap lucide-wrap-settings-close" v-html="lucideIcon('x', 18)"></span></button>
+        <button type="button" class="icon-btn" aria-label="Закрыть" @click="vibrate(); closeSettings()"><span class="lucide-wrap lucide-wrap-settings-close" v-html="lucideIcon('x', 18)"></span></button>
       </div>
 
       <div class="settings-tabs">

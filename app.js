@@ -1,4 +1,4 @@
-const { createApp, ref, computed, reactive, onMounted, onUnmounted, watch } = Vue;
+const { createApp, ref, computed, reactive, onMounted, onUnmounted, watch, nextTick } = Vue;
 
 const FETCH_TIMEOUT_MS = 20000;
 
@@ -98,16 +98,16 @@ function rowToLesson(row, sheetRowIndex) {
   if (!hasArrayData && !hasObjectData) return null;
 
   const idRaw = isArrayRow ? '' : getObjectField(row, ['id', 'ID', 'Id']);
-  const dayRaw = isArrayRow ? row[0] : getObjectField(row, ['day', 'день']);
-  const pairRaw = isArrayRow ? row[1] : getObjectField(row, ['pair', 'pairNum', 'номер пары', 'пара']);
-  const startRaw = isArrayRow ? row[2] : getObjectField(row, ['start', 'startTime', 'начало']);
-  const endRaw = isArrayRow ? row[3] : getObjectField(row, ['end', 'endTime', 'конец']);
-  const typeRaw = isArrayRow ? row[4] : getObjectField(row, ['type', 'тип']);
-  const subjectRaw = isArrayRow ? row[5] : getObjectField(row, ['subject', 'дисциплина', 'предмет']);
-  const roomRaw = isArrayRow ? row[6] : getObjectField(row, ['room', 'аудитория', 'кабинет']);
-  const roomSchemeUrlRaw = isArrayRow ? row[7] : getObjectField(row, ['roomSchemeUrl', 'roomPhotoUrl', 'схема', 'ссылка']);
-  const teacherRaw = isArrayRow ? row[8] : getObjectField(row, ['teacher', 'преподаватель']);
-  const weekRaw = isArrayRow ? row[9] : getObjectField(row, ['week', 'неделя']);
+  const dayRaw = isArrayRow ? row[0] : getObjectField(row, ['day', 'день', 'День']);
+  const pairRaw = isArrayRow ? row[1] : getObjectField(row, ['pair', 'pairNum', 'номер пары', 'пара', 'Пара', '№ пары']);
+  const startRaw = isArrayRow ? row[2] : getObjectField(row, ['start', 'startTime', 'начало', 'Начало']);
+  const endRaw = isArrayRow ? row[3] : getObjectField(row, ['end', 'endTime', 'конец', 'Конец', 'Окончание']);
+  const typeRaw = isArrayRow ? row[4] : getObjectField(row, ['type', 'тип', 'Тип']);
+  const subjectRaw = isArrayRow ? row[5] : getObjectField(row, ['subject', 'дисциплина', 'предмет', 'Дисциплина']);
+  const roomRaw = isArrayRow ? row[6] : getObjectField(row, ['room', 'аудитория', 'кабинет', 'Аудитория']);
+  const roomSchemeUrlRaw = isArrayRow ? row[7] : getObjectField(row, ['roomSchemeUrl', 'roomPhotoUrl', 'схема', 'ссылка', 'Схема аудитории']);
+  const teacherRaw = isArrayRow ? row[8] : getObjectField(row, ['teacher', 'преподаватель', 'Преподаватель']);
+  const weekRaw = isArrayRow ? row[9] : getObjectField(row, ['week', 'неделя', 'Неделя']);
 
   const day = String(dayRaw ?? '').trim();
   let start = normalizeTime(startRaw);
@@ -136,18 +136,103 @@ function parseSheetValues(rows) {
   return out;
 }
 
-async function fetchRowsFromConfig(cfg, fetchOpts) {
-  const res = await fetch(cfg.webAppUrl, fetchOpts || {});
-  if (!res.ok) throw new Error('Web App: ' + res.status + ' ' + res.statusText);
-  const j = await res.json();
+function formatRowDateLabel(dateRaw) {
+  if (!dateRaw) return '';
+  const d = dateRaw instanceof Date ? dateRaw : new Date(dateRaw);
+  if (Number.isNaN(d.getTime())) return String(dateRaw).trim();
+  const dow = d.getDay();
+  const idx = dow === 0 ? 6 : dow - 1;
+  return `${DAYS[idx]}, ${d.getDate()} ${monthGenitive(d.getMonth())}`;
+}
+
+function parseSessionItem(row, sheetRowIndex) {
+  if (!row || typeof row !== 'object') return null;
+  const dateRaw = getObjectField(row, ['Дата', 'date', 'Date']);
+  const shiftRaw = getObjectField(row, ['№ смены', 'shift', 'смена']);
+  const startRaw = getObjectField(row, ['Начало', 'start', 'начало']);
+  const subject = String(getObjectField(row, ['Дисциплина', 'subject', 'дисциплина']) ?? '').trim();
+  const room = String(getObjectField(row, ['Аудитория', 'room', 'аудитория']) ?? '').trim();
+  const roomSchemeUrl = String(getObjectField(row, ['Схема аудитории', 'roomSchemeUrl', 'схема']) ?? '').trim();
+  const teacher = String(getObjectField(row, ['Преподаватель', 'teacher']) ?? '').trim();
+  if (!subject) return null;
+  const dateObj = dateRaw ? new Date(dateRaw) : null;
+  const dateValid = dateObj && !Number.isNaN(dateObj.getTime());
+  const start = normalizeTime(startRaw);
+  const shiftNum = Number(shiftRaw) || null;
+  return {
+    id: sheetRowIndex,
+    date: dateValid ? dateObj : null,
+    dateLabel: dateValid ? formatRowDateLabel(dateObj) : '',
+    dateSort: dateValid ? dateObj.getTime() : 0,
+    shiftNum,
+    start,
+    subject,
+    room,
+    roomSchemeUrl,
+    teacher,
+  };
+}
+
+function parseSessionsData(rows) {
+  const out = [];
+  if (!Array.isArray(rows)) return out;
+  for (let i = 0; i < rows.length; i++) {
+    const item = parseSessionItem(rows[i], i + 1);
+    if (item) out.push(item);
+  }
+  out.sort((a, b) => {
+    if (a.dateSort !== b.dateSort) return a.dateSort - b.dateSort;
+    const sa = a.shiftNum || 0;
+    const sb = b.shiftNum || 0;
+    if (sa !== sb) return sa - sb;
+    return timeToMin(a.start) - timeToMin(b.start);
+  });
+  return out;
+}
+
+function parseDisciplineItem(row, sheetRowIndex) {
+  if (!row || typeof row !== 'object') return null;
+  const subject = String(getObjectField(row, ['Дисциплина', 'subject', 'дисциплина']) ?? '').trim();
+  const teacher = String(getObjectField(row, ['Преподаватель', 'teacher']) ?? '').trim();
+  const controlType = String(getObjectField(row, ['Вид контроля', 'controlType', 'тип']) ?? '').trim();
+  if (!subject) return null;
+  return { id: sheetRowIndex, subject, teacher, controlType };
+}
+
+function parseDisciplinesData(rows) {
+  const out = [];
+  if (!Array.isArray(rows)) return out;
+  for (let i = 0; i < rows.length; i++) {
+    const item = parseDisciplineItem(rows[i], i + 1);
+    if (item) out.push(item);
+  }
+  return out;
+}
+
+function extractRowsFromJson(j) {
   if (Array.isArray(j)) return j;
+  if (j && j.error) throw new Error(String(j.error));
   if (j.values && Array.isArray(j.values)) return j.values;
   if (j.rows && Array.isArray(j.rows)) return j.rows;
   if (j.data && Array.isArray(j.data)) return j.data;
   if (j.data && j.data.rows && Array.isArray(j.data.rows)) return j.data.rows;
   if (j.data && j.data.values && Array.isArray(j.data.values)) return j.data.values;
   if (j.result && Array.isArray(j.result)) return j.result;
-  throw new Error('Web App: ожидался массив или { values: [...] }');
+  throw new Error('Web App: ожидался массив или { data: [...] }');
+}
+
+function buildSheetUrl(webAppUrl, sheetName) {
+  if (!sheetName) return webAppUrl;
+  const sep = webAppUrl.includes('?') ? '&' : '?';
+  return webAppUrl + sep + 'sheet=' + encodeURIComponent(sheetName);
+}
+
+async function fetchSheetFromConfig(cfg, sheetName, fetchOpts) {
+  const url = buildSheetUrl(cfg.webAppUrl, sheetName);
+  const res = await fetch(url, fetchOpts || {});
+  if (!res.ok) throw new Error('Web App: ' + res.status + ' ' + res.statusText);
+  const j = await res.json();
+  return extractRowsFromJson(j);
 }
 
 createApp({
@@ -178,6 +263,34 @@ createApp({
         }));
       }
     } catch (_) {}
+
+    const sessions = ref([]);
+    let sessionsFetchedAt = '';
+    try {
+      const s = localStorage.getItem('sess3');
+      const d = s ? JSON.parse(s) : null;
+      if (d && Array.isArray(d.items)) {
+        sessions.value = d.items.map((item) => ({
+          ...item,
+          start: normalizeTime(item.start),
+          date: item.date ? new Date(item.date) : null,
+        }));
+        sessionsFetchedAt = d.fetchedAt || '';
+      }
+    } catch (_) {}
+
+    const disciplines = ref([]);
+    let disciplinesFetchedAt = '';
+    try {
+      const s = localStorage.getItem('disc3');
+      const d = s ? JSON.parse(s) : null;
+      if (d && Array.isArray(d.items)) {
+        disciplines.value = d.items;
+        disciplinesFetchedAt = d.fetchedAt || '';
+      }
+    } catch (_) {}
+
+    const activeSheet = ref('schedule');
 
     const settingsRaw = JSON.parse(localStorage.getItem('settings3') || '{}');
     const theme = ref(settingsRaw.theme || 'system');
@@ -472,7 +585,57 @@ createApp({
 
     const vm = ref('list');
     const fil = ref('all');
+    const sheetSwitchAnim = ref(true);
+    const sheetSwitchKey = computed(() => activeSheet.value + ':' + fil.value);
+
+    function setFil(next) {
+      activeSheet.value = 'schedule';
+      fil.value = next;
+      sheetSwitchAnim.value = true;
+    }
+    function setActiveSheet(sheet) {
+      if (activeSheet.value === sheet) return;
+      activeSheet.value = sheet;
+      if (sheet !== 'schedule') vm.value = 'list';
+      sheetSwitchAnim.value = true;
+      loadActiveSheet();
+    }
+
+    function toggleCalendarView() {
+      if (vm.value === 'calendar') {
+        sheetSwitchAnim.value = false;
+        vm.value = 'list';
+        nextTick(() => {
+          sheetSwitchAnim.value = true;
+        });
+        return;
+      }
+      sheetSwitchAnim.value = false;
+      vm.value = 'calendar';
+    }
+
+    const loadingLabel = computed(() => {
+      if (activeSheet.value === 'session') return 'Загрузка сессии';
+      if (activeSheet.value === 'disciplines') return 'Загрузка дисциплин';
+      return 'Загрузка расписания';
+    });
+
+    const activeDataCount = computed(() => {
+      if (activeSheet.value === 'session') return sessions.value.length;
+      if (activeSheet.value === 'disciplines') return disciplines.value.length;
+      return sch.value.length;
+    });
     const showSettings = ref(false);
+
+    function openSettings() {
+      showSettings.value = true;
+      document.documentElement.classList.add('settings-open');
+    }
+
+    function closeSettings() {
+      showSettings.value = false;
+      document.documentElement.classList.remove('settings-open');
+    }
     const settingsTab = ref('schedule');
     const selectedLesson = ref(null);
     const calWrapRef = ref(null);
@@ -516,6 +679,13 @@ createApp({
     }
 
     function tfl(t) { return { lec: 'Лекция', lab: 'Лабораторная работа', prac: 'Практика', kurs: 'Курсовая' }[t] || t; }
+    function controlTypeClass(controlType) {
+      const s = String(controlType || '').trim().toLowerCase();
+      if (s.includes('экзамен')) return 'ctrl-exam';
+      if (s.includes('дифференц')) return 'ctrl-diff';
+      if (s.includes('зачёт') || s.includes('зачет')) return 'ctrl-credit';
+      return 'ctrl-other';
+    }
     function barClass(l) {
       if (l.type === 'lec' && l.subject === 'ВУЦ') return 'lec-vuc';
       return l.type;
@@ -624,6 +794,33 @@ createApp({
       return all;
     });
 
+    const sessionDays = computed(() => {
+      const byKey = new Map();
+      for (const sess of sessions.value) {
+        const key = sess.dateSort ? String(sess.dateSort) : (sess.dateLabel || 'id-' + sess.id);
+        if (!byKey.has(key)) {
+          byKey.set(key, {
+            dateLabel: sess.dateLabel || 'Без даты',
+            dateSort: sess.dateSort || 0,
+            date: sess.date,
+            items: [],
+          });
+        }
+        byKey.get(key).items.push(sess);
+      }
+      const list = [...byKey.values()];
+      list.sort((a, b) => a.dateSort - b.dateSort);
+      for (const group of list) {
+        group.items.sort((a, b) => {
+          const sa = a.shiftNum || 0;
+          const sb = b.shiftNum || 0;
+          if (sa !== sb) return sa - sb;
+          return timeToMin(a.start) - timeToMin(b.start);
+        });
+      }
+      return list;
+    });
+
     const scheduleVisList = computed(() => sch.value.filter((l) => l.subject !== 'ВУЦ'));
 
     const calM = ref(new Date(today.value.getFullYear(), today.value.getMonth(), 1));
@@ -727,8 +924,16 @@ createApp({
       return '';
     });
 
+    function hasCachedForSheet(sheet) {
+      if (sheet === 'session') return sessions.value.length > 0;
+      if (sheet === 'disciplines') return disciplines.value.length > 0;
+      return sch.value.length > 0;
+    }
+
     const lastFetchedLabel = computed(() => {
-      const iso = fetchedAt;
+      let iso = fetchedAt;
+      if (activeSheet.value === 'session') iso = sessionsFetchedAt;
+      else if (activeSheet.value === 'disciplines') iso = disciplinesFetchedAt;
       if (!iso) return '';
       const d = new Date(iso);
       if (Number.isNaN(d.getTime())) return '';
@@ -740,7 +945,8 @@ createApp({
       });
     });
 
-    async function loadSchedule() {
+    async function loadActiveSheet() {
+      const sheet = activeSheet.value;
       const seq = ++loadSeq;
       const cfg = typeof window.SCHEDULE_CONFIG === 'object' && window.SCHEDULE_CONFIG ? window.SCHEDULE_CONFIG : {};
       loadError.value = '';
@@ -766,35 +972,56 @@ createApp({
       loading.value = true;
 
       try {
-        const rows = await fetchRowsFromConfig(cfg, { signal });
+        const rows = await fetchSheetFromConfig(cfg, sheet, { signal });
         if (seq !== loadSeq) return;
-        const lessons = parseSheetValues(rows);
-        sch.value = lessons;
-        fetchedAt = new Date().toISOString();
-        localStorage.setItem('sch3', JSON.stringify({ lessons, fetchedAt }));
+        const now = new Date().toISOString();
 
-        // Предзагрузка всех фотографий аудиторий
-        setTimeout(() => {
-          lessons.forEach(lesson => {
-            if (lesson.roomSchemeUrl) {
-              preloadRoomPhoto(lesson.roomSchemeUrl);
-            }
-          });
-        }, 500);
+        if (sheet === 'session') {
+          const items = parseSessionsData(rows);
+          sessions.value = items;
+          sessionsFetchedAt = now;
+          localStorage.setItem('sess3', JSON.stringify({
+            items: items.map((item) => ({
+              ...item,
+              date: item.date ? item.date.toISOString() : null,
+            })),
+            fetchedAt: sessionsFetchedAt,
+          }));
+          setTimeout(() => {
+            items.forEach((item) => {
+              if (item.roomSchemeUrl) preloadRoomPhoto(item.roomSchemeUrl);
+            });
+          }, 500);
+        } else if (sheet === 'disciplines') {
+          const items = parseDisciplinesData(rows);
+          disciplines.value = items;
+          disciplinesFetchedAt = now;
+          localStorage.setItem('disc3', JSON.stringify({ items, fetchedAt: disciplinesFetchedAt }));
+        } else {
+          const lessons = parseSheetValues(rows);
+          sch.value = lessons;
+          fetchedAt = now;
+          localStorage.setItem('sch3', JSON.stringify({ lessons, fetchedAt }));
+          setTimeout(() => {
+            lessons.forEach((lesson) => {
+              if (lesson.roomSchemeUrl) preloadRoomPhoto(lesson.roomSchemeUrl);
+            });
+          }, 500);
+        }
       } catch (e) {
         if (seq !== loadSeq) return;
         if (e && e.name === 'AbortError') {
           if (timedOut) {
-            if (sch.value.length) loadErrorStale.value = true;
+            if (hasCachedForSheet(sheet)) loadErrorStale.value = true;
             else loadError.value = 'Превышено время ожидания (' + Math.round(FETCH_TIMEOUT_MS / 1000) + ' с).';
-          } else if (sch.value.length) {
+          } else if (hasCachedForSheet(sheet)) {
             loadErrorStale.value = true;
           } else {
             loadError.value = 'Запрос отменён.';
           }
         } else {
           const msg = e && e.message ? e.message : String(e);
-          if (sch.value.length) loadErrorStale.value = true;
+          if (hasCachedForSheet(sheet)) loadErrorStale.value = true;
           else loadError.value = msg;
         }
       } finally {
@@ -804,6 +1031,10 @@ createApp({
           loading.value = false;
         }
       }
+    }
+
+    function loadSchedule() {
+      return loadActiveSheet();
     }
 
     let todayTickId = 0;
@@ -841,7 +1072,7 @@ createApp({
 
     onMounted(() => {
       bumpToday();
-      loadSchedule();
+      loadActiveSheet();
       todayTickId = setInterval(bumpToday, 60 * 1000);
       document.addEventListener('visibilitychange', onVisibility);
       if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
@@ -880,10 +1111,6 @@ createApp({
       }
     });
 
-    watch(showSettings, (open) => {
-      document.documentElement.classList.toggle('settings-open', open);
-    });
-
     watch(selectedLesson, (lesson) => {
       if (lesson) {
         document.documentElement.style.overflow = 'hidden';
@@ -905,16 +1132,19 @@ createApp({
     });
 
     return {
-      schedule: sch, scheduleVisList, vm, fil,
-      tfl, wLbl, pN, visModeLesson, setVisLesson, barClass, lTypeClass,
-      fDays,
-      showSettings, settingsTab, selectedLesson, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
+      schedule: sch, scheduleVisList, vm, fil, setFil, activeSheet, setActiveSheet, toggleCalendarView, loadingLabel,
+      sheetSwitchAnim, sheetSwitchKey,
+      sessions, sessionDays, disciplines, activeDataCount,
+      tfl, wLbl, pN, controlTypeClass, visModeLesson, setVisLesson, barClass, lTypeClass,
+      fDays, isTd, sD,
+      showSettings, openSettings, closeSettings,
+      settingsTab, selectedLesson, theme, setTheme, vucDay, setVucDay, saveSettings, visSettings,
       accentColor, setAccentColor, accentPalette,
       lessonColorScheme, setLessonColorScheme, lessonSchemeChoices,
       glassBackground, setGlassBackground, glassBgChoices,
       customGlassImage, handleCustomImageUpload, clearCustomImage,
-      calM, calDir, mTitle, prevM, nextM, calCells, selD, isTd, sD, fmtD, selL, selPeriod,
-      loading, loadError, loadErrorStale, loadSchedule, lucideIcon,
+      calM, calDir, mTitle, prevM, nextM, calCells, selD, fmtD, selL, selPeriod,
+      loading, loadError, loadErrorStale, loadSchedule, loadActiveSheet, lucideIcon,
       lastFetchedLabel,
       lessonKey: lessonStableKey,
       vucRemainderForDate,
