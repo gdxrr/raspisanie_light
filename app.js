@@ -475,13 +475,31 @@ createApp({
     const customGlassImage = ref(settingsRaw.customGlassImage || "");
     const visSettings = reactive(settingsRaw.vis || {});
 
-    const loading = ref(false);
     const loadError = ref("");
     const loadErrorStale = ref(false);
 
-    let loadSeq = 0;
-    let loadAbort = null;
-    let loadTimeoutId = 0;
+    function sheetLoadKey(sheet) {
+      if (sheet === "session") return "session";
+      if (sheet === "disciplines") return "disciplines";
+      return "schedule";
+    }
+
+    const sheetLoading = reactive({
+      schedule: false,
+      session: false,
+      disciplines: false,
+    });
+    const loading = computed(() => sheetLoading[sheetLoadKey(activeSheet.value)]);
+
+    const sheetLoads = {
+      schedule: { seq: 0, abort: null, timeoutId: 0 },
+      session: { seq: 0, abort: null, timeoutId: 0 },
+      disciplines: { seq: 0, abort: null, timeoutId: 0 },
+    };
+
+    function isActiveSheetLoad(sheet) {
+      return sheetLoadKey(activeSheet.value) === sheetLoadKey(sheet);
+    }
 
     function saveSettings() {
       localStorage.setItem(
@@ -1718,36 +1736,42 @@ createApp({
 
     async function loadActiveSheet() {
       const sheet = activeSheet.value;
-      const seq = ++loadSeq;
+      const key = sheetLoadKey(sheet);
+      const state = sheetLoads[key];
+      const seq = ++state.seq;
       const cfg =
         typeof window.SCHEDULE_CONFIG === "object" && window.SCHEDULE_CONFIG
           ? window.SCHEDULE_CONFIG
           : {};
-      loadError.value = "";
-      loadErrorStale.value = false;
+      if (isActiveSheetLoad(sheet)) {
+        loadError.value = "";
+        loadErrorStale.value = false;
+      }
       if (!cfg.webAppUrl) {
-        loadError.value = "В config.js укажите webAppUrl.";
+        if (isActiveSheetLoad(sheet)) {
+          loadError.value = "В config.js укажите webAppUrl.";
+        }
         return;
       }
-      if (loadTimeoutId) {
-        clearTimeout(loadTimeoutId);
-        loadTimeoutId = 0;
+      if (state.timeoutId) {
+        clearTimeout(state.timeoutId);
+        state.timeoutId = 0;
       }
-      if (loadAbort) loadAbort.abort();
-      loadAbort = new AbortController();
-      const { signal } = loadAbort;
+      if (state.abort) state.abort.abort();
+      state.abort = new AbortController();
+      const { signal } = state.abort;
       let timedOut = false;
-      loadTimeoutId = setTimeout(() => {
-        if (seq !== loadSeq) return;
+      state.timeoutId = setTimeout(() => {
+        if (seq !== state.seq) return;
         timedOut = true;
-        loadAbort.abort();
+        state.abort.abort();
       }, FETCH_TIMEOUT_MS);
 
-      loading.value = true;
+      sheetLoading[key] = true;
 
       try {
         const rows = await fetchSheetFromConfig(cfg, sheet, { signal });
-        if (seq !== loadSeq) return;
+        if (seq !== state.seq) return;
         const now = new Date().toISOString();
 
         if (sheet === "session") {
@@ -1789,7 +1813,8 @@ createApp({
           }, 500);
         }
       } catch (e) {
-        if (seq !== loadSeq) return;
+        if (seq !== state.seq) return;
+        if (!isActiveSheetLoad(sheet)) return;
         if (e && e.name === "AbortError") {
           if (timedOut) {
             if (hasCachedForSheet(sheet)) loadErrorStale.value = true;
@@ -1809,10 +1834,10 @@ createApp({
           else loadError.value = msg;
         }
       } finally {
-        if (seq === loadSeq) {
-          clearTimeout(loadTimeoutId);
-          loadTimeoutId = 0;
-          loading.value = false;
+        if (seq === state.seq) {
+          clearTimeout(state.timeoutId);
+          state.timeoutId = 0;
+          sheetLoading[key] = false;
         }
       }
     }
@@ -1893,10 +1918,7 @@ createApp({
 
     onMounted(() => {
       bumpToday();
-      const sheet = activeSheet.value;
-      if (!hasCachedForSheet(sheet) || isSheetStale(sheet)) {
-        loadActiveSheet();
-      }
+      loadActiveSheet();
       const cfg =
         typeof window.SCHEDULE_CONFIG === "object" && window.SCHEDULE_CONFIG
           ? window.SCHEDULE_CONFIG
@@ -1904,10 +1926,7 @@ createApp({
       loadLinks(cfg);
 
       // Load session data in background for calendar view
-      if (
-        activeSheet.value !== "session" &&
-        (!hasCachedForSheet("session") || isSheetStale("session"))
-      ) {
+      if (activeSheet.value !== "session") {
         setTimeout(() => loadSessionDataInBackground(), 1000);
       }
 
@@ -2036,8 +2055,11 @@ createApp({
       if (todayTickId) clearInterval(todayTickId);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", onScheduleFilMenuLayout);
-      if (loadTimeoutId) clearTimeout(loadTimeoutId);
-      if (loadAbort) loadAbort.abort();
+      for (const key of ["schedule", "session", "disciplines"]) {
+        const state = sheetLoads[key];
+        if (state.timeoutId) clearTimeout(state.timeoutId);
+        if (state.abort) state.abort.abort();
+      }
     });
 
     return {
