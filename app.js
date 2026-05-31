@@ -418,11 +418,30 @@ createApp({
     let sessionsFetchedAt = null;
     let disciplinesFetchedAt = null;
 
+    function readStoredActiveSheet() {
+      try {
+        const d = JSON.parse(localStorage.getItem("ui3") || "{}");
+        if (
+          d.activeSheet === "schedule" ||
+          d.activeSheet === "session" ||
+          d.activeSheet === "disciplines"
+        ) {
+          return d.activeSheet;
+        }
+      } catch (_) {}
+      return "schedule";
+    }
+
+    function saveActiveSheet(sheet) {
+      try {
+        localStorage.setItem("ui3", JSON.stringify({ activeSheet: sheet }));
+      } catch (_) {}
+    }
+
     const sch = ref([]);
     try {
       const s = localStorage.getItem("sch3");
       const d = s ? JSON.parse(s) : null;
-      if (d && d.fetchedAt) fetchedAt = d.fetchedAt;
       if (d && Array.isArray(d.lessons)) {
         sch.value = d.lessons.map((l) => ({
           ...l,
@@ -444,7 +463,6 @@ createApp({
     try {
       const s = localStorage.getItem("sess3");
       const d = s ? JSON.parse(s) : null;
-      if (d && d.fetchedAt) sessionsFetchedAt = d.fetchedAt;
       if (d && Array.isArray(d.items)) {
         sessions.value = d.items.map((item) => ({
           ...item,
@@ -458,13 +476,12 @@ createApp({
     try {
       const s = localStorage.getItem("disc3");
       const d = s ? JSON.parse(s) : null;
-      if (d && d.fetchedAt) disciplinesFetchedAt = d.fetchedAt;
       if (d && Array.isArray(d.items)) {
         disciplines.value = d.items;
       }
     } catch (_) {}
 
-    const activeSheet = ref("schedule");
+    const activeSheet = ref(readStoredActiveSheet());
 
     const settingsRaw = JSON.parse(localStorage.getItem("settings3") || "{}");
     const theme = ref(settingsRaw.theme || "system");
@@ -1998,7 +2015,8 @@ createApp({
       });
     });
 
-    watch(activeSheet, () => {
+    watch(activeSheet, (sheet) => {
+      saveActiveSheet(sheet);
       scrollActiveFilterTabIntoView();
     });
 
