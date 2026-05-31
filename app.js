@@ -310,8 +310,22 @@ function parseDisciplineItem(row, sheetRowIndex) {
   const controlType = String(
     getObjectField(row, ["Вид контроля", "controlType", "тип"]) ?? "",
   ).trim();
+  const reactionsRaw = String(
+    getObjectField(row, ["Реакции", "reactions", "реакции"]) ?? "",
+  ).trim();
+
+  let reactions = {};
+  if (reactionsRaw) {
+    try {
+      const parsed = JSON.parse(reactionsRaw);
+      if (parsed && typeof parsed === "object") {
+        reactions = parsed;
+      }
+    } catch (_) {}
+  }
+
   if (!subject) return null;
-  return { id: sheetRowIndex, subject, teacher, controlType };
+  return { id: sheetRowIndex, subject, teacher, controlType, reactions };
 }
 
 function parseDisciplinesData(rows) {
@@ -2066,6 +2080,124 @@ createApp({
       }
     });
 
+    const EMOJI_LIST = [
+      "👍", "❤️", "🔥", "🎉", "😊", "😂", "😮", "😢", "😡", "🤔",
+      "👏", "💯", "✨", "⚡", "💪", "🙏", "👀", "💀", "🤡", "🥳",
+      "😎", "🤩", "😍", "🥰", "😘", "😭", "😤", "🤯", "😱", "🤗",
+      "🫡", "🤝", "✅", "❌", "💔", "💖", "🌟", "🚀", "🎯", "🏆"
+    ];
+
+    const showReactionPicker = ref(false);
+    const reactionPickerDiscipline = ref(null);
+    const reactionPickerPosition = ref({ top: 0, left: 0 });
+    const disciplineLongPressing = ref(null);
+    let disciplinePressTimer = null;
+    const DISCIPLINE_LONG_PRESS_MS = 500;
+
+    function onDisciplinePointerDown(e, discipline) {
+      if (e.button !== undefined && e.button !== 0) return;
+      disciplineLongPressing.value = discipline.id;
+      clearDisciplinePressTimer();
+
+      disciplinePressTimer = setTimeout(() => {
+        disciplinePressTimer = null;
+        disciplineLongPressing.value = null;
+        vibrate(50);
+        openReactionPicker(e, discipline);
+      }, DISCIPLINE_LONG_PRESS_MS);
+    }
+
+    function onDisciplinePointerUp() {
+      clearDisciplinePressTimer();
+    }
+
+    function clearDisciplinePressTimer() {
+      if (disciplinePressTimer) {
+        clearTimeout(disciplinePressTimer);
+        disciplinePressTimer = null;
+      }
+      disciplineLongPressing.value = null;
+    }
+
+    function openReactionPicker(e, discipline) {
+      const target = e.currentTarget || e.target;
+      const rect = target.getBoundingClientRect();
+
+      reactionPickerPosition.value = {
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX + rect.width / 2
+      };
+
+      reactionPickerDiscipline.value = discipline;
+      showReactionPicker.value = true;
+    }
+
+    function closeReactionPicker() {
+      showReactionPicker.value = false;
+      reactionPickerDiscipline.value = null;
+    }
+
+    async function addReaction(emoji) {
+      if (!reactionPickerDiscipline.value) return;
+
+      const discipline = reactionPickerDiscipline.value;
+      vibrate(10);
+      closeReactionPicker();
+
+      const cfg = typeof window.SCHEDULE_CONFIG === "object" && window.SCHEDULE_CONFIG
+        ? window.SCHEDULE_CONFIG
+        : {};
+
+      if (!cfg.webAppUrl) {
+        console.error("webAppUrl not configured");
+        return;
+      }
+
+      const updatedReactions = { ...discipline.reactions };
+      updatedReactions[emoji] = (updatedReactions[emoji] || 0) + 1;
+
+      const index = disciplines.value.findIndex(d => d.id === discipline.id);
+      if (index !== -1) {
+        disciplines.value[index].reactions = updatedReactions;
+      }
+
+      try {
+        const params = new URLSearchParams({
+          action: "updateReaction",
+          disciplineId: discipline.id,
+          emoji: emoji,
+          reactions: JSON.stringify(updatedReactions)
+        });
+
+        const url = cfg.webAppUrl + (cfg.webAppUrl.includes('?') ? '&' : '?') + params.toString();
+
+        await fetch(url, {
+          method: "GET"
+        });
+
+        localStorage.setItem(
+          "disc3",
+          JSON.stringify({
+            items: disciplines.value,
+            fetchedAt: new Date().toISOString()
+          })
+        );
+      } catch (e) {
+        console.error("Failed to update reaction:", e);
+      }
+    }
+
+    function getTopReactions(reactions) {
+      if (!reactions || typeof reactions !== "object") return [];
+
+      const entries = Object.entries(reactions)
+        .filter(([_, count]) => count > 0)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+
+      return entries.map(([emoji, count]) => ({ emoji, count }));
+    }
+
     onUnmounted(() => {
       document.documentElement.classList.remove("settings-open");
       document.documentElement.style.overflow = "";
@@ -2073,6 +2205,7 @@ createApp({
       if (todayTickId) clearInterval(todayTickId);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", onScheduleFilMenuLayout);
+      clearDisciplinePressTimer();
       for (const key of ["schedule", "session", "disciplines"]) {
         const state = sheetLoads[key];
         if (state.timeoutId) clearTimeout(state.timeoutId);
@@ -2168,6 +2301,16 @@ createApp({
       showGazpromModal,
       gazpromStep,
       handleGazpromClick,
+      showReactionPicker,
+      reactionPickerDiscipline,
+      reactionPickerPosition,
+      disciplineLongPressing,
+      onDisciplinePointerDown,
+      onDisciplinePointerUp,
+      closeReactionPicker,
+      addReaction,
+      getTopReactions,
+      EMOJI_LIST,
     };
   },
 }).mount("#app");

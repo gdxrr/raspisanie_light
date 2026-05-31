@@ -1,3 +1,3 @@
 window.SCHEDULE_CONFIG = {
-  webAppUrl: 'https://script.google.com/macros/s/AKfycbzmyBpz67bSSqRFZ-hcYhe4ryHHCLV7i1MOrQrjFpYLOZHjuWrbu53UVVuM6e5QIcoLqQ/exec',
+  webAppUrl: 'https://script.google.com/macros/s/AKfycbyvKo-o2fqJC6Lpe4-XKHJLW2bCu6jeMgQx2YRub-GWUeWln4jcX_K9_r3lQ3JQE6-inA/exec',
 };

@@ -311,7 +311,13 @@
         </div>
         <div v-if="!loading || disciplines.length>0" class="sheet-list-block">
           <div class="lessons-block">
-            <div v-for="disc in disciplines" :key="'disc-' + disc.id" class="lesson-row sheet-row-discipline">
+            <div v-for="disc in disciplines" :key="'disc-' + disc.id"
+                 class="lesson-row sheet-row-discipline"
+                 :class="{ 'pressing': disciplineLongPressing === disc.id }"
+                 @pointerdown="onDisciplinePointerDown($event, disc)"
+                 @pointerup="onDisciplinePointerUp"
+                 @pointercancel="onDisciplinePointerUp"
+                 @pointerleave="onDisciplinePointerUp">
               <div class="time-col sheet-disc-index">
                 <div class="pair-num">{{ disc.id }}</div>
               </div>
@@ -320,6 +326,11 @@
                 <div class="l-type" :class="controlTypeClass(disc.controlType)" v-if="disc.controlType">{{ disc.controlType }}</div>
                 <div class="l-subject">{{ disc.subject }}</div>
                 <div class="l-teacher" v-if="disc.teacher">{{ disc.teacher }}</div>
+                <div class="discipline-reactions" v-if="getTopReactions(disc.reactions).length > 0">
+                  <span v-for="reaction in getTopReactions(disc.reactions)" :key="reaction.emoji" class="reaction-badge">
+                    {{ reaction.emoji }} {{ reaction.count }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -671,6 +682,25 @@
           <div v-if="gazpromStep===2" style="text-align: center; margin-top: 20px;">
             <h2 class="lesson-modal-subject">Тогда учи Delphi</h2>
           </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+  <transition name="fade">
+    <div v-if="showReactionPicker" class="reaction-picker-overlay" @click="closeReactionPicker">
+      <div class="reaction-picker"
+           :style="{ top: reactionPickerPosition.top + 'px', left: reactionPickerPosition.left + 'px' }"
+           @click.stop>
+        <div class="reaction-picker-grid">
+          <button
+            v-for="emoji in EMOJI_LIST"
+            :key="emoji"
+            type="button"
+            class="reaction-emoji-btn"
+            @click="addReaction(emoji)">
+            {{ emoji }}
+          </button>
         </div>
       </div>
     </div>

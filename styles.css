@@ -3515,3 +3515,199 @@ html.glass .custom-image-clear:hover {
         max-width: min(500px, calc(var(--app-max-w) - 40px));
     }
 }
+
+/* Реакции для дисциплин */
+.discipline-reactions {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.reaction-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    background: var(--bg3);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    transition: all 0.2s ease;
+}
+
+.reaction-badge:hover {
+    transform: scale(1.05);
+}
+
+html.light .reaction-badge {
+    background: var(--bg3);
+    color: var(--text);
+}
+
+html.glass .reaction-badge {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Эффект нажатия на дисциплину */
+.sheet-row-discipline {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sheet-row-discipline.pressing {
+    transform: scale(0.97);
+    opacity: 0.7;
+}
+
+/* Панель выбора реакций - как в Telegram */
+.reaction-picker-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: overlayFadeIn 0.15s ease-out;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.reaction-picker {
+    position: fixed;
+    background: var(--bg2);
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    transform: translate(-50%, -50%);
+    max-width: min(420px, 90vw);
+    z-index: 10001;
+    animation: reactionPickerSlideUp 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes reactionPickerSlideUp {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -45%) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+html.light .reaction-picker {
+    background: #ffffff;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+}
+
+html.glass .reaction-picker {
+    background: rgba(44, 44, 46, 0.92);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.reaction-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+}
+
+@media (max-width: 480px) {
+    .reaction-picker-grid {
+        grid-template-columns: repeat(7, 1fr);
+    }
+}
+
+@media (max-width: 380px) {
+    .reaction-picker-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+.reaction-emoji-btn {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    position: relative;
+}
+
+.reaction-emoji-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: var(--bg3);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.reaction-emoji-btn:hover::before {
+    opacity: 1;
+}
+
+.reaction-emoji-btn:hover {
+    transform: scale(1.2);
+}
+
+.reaction-emoji-btn:active {
+    transform: scale(0.85);
+    transition-duration: 0.05s;
+}
+
+.reaction-emoji-btn:active::before {
+    opacity: 0.7;
+}
+
+html.light .reaction-emoji-btn::before {
+    background: var(--bg3);
+}
+
+html.light .reaction-emoji-btn:hover::before {
+    opacity: 1;
+}
+
+html.glass .reaction-emoji-btn::before {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Анимация появления/исчезновения overlay */
+.fade-enter-active {
+    animation: overlayFadeIn 0.15s ease-out;
+}
+
+.fade-leave-active {
+    animation: overlayFadeOut 0.15s ease-in;
+}
+
+@keyframes overlayFadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
