@@ -8,10 +8,10 @@ html {
     --text: #fff;
     --text2: rgba(255, 255, 255, 0.55);
     --text3: rgba(255, 255, 255, 0.3);
-    --lec: #a78bfa;
-    --lab: #38bdf8;
-    --prac: #f59e0b;
-    --kurs: #f472b6;
+    --lecture: #a78bfa;
+    --laboratory-work: #38bdf8;
+    --practical: #f59e0b;
+    --course-work: #f472b6;
     --accent: #4f8cff;
     --odd: #fb7185;
     --even: #22d3ee;
@@ -41,10 +41,10 @@ html.light body {
     --text: #000;
     --text2: rgba(0, 0, 0, 0.5);
     --text3: rgba(0, 0, 0, 0.3);
-    --lec: #8b5cf6;
-    --lab: #0284c7;
-    --prac: #d97706;
-    --kurs: #db2777;
+    --lecture: #8b5cf6;
+    --laboratory-work: #0284c7;
+    --practical: #d97706;
+    --course-work: #db2777;
     --accent: #2563eb;
     --odd: #e11d48;
     --even: #0891b2;
@@ -70,10 +70,10 @@ html.light body {
         --text: #000;
         --text2: rgba(0, 0, 0, 0.5);
         --text3: rgba(0, 0, 0, 0.3);
-        --lec: #8b5cf6;
-        --lab: #0284c7;
-        --prac: #d97706;
-        --kurs: #db2777;
+        --lecture: #8b5cf6;
+        --laboratory-work: #0284c7;
+        --practical: #d97706;
+        --course-work: #db2777;
         --accent: #2563eb;
         --odd: #e11d48;
         --even: #0891b2;
@@ -106,10 +106,10 @@ html.glass {
     --text: #ffffff;
     --text2: rgba(255, 255, 255, 0.6);
     --text3: rgba(255, 255, 255, 0.32);
-    --lec: #c4b5fd;
-    --lab: #67e8f9;
-    --prac: #fbbf24;
-    --kurs: #f9a8d4;
+    --lecture: #c4b5fd;
+    --laboratory-work: #67e8f9;
+    --practical: #fbbf24;
+    --course-work: #f9a8d4;
     --accent: #60a5fa;
     --odd: #fb7185;
     --even: #22d3ee;
@@ -887,43 +887,43 @@ html.light .filter-pill-menu--teleport {
 
 .bar.ctrl-exam,
 .l-type.ctrl-exam {
-    --ctrl-tone: var(--kurs);
+    --ctrl-tone: var(--course-work);
 }
 .bar.ctrl-credit,
 .l-type.ctrl-credit {
-    --ctrl-tone: var(--lab);
+    --ctrl-tone: var(--laboratory-work);
 }
 .bar.ctrl-diff,
 .l-type.ctrl-diff {
-    --ctrl-tone: var(--prac);
+    --ctrl-tone: var(--practical);
 }
 .bar.ctrl-other,
 .l-type.ctrl-other {
-    --ctrl-tone: var(--lec);
+    --ctrl-tone: var(--lecture);
 }
 .bar.ctrl-exam {
-    background: var(--kurs);
+    background: var(--course-work);
 }
 .bar.ctrl-credit {
-    background: var(--lab);
+    background: var(--laboratory-work);
 }
 .bar.ctrl-diff {
-    background: var(--prac);
+    background: var(--practical);
 }
 .bar.ctrl-other {
-    background: var(--lec);
+    background: var(--lecture);
 }
 .l-type.ctrl-exam {
-    color: var(--kurs);
+    color: var(--course-work);
 }
 .l-type.ctrl-credit {
-    color: var(--lab);
+    color: var(--laboratory-work);
 }
 .l-type.ctrl-diff {
-    color: var(--prac);
+    color: var(--practical);
 }
 .l-type.ctrl-other {
-    color: var(--lec);
+    color: var(--lecture);
 }
 
 .schedule-filter-stage {
@@ -1110,20 +1110,20 @@ html.light .filter-pill-menu--teleport {
     flex-shrink: 0;
     align-self: stretch;
 }
-.bar.lec {
-    background: var(--lec);
+.bar.lecture {
+    background: var(--lecture);
 }
-.bar.lec-vuc {
+.bar.lecture-vuc {
     background: var(--vuc);
 }
-.bar.lab {
-    background: var(--lab);
+.bar.laboratoryWork {
+    background: var(--laboratory-work);
 }
-.bar.prac {
-    background: var(--prac);
+.bar.practical {
+    background: var(--practical);
 }
-.bar.kurs {
-    background: var(--kurs);
+.bar.courseWork {
+    background: var(--course-work);
 }
 
 .lesson-body {
@@ -1135,20 +1135,20 @@ html.light .filter-pill-menu--teleport {
     font-weight: 600;
     margin-bottom: 2px;
 }
-.l-type.lec {
-    color: var(--lec);
+.l-type.lecture {
+    color: var(--lecture);
 }
-.l-type.lec-vuc {
+.l-type.lecture-vuc {
     color: var(--vuc);
 }
-.l-type.lab {
-    color: var(--lab);
+.l-type.laboratoryWork {
+    color: var(--laboratory-work);
 }
-.l-type.prac {
-    color: var(--prac);
+.l-type.practical {
+    color: var(--practical);
 }
-.l-type.kurs {
-    color: var(--kurs);
+.l-type.courseWork {
+    color: var(--course-work);
 }
 .l-subject {
     font-size: 15px;
@@ -1447,16 +1447,16 @@ html.light .filter-pill-menu--teleport {
     color: var(--warning);
 }
 .cal-cell.session {
-    background: color-mix(in srgb, var(--kurs) 11%, transparent);
+    background: color-mix(in srgb, var(--course-work) 11%, transparent);
 }
 .cal-cell.session .cal-num {
-    color: var(--kurs);
+    color: var(--course-work);
 }
 .cal-cell.practice {
-    background: color-mix(in srgb, var(--lab) 10%, transparent);
+    background: color-mix(in srgb, var(--laboratory-work) 10%, transparent);
 }
 .cal-cell.practice .cal-num {
-    color: var(--lab);
+    color: var(--laboratory-work);
 }
 .cal-cell.vacation {
     background: color-mix(in srgb, var(--vacation) 10%, transparent);
@@ -1468,11 +1468,11 @@ html.light .filter-pill-menu--teleport {
     color: var(--warning);
 }
 .cal-cell.exam-day {
-    background: color-mix(in srgb, var(--kurs) 18%, transparent);
-    border: 1.5px solid color-mix(in srgb, var(--kurs) 35%, transparent);
+    background: color-mix(in srgb, var(--course-work) 18%, transparent);
+    border: 1.5px solid color-mix(in srgb, var(--course-work) 35%, transparent);
 }
 .cal-cell.exam-day .cal-num {
-    color: var(--kurs);
+    color: var(--course-work);
     font-weight: 700;
 }
 .cal-cell-label {
@@ -1488,10 +1488,10 @@ html.light .filter-pill-menu--teleport {
     color: var(--warning);
 }
 .cal-cell.session .cal-cell-label {
-    color: var(--kurs);
+    color: var(--course-work);
 }
 .cal-cell.practice .cal-cell-label {
-    color: var(--lab);
+    color: var(--laboratory-work);
 }
 .cal-cell.vacation .cal-cell-label {
     color: var(--vacation);
@@ -1511,23 +1511,23 @@ html.light .filter-pill-menu--teleport {
     height: 4px;
     border-radius: 50%;
 }
-.cal-dot.lec {
-    background: var(--lec);
+.cal-dot.lecture {
+    background: var(--lecture);
 }
-.cal-dot.lec-vuc {
+.cal-dot.lecture-vuc {
     background: var(--vuc);
 }
-.cal-dot.lab {
-    background: var(--lab);
+.cal-dot.laboratoryWork {
+    background: var(--laboratory-work);
 }
-.cal-dot.prac {
-    background: var(--prac);
+.cal-dot.practical {
+    background: var(--practical);
 }
-.cal-dot.kurs {
-    background: var(--kurs);
+.cal-dot.courseWork {
+    background: var(--course-work);
 }
 .cal-dot.exam {
-    background: var(--kurs);
+    background: var(--course-work);
     width: 6px;
     height: 6px;
 }
@@ -1559,29 +1559,29 @@ html.light .filter-pill-menu--teleport {
     height: 7px;
     border-radius: 50%;
 }
-.cal-legend-dot.lec {
-    background: var(--lec);
+.cal-legend-dot.lecture {
+    background: var(--lecture);
 }
 .cal-legend-dot.vuc {
     background: var(--vuc);
 }
-.cal-legend-dot.lab {
-    background: var(--lab);
+.cal-legend-dot.laboratoryWork {
+    background: var(--laboratory-work);
 }
-.cal-legend-dot.prac {
-    background: var(--prac);
+.cal-legend-dot.practical {
+    background: var(--practical);
 }
 .cal-legend-dot.session {
-    background: var(--kurs);
+    background: var(--course-work);
 }
 .cal-legend-dot.exam {
-    background: var(--kurs);
+    background: var(--course-work);
 }
 .cal-legend-dot.holiday {
     background: var(--holiday);
 }
 .cal-legend-dot.pre-holiday {
-    background: var(--prac);
+    background: var(--practical);
 }
 .cal-legend-dot.vacation {
     background: var(--vacation);
@@ -2736,32 +2736,32 @@ html.glass .lesson-row + .lesson-row::before {
 html.glass .lesson-row:active {
     background: rgba(255, 255, 255, 0.11);
 }
-html.glass .bar.lec {
-    box-shadow: 0 0 8px color-mix(in srgb, var(--lec) 55%, transparent);
+html.glass .bar.lecture {
+    box-shadow: 0 0 8px color-mix(in srgb, var(--lecture) 55%, transparent);
 }
-html.glass .bar.lec-vuc {
+html.glass .bar.lecture-vuc {
     box-shadow: 0 0 8px color-mix(in srgb, var(--vuc) 55%, transparent);
 }
-html.glass .bar.lab {
-    box-shadow: 0 0 8px color-mix(in srgb, var(--lab) 55%, transparent);
+html.glass .bar.laboratoryWork {
+    box-shadow: 0 0 8px color-mix(in srgb, var(--laboratory-work) 55%, transparent);
 }
-html.glass .bar.prac {
-    box-shadow: 0 0 8px color-mix(in srgb, var(--prac) 55%, transparent);
+html.glass .bar.practical {
+    box-shadow: 0 0 8px color-mix(in srgb, var(--practical) 55%, transparent);
 }
-html.glass .bar.kurs {
-    box-shadow: 0 0 8px color-mix(in srgb, var(--kurs) 55%, transparent);
+html.glass .bar.courseWork {
+    box-shadow: 0 0 8px color-mix(in srgb, var(--course-work) 55%, transparent);
 }
 html.glass .bar.ctrl-exam {
-    box-shadow: 0 0 8px color-mix(in srgb, var(--kurs) 55%, transparent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--course-work) 55%, transparent);
 }
 html.glass .bar.ctrl-credit {
-    box-shadow: 0 0 8px color-mix(in srgb, var(--lab) 55%, transparent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--laboratory-work) 55%, transparent);
 }
 html.glass .bar.ctrl-diff {
-    box-shadow: 0 0 8px color-mix(in srgb, var(--prac) 55%, transparent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--practical) 55%, transparent);
 }
 html.glass .bar.ctrl-other {
-    box-shadow: 0 0 8px color-mix(in srgb, var(--lec) 55%, transparent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--lecture) 55%, transparent);
 }
 html.glass .chip {
     background: rgba(255, 255, 255, 0.11);
@@ -2992,25 +2992,25 @@ html.glass .custom-color-input:focus {
     border-radius: 8px;
     background: var(--bg3);
 }
-.lesson-modal-type.lec {
-    color: var(--lec);
-    background: color-mix(in srgb, var(--lec) 15%, var(--bg3));
+.lesson-modal-type.lecture {
+    color: var(--lecture);
+    background: color-mix(in srgb, var(--lecture) 15%, var(--bg3));
 }
-.lesson-modal-type.lec-vuc {
+.lesson-modal-type.lecture-vuc {
     color: var(--vuc);
     background: color-mix(in srgb, var(--vuc) 18%, var(--bg3));
 }
-.lesson-modal-type.lab {
-    color: var(--lab);
-    background: color-mix(in srgb, var(--lab) 15%, var(--bg3));
+.lesson-modal-type.laboratoryWork {
+    color: var(--laboratory-work);
+    background: color-mix(in srgb, var(--laboratory-work) 15%, var(--bg3));
 }
-.lesson-modal-type.prac {
-    color: var(--prac);
-    background: color-mix(in srgb, var(--prac) 15%, var(--bg3));
+.lesson-modal-type.practical {
+    color: var(--practical);
+    background: color-mix(in srgb, var(--practical) 15%, var(--bg3));
 }
-.lesson-modal-type.kurs {
-    color: var(--kurs);
-    background: color-mix(in srgb, var(--kurs) 15%, var(--bg3));
+.lesson-modal-type.courseWork {
+    color: var(--course-work);
+    background: color-mix(in srgb, var(--course-work) 15%, var(--bg3));
 }
 .lesson-modal-close {
     width: 36px;
@@ -3316,17 +3316,17 @@ html.glass .appearance-preview > * {
     flex-shrink: 0;
     align-self: stretch;
 }
-.preview-bar.lec {
-    background: var(--lec);
+.preview-bar.lecture {
+    background: var(--lecture);
 }
-.preview-bar.lab {
-    background: var(--lab);
+.preview-bar.laboratoryWork {
+    background: var(--laboratory-work);
 }
-.preview-bar.prac {
-    background: var(--prac);
+.preview-bar.practical {
+    background: var(--practical);
 }
-.preview-bar.kurs {
-    background: var(--kurs);
+.preview-bar.courseWork {
+    background: var(--course-work);
 }
 .preview-lesson-body {
     flex: 1;
@@ -3337,17 +3337,17 @@ html.glass .appearance-preview > * {
     font-weight: 600;
     margin-bottom: 2px;
 }
-.preview-l-type.lec {
-    color: var(--lec);
+.preview-l-type.lecture {
+    color: var(--lecture);
 }
-.preview-l-type.lab {
-    color: var(--lab);
+.preview-l-type.laboratoryWork {
+    color: var(--laboratory-work);
 }
-.preview-l-type.prac {
-    color: var(--prac);
+.preview-l-type.practical {
+    color: var(--practical);
 }
-.preview-l-type.kurs {
-    color: var(--kurs);
+.preview-l-type.courseWork {
+    color: var(--course-work);
 }
 .preview-l-subject {
     font-size: 14px;
@@ -3375,17 +3375,17 @@ html.glass .preview-lesson-row {
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
-html.glass .preview-bar.lec {
-    box-shadow: 0 0 6px color-mix(in srgb, var(--lec) 50%, transparent);
+html.glass .preview-bar.lecture {
+    box-shadow: 0 0 6px color-mix(in srgb, var(--lecture) 50%, transparent);
 }
-html.glass .preview-bar.lab {
-    box-shadow: 0 0 6px color-mix(in srgb, var(--lab) 50%, transparent);
+html.glass .preview-bar.laboratoryWork {
+    box-shadow: 0 0 6px color-mix(in srgb, var(--laboratory-work) 50%, transparent);
 }
-html.glass .preview-bar.prac {
-    box-shadow: 0 0 6px color-mix(in srgb, var(--prac) 50%, transparent);
+html.glass .preview-bar.practical {
+    box-shadow: 0 0 6px color-mix(in srgb, var(--practical) 50%, transparent);
 }
-html.glass .preview-bar.kurs {
-    box-shadow: 0 0 6px color-mix(in srgb, var(--kurs) 50%, transparent);
+html.glass .preview-bar.courseWork {
+    box-shadow: 0 0 6px color-mix(in srgb, var(--course-work) 50%, transparent);
 }
 html.glass .preview-chip {
     background: rgba(255, 255, 255, 0.11);

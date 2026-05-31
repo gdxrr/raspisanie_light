@@ -9,29 +9,16 @@ const {
   nextTick,
 } = Vue;
 
-const FETCH_TIMEOUT_MS = 20000;
-const HARDCODED_LK_LINK = {
-  id: "lk-guap",
-  title: "ЛК ГУАП",
-  url: "https://pro.guap.ru/inside/profile",
-  iconName: "",
-  iconUrl: "https://src.guap.ru/logos/guap/guap-sign_w.svg",
-};
+const FETCH_TIMEOUT_MS = 20 * 1000;
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 const DEFAULT_LINKS = [
   {
-    id: "mskzi-davydov",
-    title: "МСКЗИ | Давыдов",
-    url: "https://docs.google.com/spreadsheets/u/0/d/1r6Tmp2l60dQ9Atao4F1e1ITEgvskrM468asiUIs1svg/htmlview#gid=1324537187",
-    iconName: "key-round",
-    iconUrl: "",
-  },
-  {
-    id: "db-elina",
-    title: "БД | Елина",
-    url: "https://docs.google.com/spreadsheets/d/1A84JKC8L6ls561CrD5LTrL3Ro81-psnB0stOl9cSLp4/edit?htmlview#gid=1185166563",
-    iconName: "database",
-    iconUrl: "",
+    id: "lk-guap",
+    title: "ЛК ГУАП",
+    url: "https://pro.guap.ru/inside/profile",
+    iconName: "",
+    iconUrl: "https://src.guap.ru/logos/guap/guap-sign_w.svg",
   },
 ];
 
@@ -74,7 +61,7 @@ function aWeek(d) {
     dw = s.getDay() || 7,
     m = new Date(s);
   m.setDate(s.getDate() - (dw - 1));
-  return Math.floor((d - m) / 86400000 / 7) + 1;
+  return Math.floor((d.getTime() - m.getTime()) / 86400000 / 7) + 1;
 }
 function wt(d) {
   return aWeek(d) % 2 === 1 ? "odd" : "even";
@@ -134,10 +121,10 @@ function normalizeType(v) {
     .trim()
     .toLowerCase();
   if (!s) return "";
-  if (s === "лекция") return "lec";
-  if (s === "лабораторная работа") return "lab";
-  if (s === "практика") return "prac";
-  if (s === "курсовая работа") return "kurs";
+  if (s === "лекция") return "lecture";
+  if (s === "лабораторная работа") return "laboratoryWork";
+  if (s === "практика") return "practical";
+  if (s === "курсовая работа") return "courseWork";
   return "";
 }
 
@@ -427,50 +414,53 @@ createApp({
       if (navigator.vibrate) navigator.vibrate(ms || 10);
     }
 
+    let fetchedAt = null;
+    let sessionsFetchedAt = null;
+    let disciplinesFetchedAt = null;
+
     const sch = ref([]);
-    let fetchedAt = "";
     try {
       const s = localStorage.getItem("sch3");
       const d = s ? JSON.parse(s) : null;
+      if (d && d.fetchedAt) fetchedAt = d.fetchedAt;
       if (d && Array.isArray(d.lessons)) {
         sch.value = d.lessons.map((l) => ({
           ...l,
           start: normalizeTime(l.start),
           end: normalizeTime(l.end),
+          type: normalizeType(l.type),
         }));
-        fetchedAt = d.fetchedAt || "";
       } else if (Array.isArray(d)) {
         sch.value = d.map((l) => ({
           ...l,
           start: normalizeTime(l.start),
           end: normalizeTime(l.end),
+          type: normalizeType(l.type),
         }));
       }
     } catch (_) {}
 
     const sessions = ref([]);
-    let sessionsFetchedAt = "";
     try {
       const s = localStorage.getItem("sess3");
       const d = s ? JSON.parse(s) : null;
+      if (d && d.fetchedAt) sessionsFetchedAt = d.fetchedAt;
       if (d && Array.isArray(d.items)) {
         sessions.value = d.items.map((item) => ({
           ...item,
           start: normalizeTime(item.start),
           date: item.date ? new Date(item.date) : null,
         }));
-        sessionsFetchedAt = d.fetchedAt || "";
       }
     } catch (_) {}
 
     const disciplines = ref([]);
-    let disciplinesFetchedAt = "";
     try {
       const s = localStorage.getItem("disc3");
       const d = s ? JSON.parse(s) : null;
+      if (d && d.fetchedAt) disciplinesFetchedAt = d.fetchedAt;
       if (d && Array.isArray(d.items)) {
         disciplines.value = d.items;
-        disciplinesFetchedAt = d.fetchedAt || "";
       }
     } catch (_) {}
 
@@ -601,7 +591,13 @@ createApp({
       saveSettings();
     }
 
-    const THEME_CSS_VARS = ["--lec", "--lab", "--prac", "--kurs", "--accent"];
+    const THEME_CSS_VARS = [
+      "--lecture",
+      "--laboratory-work",
+      "--practical",
+      "--course-work",
+      "--accent",
+    ];
 
     function setThemeCssVar(name, value) {
       document.documentElement.style.setProperty(name, value, "important");
@@ -671,127 +667,127 @@ createApp({
       default: {
         name: "Баланс",
         dark: {
-          lec: "#a78bfa",
-          lab: "#38bdf8",
-          prac: "#f59e0b",
-          kurs: "#f472b6",
+          lecture: "#a78bfa",
+          laboratoryWork: "#38bdf8",
+          practical: "#f59e0b",
+          courseWork: "#f472b6",
         },
         light: {
-          lec: "#8b5cf6",
-          lab: "#0284c7",
-          prac: "#d97706",
-          kurs: "#db2777",
+          lecture: "#8b5cf6",
+          laboratoryWork: "#0284c7",
+          practical: "#d97706",
+          courseWork: "#db2777",
         },
         glass: {
-          lec: "#c4b5fd",
-          lab: "#67e8f9",
-          prac: "#fbbf24",
-          kurs: "#f9a8d4",
+          lecture: "#c4b5fd",
+          laboratoryWork: "#67e8f9",
+          practical: "#fbbf24",
+          courseWork: "#f9a8d4",
         },
       },
       warm: {
         name: "Тёплый",
         dark: {
-          lec: "#fb7185",
-          lab: "#fb923c",
-          prac: "#fbbf24",
-          kurs: "#f43f5e",
+          lecture: "#fb7185",
+          laboratoryWork: "#fb923c",
+          practical: "#fbbf24",
+          courseWork: "#f43f5e",
         },
         light: {
-          lec: "#e11d48",
-          lab: "#ea580c",
-          prac: "#d97706",
-          kurs: "#be123c",
+          lecture: "#e11d48",
+          laboratoryWork: "#ea580c",
+          practical: "#d97706",
+          courseWork: "#be123c",
         },
         glass: {
-          lec: "#fda4af",
-          lab: "#fdba74",
-          prac: "#fcd34d",
-          kurs: "#fb7185",
+          lecture: "#fda4af",
+          laboratoryWork: "#fdba74",
+          practical: "#fcd34d",
+          courseWork: "#fb7185",
         },
       },
       cool: {
         name: "Холодный",
         dark: {
-          lec: "#2dd4bf",
-          lab: "#22d3ee",
-          prac: "#60a5fa",
-          kurs: "#818cf8",
+          lecture: "#2dd4bf",
+          laboratoryWork: "#22d3ee",
+          practical: "#60a5fa",
+          courseWork: "#818cf8",
         },
         light: {
-          lec: "#0f766e",
-          lab: "#0e7490",
-          prac: "#2563eb",
-          kurs: "#4f46e5",
+          lecture: "#0f766e",
+          laboratoryWork: "#0e7490",
+          practical: "#2563eb",
+          courseWork: "#4f46e5",
         },
         glass: {
-          lec: "#5eead4",
-          lab: "#67e8f9",
-          prac: "#93c5fd",
-          kurs: "#a5b4fc",
+          lecture: "#5eead4",
+          laboratoryWork: "#67e8f9",
+          practical: "#93c5fd",
+          courseWork: "#a5b4fc",
         },
       },
       pastel: {
         name: "Мягкий",
         dark: {
-          lec: "#c4b5fd",
-          lab: "#7dd3fc",
-          prac: "#fcd34d",
-          kurs: "#f9a8d4",
+          lecture: "#c4b5fd",
+          laboratoryWork: "#7dd3fc",
+          practical: "#fcd34d",
+          courseWork: "#f9a8d4",
         },
         light: {
-          lec: "#8b5cf6",
-          lab: "#0284c7",
-          prac: "#b45309",
-          kurs: "#be185d",
+          lecture: "#8b5cf6",
+          laboratoryWork: "#0284c7",
+          practical: "#b45309",
+          courseWork: "#be185d",
         },
         glass: {
-          lec: "#ddd6fe",
-          lab: "#bae6fd",
-          prac: "#fde68a",
-          kurs: "#fbcfe8",
+          lecture: "#ddd6fe",
+          laboratoryWork: "#bae6fd",
+          practical: "#fde68a",
+          courseWork: "#fbcfe8",
         },
       },
       neon: {
         name: "Энергия",
         dark: {
-          lec: "#e879f9",
-          lab: "#22d3ee",
-          prac: "#facc15",
-          kurs: "#f43f5e",
+          lecture: "#e879f9",
+          laboratoryWork: "#22d3ee",
+          practical: "#facc15",
+          courseWork: "#f43f5e",
         },
         light: {
-          lec: "#a21caf",
-          lab: "#0e7490",
-          prac: "#ca8a04",
-          kurs: "#be123c",
+          lecture: "#a21caf",
+          laboratoryWork: "#0e7490",
+          practical: "#ca8a04",
+          courseWork: "#be123c",
         },
         glass: {
-          lec: "#f0abfc",
-          lab: "#67e8f9",
-          prac: "#fde047",
-          kurs: "#fb7185",
+          lecture: "#f0abfc",
+          laboratoryWork: "#67e8f9",
+          practical: "#fde047",
+          courseWork: "#fb7185",
         },
       },
       forest: {
         name: "Лес",
         dark: {
-          lec: "#84cc16",
-          lab: "#34d399",
-          prac: "#f59e0b",
-          kurs: "#65a30d",
+          lecture: "#84cc16",
+          laboratoryWork: "#34d399",
+          practical: "#f59e0b",
+          courseWork: "#65a30d",
         },
         light: {
-          lec: "#65a30d",
-          lab: "#059669",
-          prac: "#b45309",
-          kurs: "#4d7c0f",
+          lecture: "#65a30d",
+          laboratoryWork: "#059669",
+          practical: "#b45309",
+          courseWork: "#4d7c0f",
         },
         glass: {
-          lec: "#a3e635",
-          lab: "#6ee7b7",
-          prac: "#fbbf24",
-          kurs: "#84cc16",
+          lecture: "#a3e635",
+          laboratoryWork: "#6ee7b7",
+          practical: "#fbbf24",
+          courseWork: "#84cc16",
         },
       },
     };
@@ -829,10 +825,10 @@ createApp({
         colors = scheme.dark;
       }
 
-      setThemeCssVar("--lec", colors.lec);
-      setThemeCssVar("--lab", colors.lab);
-      setThemeCssVar("--prac", colors.prac);
-      setThemeCssVar("--kurs", colors.kurs);
+      setThemeCssVar("--lecture", colors.lecture);
+      setThemeCssVar("--laboratory-work", colors.laboratoryWork);
+      setThemeCssVar("--practical", colors.practical);
+      setThemeCssVar("--course-work", colors.courseWork);
     }
 
     function setLessonColorScheme(schemeName) {
@@ -894,7 +890,7 @@ createApp({
           day: targetDay,
           start: "8:30",
           end: "17:30",
-          type: "lec",
+          type: "lecture",
           subject: "ВУЦ",
           room: "Б. Морская | ВУЦ",
           teacher: "",
@@ -918,10 +914,6 @@ createApp({
     const SCHEDULE_LONG_PRESS_MS = 480;
     let schedulePressTimer = null;
     let schedulePressOpened = false;
-
-    function filLbl(f) {
-      return { all: "2 недели", odd: "Нечётная", even: "Чётная" }[f] || f;
-    }
 
     function updateFilterBarThumb() {
       const el = filterStripScrollRef.value;
@@ -1120,7 +1112,12 @@ createApp({
       nextTick(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       });
-      loadActiveSheet();
+      if (!hasCachedForSheet(sheet) || isSheetStale(sheet)) {
+        loadActiveSheet();
+      } else {
+        loadError.value = "";
+        loadErrorStale.value = false;
+      }
     }
 
     function toggleCalendarView() {
@@ -1192,14 +1189,6 @@ createApp({
       }
     }
 
-    function handleLinkSelect(event) {
-      const url = event.target.value;
-      if (url) {
-        window.open(url, "_blank", "noopener,noreferrer");
-        event.target.value = "";
-      }
-    }
-
     async function loadLinks(cfg) {
       if (!cfg || !cfg.webAppUrl) return;
       try {
@@ -1212,12 +1201,13 @@ createApp({
     }
 
     const usefulLinks = computed(() => {
-      const dynamic = links.value.length ? links.value : DEFAULT_LINKS;
+      const lkUrl = DEFAULT_LINKS[0].url;
+      const dynamic = links.value.length ? links.value : [];
       const filtered = dynamic.filter((item) => {
-        const itemUrl = String(item && item.url ? item.url : "").trim();
-        return itemUrl !== HARDCODED_LK_LINK.url;
+        const itemUrl = String(item?.url ?? "").trim();
+        return itemUrl !== lkUrl;
       });
-      return [HARDCODED_LK_LINK, ...filtered];
+      return [...DEFAULT_LINKS, ...filtered];
     });
 
     function preloadRoomPhoto(room) {
@@ -1229,10 +1219,10 @@ createApp({
     function tfl(t) {
       return (
         {
-          lec: "Лекция",
-          lab: "Лабораторная работа",
-          prac: "Практика",
-          kurs: "Курсовая",
+          lecture: "Лекция",
+          laboratoryWork: "Лабораторная работа",
+          practical: "Практика",
+          courseWork: "Курсовая",
         }[t] || t
       );
     }
@@ -1241,12 +1231,12 @@ createApp({
         .trim()
         .toLowerCase();
       if (s.includes("экзамен")) return "ctrl-exam";
-      if (s.includes("дифференц")) return "ctrl-diff";
+      if (s.includes("дифференцированный зачёт")) return "ctrl-diff";
       if (s.includes("зачёт") || s.includes("зачет")) return "ctrl-credit";
       return "ctrl-other";
     }
     function barClass(l) {
-      if (l.type === "lec" && l.subject === "ВУЦ") return "lec-vuc";
+      if (l.type === "lecture" && l.subject === "ВУЦ") return "lecture-vuc";
       return l.type;
     }
     function roomPhotoPath(lesson) {
@@ -1254,7 +1244,7 @@ createApp({
       return String(lesson.roomSchemeUrl || "").trim();
     }
     function lTypeClass(l) {
-      if (l.type === "lec" && l.subject === "ВУЦ") return "lec-vuc";
+      if (l.type === "lecture" && l.subject === "ВУЦ") return "lecture-vuc";
       return l.type;
     }
     function lucideIcon(name, size) {
@@ -1293,7 +1283,7 @@ createApp({
       );
       const thisMon = mondayOfCalendarWeek(date);
       const weekDelta = Math.round(
-        (thisMon - anchorMon) / (7 * 24 * 60 * 60 * 1000),
+        (thisMon.getTime() - anchorMon.getTime()) / (7 * 24 * 60 * 60 * 1000),
       );
       const remaining =
         weekDelta < 0
@@ -1630,7 +1620,7 @@ createApp({
         const dotTypes = [
           ...new Set(
             ls.map((x) =>
-              x.type === "lec" && x.subject === "ВУЦ" ? "lec-vuc" : x.type,
+              x.type === "lecture" && x.subject === "ВУЦ" ? "lecture-vuc" : x.type,
             ),
           ),
         ];
@@ -1714,20 +1704,17 @@ createApp({
       return sch.value.length > 0;
     }
 
-    const lastFetchedLabel = computed(() => {
-      let iso = fetchedAt;
-      if (activeSheet.value === "session") iso = sessionsFetchedAt;
-      else if (activeSheet.value === "disciplines") iso = disciplinesFetchedAt;
-      if (!iso) return "";
-      const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return "";
-      return d.toLocaleString("ru-RU", {
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    });
+    function getFetchedAtForSheet(sheet) {
+      if (sheet === "session") return sessionsFetchedAt;
+      if (sheet === "disciplines") return disciplinesFetchedAt;
+      return fetchedAt;
+    }
+
+    function isSheetStale(sheet) {
+      const iso = getFetchedAtForSheet(sheet);
+      if (!iso) return true;
+      return Date.now() - new Date(iso).getTime() > CACHE_TTL_MS;
+    }
 
     async function loadActiveSheet() {
       const sheet = activeSheet.value;
@@ -1774,7 +1761,7 @@ createApp({
                 ...item,
                 date: item.date ? item.date.toISOString() : null,
               })),
-              fetchedAt: sessionsFetchedAt,
+              fetchedAt: now,
             }),
           );
           setTimeout(() => {
@@ -1788,13 +1775,13 @@ createApp({
           disciplinesFetchedAt = now;
           localStorage.setItem(
             "disc3",
-            JSON.stringify({ items, fetchedAt: disciplinesFetchedAt }),
+            JSON.stringify({ items, fetchedAt: now }),
           );
         } else {
           const lessons = parseSheetValues(rows);
           sch.value = lessons;
           fetchedAt = now;
-          localStorage.setItem("sch3", JSON.stringify({ lessons, fetchedAt }));
+          localStorage.setItem("sch3", JSON.stringify({ lessons, fetchedAt: now }));
           setTimeout(() => {
             lessons.forEach((lesson) => {
               if (lesson.roomSchemeUrl) preloadRoomPhoto(lesson.roomSchemeUrl);
@@ -1850,17 +1837,13 @@ createApp({
               ...item,
               date: item.date ? item.date.toISOString() : null,
             })),
-            fetchedAt: sessionsFetchedAt,
+            fetchedAt: now,
           }),
         );
         console.log('Session data loaded in background:', items.length, 'items');
       } catch (e) {
         console.log('Failed to load session data in background:', e);
       }
-    }
-
-    function loadSchedule() {
-      return loadActiveSheet();
     }
 
     let todayTickId = 0;
@@ -1910,7 +1893,10 @@ createApp({
 
     onMounted(() => {
       bumpToday();
-      loadActiveSheet();
+      const sheet = activeSheet.value;
+      if (!hasCachedForSheet(sheet) || isSheetStale(sheet)) {
+        loadActiveSheet();
+      }
       const cfg =
         typeof window.SCHEDULE_CONFIG === "object" && window.SCHEDULE_CONFIG
           ? window.SCHEDULE_CONFIG
@@ -1918,7 +1904,10 @@ createApp({
       loadLinks(cfg);
 
       // Load session data in background for calendar view
-      if (activeSheet.value !== "session") {
+      if (
+        activeSheet.value !== "session" &&
+        (!hasCachedForSheet("session") || isSheetStale("session"))
+      ) {
         setTimeout(() => loadSessionDataInBackground(), 1000);
       }
 
@@ -1938,13 +1927,15 @@ createApp({
       applyLessonColorScheme(lessonColorScheme.value);
 
       document.addEventListener("click", (e) => {
-        if (showLinksDropdown.value && !e.target.closest(".dropdown-wrap")) {
+        const target = e.target;
+        if (!(target instanceof Element)) return;
+        if (showLinksDropdown.value && !target.closest(".dropdown-wrap")) {
           showLinksDropdown.value = false;
         }
         if (
           showScheduleFilMenu.value &&
-          !e.target.closest(".schedule-fil-wrap") &&
-          !e.target.closest(".filter-pill-menu--teleport")
+          !target.closest(".schedule-fil-wrap") &&
+          !target.closest(".filter-pill-menu--teleport")
         ) {
           showScheduleFilMenu.value = false;
         }
@@ -2054,8 +2045,6 @@ createApp({
       scheduleVisList,
       vm,
       fil,
-      filLbl,
-      setFil,
       activeSheet,
       setActiveSheet,
       toggleCalendarView,
@@ -2094,8 +2083,6 @@ createApp({
       setTheme,
       vucDay,
       setVucDay,
-      saveSettings,
-      visSettings,
       accentColor,
       setAccentColor,
       accentPalette,
@@ -2122,10 +2109,8 @@ createApp({
       loading,
       loadError,
       loadErrorStale,
-      loadSchedule,
       loadActiveSheet,
       lucideIcon,
-      lastFetchedLabel,
       lessonKey: lessonStableKey,
       vucRemainderForDate,
       vibrate,
@@ -2140,7 +2125,6 @@ createApp({
       onFilterBarPointerDown,
       showLinksDropdown,
       usefulLinks,
-      handleLinkSelect,
       showGazpromModal,
       gazpromStep,
       handleGazpromClick,

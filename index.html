@@ -12,15 +12,15 @@
   <link rel="manifest" href="manifest.webmanifest">
   <script>
     (function(){
-      var s = JSON.parse(localStorage.getItem('settings3')||'{}');
-      var t = s.theme || 'system';
-      var el = document.documentElement;
+      const s = JSON.parse(localStorage.getItem('settings3')||'{}');
+      const t = s.theme || 'system';
+      const el = document.documentElement;
       el.classList.remove('light', 'glass');
       if (t === 'light') el.classList.add('light');
       else if (t === 'glass') el.classList.add('glass');
       if (t === 'glass' && s.glassBackground) el.classList.add('glass-bg-' + s.glassBackground);
-      var bg = t === 'light' ? '#f2f2f7' : (t === 'glass' ? '#12121c' : '#1c1c1e');
-      var cs = t === 'light' ? 'light' : (t === 'system' ? 'light dark' : 'dark');
+      const bg = t === 'light' ? '#f2f2f7' : (t === 'glass' ? '#12121c' : '#1c1c1e');
+      const cs = t === 'light' ? 'light' : (t === 'system' ? 'light dark' : 'dark');
       el.style.background = bg;
       el.style.colorScheme = cs;
       document.addEventListener('DOMContentLoaded', function(){
@@ -281,7 +281,7 @@
                 <div class="time-col time-col-single">
                   <div class="time-start">{{ sess.start || '—' }}</div>
                 </div>
-                <div class="bar kurs"></div>
+                <div class="bar courseWork"></div>
                 <div class="lesson-body">
                   <div class="l-subject">{{ sess.subject }}</div>
                   <div class="l-chips" v-if="sess.room">
@@ -356,10 +356,10 @@
       </div>
       </transition>
       <div class="cal-legend">
-        <div class="cal-legend-item"><span class="cal-legend-dot lec"></span>Лекция</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot lecture"></span>Лекция</div>
         <div class="cal-legend-item"><span class="cal-legend-dot vuc"></span>ВУЦ</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot lab"></span>Лаб. раб.</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot prac"></span>Практика</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot laboratoryWork"></span>Лаб. раб.</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot practical"></span>Практика</div>
         <div class="cal-legend-item"><span class="cal-legend-dot holiday"></span>Праздник</div>
         <div class="cal-legend-item"><span class="cal-legend-dot pre-holiday square"></span>Зач. нед</div>
         <div class="cal-legend-item"><span class="cal-legend-dot session square"></span>Сессия</div>
@@ -454,10 +454,10 @@
                     :class="{active: lessonColorScheme===choice.key}"
                     @click="vibrate(); setLessonColorScheme(choice.key)">
                     <span class="lesson-scheme-preview">
-                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.lec}"></span>
-                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.lab}"></span>
-                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.prac}"></span>
-                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.kurs}"></span>
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.lecture}"></span>
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.laboratoryWork}"></span>
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.practical}"></span>
+                      <span class="lesson-scheme-dot" :style="{backgroundColor: choice.schemeData.dark.courseWork}"></span>
                     </span>
                     <span class="lesson-scheme-name">{{ choice.schemeData.name }}</span>
                   </button>
@@ -506,9 +506,9 @@
                       <div class="preview-pair-num">1</div>
                       <div class="preview-time-end">11:00</div>
                     </div>
-                    <div class="preview-bar lec"></div>
+                    <div class="preview-bar lecture"></div>
                     <div class="preview-lesson-body">
-                      <div class="preview-l-type lec">Лекция</div>
+                      <div class="preview-l-type lecture">Лекция</div>
                       <div class="preview-l-subject">Математический анализ</div>
                       <div class="preview-l-chips">
                         <span class="preview-chip">Аудитория 301</span>
@@ -521,9 +521,9 @@
                       <div class="preview-pair-num">2</div>
                       <div class="preview-time-end">12:40</div>
                     </div>
-                    <div class="preview-bar lab"></div>
+                    <div class="preview-bar laboratoryWork"></div>
                     <div class="preview-lesson-body">
-                      <div class="preview-l-type lab">Лабораторная работа</div>
+                      <div class="preview-l-type laboratoryWork">Лабораторная работа</div>
                       <div class="preview-l-subject">Программирование</div>
                       <div class="preview-l-chips">
                         <span class="preview-chip">Аудитория 205</span>
@@ -536,9 +536,9 @@
                       <div class="preview-pair-num">3</div>
                       <div class="preview-time-end">14:30</div>
                     </div>
-                    <div class="preview-bar prac"></div>
+                    <div class="preview-bar practical"></div>
                     <div class="preview-lesson-body">
-                      <div class="preview-l-type prac">Практика</div>
+                      <div class="preview-l-type practical">Практика</div>
                       <div class="preview-l-subject">Физика</div>
                       <div class="preview-l-chips">
                         <span class="preview-chip">Аудитория 412</span>
@@ -551,9 +551,9 @@
                       <div class="preview-pair-num">4</div>
                       <div class="preview-time-end">16:40</div>
                     </div>
-                    <div class="preview-bar kurs"></div>
+                    <div class="preview-bar courseWork"></div>
                     <div class="preview-lesson-body">
-                      <div class="preview-l-type kurs">Курсовая</div>
+                      <div class="preview-l-type courseWork">Курсовая</div>
                       <div class="preview-l-subject">Проектирование систем</div>
                       <div class="preview-l-chips">
                         <span class="preview-chip">Аудитория 108</span>
