@@ -3583,7 +3583,7 @@ html.glass .sheet-row-discipline.reaction-target {
 
 .reaction-picker {
     position: fixed;
-    background: var(--bg3);
+    background: var(--bg2);
     border-radius: 22px;
     padding: 4px;
     box-shadow:
@@ -3614,36 +3614,31 @@ html.glass .sheet-row-discipline.reaction-target {
 }
 
 .reaction-picker--expanded .reaction-picker-scroll {
+    height: calc(100% + 12px);
+    margin: -6px;
+    padding: 6px 2px 6px 6px;
+    box-sizing: border-box;
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
-    padding-right: 2px;
-    scrollbar-gutter: stable;
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--text2) 50%, transparent) transparent;
+    scrollbar-color: var(--bg3) transparent;
 }
 
 .reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar {
-    width: 4px;
+    width: var(--scrollbar-w);
 }
 
 .reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar-track {
     background: transparent;
-    margin: 10px 0;
-    border-radius: 999px;
 }
 
 .reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--text2) 42%, transparent);
-    border-radius: 999px;
-    border: 1px solid transparent;
-    background-clip: padding-box;
-}
-
-.reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--text2) 65%, transparent);
+    background-color: var(--bg3);
+    border-radius: 9999px;
+    border: var(--scrollbar-pad) solid transparent;
     background-clip: padding-box;
 }
 
@@ -3652,20 +3647,6 @@ html.light .reaction-picker {
     box-shadow:
         0 6px 24px rgba(0, 0, 0, 0.14),
         0 0 0 0.5px rgba(0, 0, 0, 0.06);
-}
-
-html.light .reaction-picker--expanded .reaction-picker-scroll {
-    scrollbar-color: rgba(0, 0, 0, 0.26) transparent;
-}
-
-html.light .reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    background-clip: padding-box;
-}
-
-html.light .reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.35);
-    background-clip: padding-box;
 }
 
 html.glass .reaction-picker {
