@@ -1,4 +1,4 @@
-const CACHE = 'raspisanie-3333';
+const CACHE = 'raspisanie-3346';
 const PRECACHE = [
   './',
   './index.html',

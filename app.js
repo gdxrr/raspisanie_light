@@ -1262,6 +1262,9 @@ createApp({
       return [...DEFAULT_LINKS, ...filtered];
     });
 
+    const hasExtraLinks = computed(() => usefulLinks.value.length > 1);
+    const lkGuapLink = DEFAULT_LINKS[0];
+
     function preloadRoomPhoto(room) {
       if (!room) return;
       const img = new Image();
@@ -2403,6 +2406,8 @@ createApp({
       onFilterBarPointerDown,
       showLinksDropdown,
       usefulLinks,
+      hasExtraLinks,
+      lkGuapLink,
       showGazpromModal,
       gazpromStep,
       handleGazpromClick,
