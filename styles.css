@@ -1069,7 +1069,7 @@ html.light .filter-pill-menu--teleport {
     content: "";
     position: absolute;
     top: 0;
-    left: 14px;
+    left: 0;
     right: 0;
     height: 1px;
     background: var(--sep);
@@ -3527,18 +3527,26 @@ html.glass .custom-image-clear:hover {
 .reaction-badge {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     padding: 3px 8px;
     background: var(--bg3);
     border-radius: 10px;
     font-size: 12px;
     font-weight: 600;
-    color: var(--text2);
-    transition: all 0.2s ease;
+    color: var(--text);
 }
 
-.reaction-badge:hover {
-    transform: scale(1.05);
+.reaction-emoji {
+    font-size: 15px;
+    line-height: 1;
+    color: initial;
+    -webkit-text-fill-color: initial;
+    filter: none;
+    opacity: 1;
+}
+
+.reaction-count {
+    color: var(--text2);
 }
 
 html.light .reaction-badge {
@@ -3547,151 +3555,226 @@ html.light .reaction-badge {
 }
 
 html.glass .reaction-badge {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.14);
 }
 
-/* Эффект нажатия на дисциплину */
+/* Дисциплина */
 .sheet-row-discipline {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
 }
 
-.sheet-row-discipline.pressing {
-    transform: scale(0.97);
-    opacity: 0.7;
+.sheet-row-discipline.reaction-target {
+    background: rgba(128, 128, 128, 0.08);
 }
 
-/* Панель выбора реакций - как в Telegram */
-.reaction-picker-overlay {
+html.glass .sheet-row-discipline.reaction-target {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Реакции как в Telegram — пузырь у строки, без модалки */
+.reaction-picker-layer {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    inset: 0;
     z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: overlayFadeIn 0.15s ease-out;
-}
-
-@keyframes overlayFadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    background: transparent;
+    overscroll-behavior: none;
+    touch-action: none;
 }
 
 .reaction-picker {
     position: fixed;
-    background: var(--bg2);
-    border-radius: 14px;
-    padding: 8px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-    transform: translate(-50%, -50%);
-    max-width: min(420px, 90vw);
+    background: var(--bg3);
+    border-radius: 22px;
+    padding: 4px;
+    box-shadow:
+        0 6px 24px rgba(0, 0, 0, 0.28),
+        0 1px 0 rgba(255, 255, 255, 0.06) inset;
+    box-sizing: border-box;
     z-index: 10001;
-    animation: reactionPickerSlideUp 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform-origin: bottom center;
+    overflow: hidden;
 }
 
-@keyframes reactionPickerSlideUp {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -45%) scale(0.95);
-    }
-    100% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
+.reaction-picker--expanded {
+    border-radius: 18px;
+    padding: 6px;
+}
+
+.reaction-picker--below {
+    transform-origin: top center;
+}
+
+.reaction-picker-scroll {
+    height: 100%;
+    overflow: hidden;
+}
+
+.reaction-picker-scroll--collapsed {
+    overflow: visible;
+}
+
+.reaction-picker--expanded .reaction-picker-scroll {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    padding-right: 2px;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--text2) 50%, transparent) transparent;
+}
+
+.reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 10px 0;
+    border-radius: 999px;
+}
+
+.reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--text2) 42%, transparent);
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+}
+
+.reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--text2) 65%, transparent);
+    background-clip: padding-box;
 }
 
 html.light .reaction-picker {
     background: #ffffff;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+    box-shadow:
+        0 6px 24px rgba(0, 0, 0, 0.14),
+        0 0 0 0.5px rgba(0, 0, 0, 0.06);
+}
+
+html.light .reaction-picker--expanded .reaction-picker-scroll {
+    scrollbar-color: rgba(0, 0, 0, 0.26) transparent;
+}
+
+html.light .reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    background-clip: padding-box;
+}
+
+html.light .reaction-picker--expanded .reaction-picker-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.35);
+    background-clip: padding-box;
 }
 
 html.glass .reaction-picker {
-    background: rgba(44, 44, 46, 0.92);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(44, 44, 46, 0.96);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
 }
 
 .reaction-picker-grid {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 4px;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0;
+    align-items: stretch;
 }
 
-@media (max-width: 480px) {
-    .reaction-picker-grid {
-        grid-template-columns: repeat(7, 1fr);
-    }
+.reaction-picker-grid--collapsed {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0;
 }
 
-@media (max-width: 380px) {
-    .reaction-picker-grid {
-        grid-template-columns: repeat(6, 1fr);
-    }
+.reaction-picker-grid--collapsed .reaction-emoji-btn,
+.reaction-picker-grid--collapsed .reaction-expand-btn {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    aspect-ratio: auto;
 }
 
 .reaction-emoji-btn {
-    width: 48px;
-    height: 48px;
+    width: 100%;
+    aspect-ratio: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: clamp(18px, 5vw, 22px);
+    line-height: 1;
+    color: initial;
+    -webkit-text-fill-color: initial;
     background: transparent;
     border: none;
-    border-radius: 10px;
+    border-radius: 14px;
     cursor: pointer;
-    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
-    position: relative;
+    min-width: 0;
+    filter: none;
+    opacity: 1;
 }
 
-.reaction-emoji-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 10px;
-    background: var(--bg3);
+.reaction-expand-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    padding: 0;
+    min-width: 0;
+    color: var(--text2);
+}
+
+.lucide-wrap-reaction-expand {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+}
+
+.lucide-wrap-reaction-expand svg {
+    width: 100%;
+    height: 100%;
+}
+
+.reaction-emoji-btn:hover,
+.reaction-emoji-btn:active,
+.reaction-expand-btn:hover,
+.reaction-expand-btn:active {
+    background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+html.light .reaction-emoji-btn:hover,
+html.light .reaction-emoji-btn:active,
+html.light .reaction-expand-btn:hover,
+html.light .reaction-expand-btn:active {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+html.glass .reaction-emoji-btn:hover,
+html.glass .reaction-emoji-btn:active,
+html.glass .reaction-expand-btn:hover,
+html.glass .reaction-expand-btn:active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.reaction-pop-enter-active .reaction-picker,
+.reaction-pop-leave-active .reaction-picker {
+    transition:
+        opacity 0.16s ease,
+        transform 0.18s cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.reaction-pop-enter-from .reaction-picker,
+.reaction-pop-leave-to .reaction-picker {
     opacity: 0;
-    transition: opacity 0.15s ease;
-}
-
-.reaction-emoji-btn:hover::before {
-    opacity: 1;
-}
-
-.reaction-emoji-btn:hover {
-    transform: scale(1.2);
-}
-
-.reaction-emoji-btn:active {
-    transform: scale(0.85);
-    transition-duration: 0.05s;
-}
-
-.reaction-emoji-btn:active::before {
-    opacity: 0.7;
-}
-
-html.light .reaction-emoji-btn::before {
-    background: var(--bg3);
-}
-
-html.light .reaction-emoji-btn:hover::before {
-    opacity: 1;
-}
-
-html.glass .reaction-emoji-btn::before {
-    background: rgba(255, 255, 255, 0.12);
+    transform: scale(0.72);
 }
 
 /* Анимация появления/исчезновения overlay */

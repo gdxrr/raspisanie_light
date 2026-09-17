@@ -1243,9 +1243,12 @@ createApp({
       try {
         const rows = await fetchSheetFromConfig(cfg, "links");
         const items = parseLinksData(rows);
-        if (!items.length) return;
         links.value = items;
-        localStorage.setItem("links3", JSON.stringify({ items }));
+        if (items.length) {
+          localStorage.setItem("links3", JSON.stringify({ items }));
+        } else {
+          localStorage.removeItem("links3");
+        }
       } catch (_) {}
     }
 
@@ -2086,55 +2089,157 @@ createApp({
       "😎", "🤩", "😍", "🥰", "😘", "😭", "😤", "🤯", "😱", "🤗",
       "🫡", "🤝", "✅", "❌", "💔", "💖", "🌟", "🚀", "🎯", "🏆"
     ];
+    const REACTION_COLLAPSED_COUNT = 6;
+    const REACTION_GRID_COLS = 7;
+    const REACTION_VISIBLE_ROWS = 3;
 
     const showReactionPicker = ref(false);
     const reactionPickerDiscipline = ref(null);
-    const reactionPickerPosition = ref({ top: 0, left: 0 });
-    const disciplineLongPressing = ref(null);
-    let disciplinePressTimer = null;
-    const DISCIPLINE_LONG_PRESS_MS = 500;
+    const reactionPickerStyle = ref({});
+    const reactionPickerPlacement = ref("above");
+    const reactionPickerExpanded = ref(false);
+    let reactionAnchorRect = null;
 
-    function onDisciplinePointerDown(e, discipline) {
-      if (e.button !== undefined && e.button !== 0) return;
-      disciplineLongPressing.value = discipline.id;
-      clearDisciplinePressTimer();
+    const visibleReactionEmojis = computed(() =>
+      reactionPickerExpanded.value
+        ? EMOJI_LIST
+        : EMOJI_LIST.slice(0, REACTION_COLLAPSED_COUNT),
+    );
 
-      disciplinePressTimer = setTimeout(() => {
-        disciplinePressTimer = null;
-        disciplineLongPressing.value = null;
-        vibrate(50);
-        openReactionPicker(e, discipline);
-      }, DISCIPLINE_LONG_PRESS_MS);
-    }
-
-    function onDisciplinePointerUp() {
-      clearDisciplinePressTimer();
-    }
-
-    function clearDisciplinePressTimer() {
-      if (disciplinePressTimer) {
-        clearTimeout(disciplinePressTimer);
-        disciplinePressTimer = null;
+    function setReactionScrollLock(locked) {
+      if (locked) {
+        document.documentElement.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
+        return;
       }
-      disciplineLongPressing.value = null;
+      if (vm.value === "calendar" || selectedLesson.value) return;
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    }
+
+    function getReactionBounds() {
+      const pad = 8;
+      const app = document.getElementById("app");
+      const header = document.querySelector(".header");
+      const appRect = app
+        ? app.getBoundingClientRect()
+        : {
+            left: 0,
+            right: window.innerWidth,
+            top: 0,
+            bottom: window.innerHeight,
+          };
+      const headerBottom =
+        header && getComputedStyle(header).display !== "none"
+          ? header.getBoundingClientRect().bottom
+          : 0;
+
+      return {
+        left: Math.max(pad, appRect.left + pad),
+        right: Math.min(window.innerWidth - pad, appRect.right - pad),
+        top: Math.max(pad, headerBottom + pad, appRect.top + pad),
+        bottom: Math.min(window.innerHeight - pad, appRect.bottom - pad),
+      };
+    }
+
+    function clampReactionPickerPosition(anchorRect) {
+      const gap = 6;
+      const padY = 12;
+      const bounds = getReactionBounds();
+      const areaWidth = Math.max(120, bounds.right - bounds.left);
+      const expandedWidth = Math.min(
+        areaWidth,
+        Math.max(168, Math.round(anchorRect.width * 0.88)),
+      );
+      const collapsedWidth = Math.min(
+        areaWidth,
+        36 * (REACTION_COLLAPSED_COUNT + 1) + 8,
+      );
+      const width = reactionPickerExpanded.value
+        ? expandedWidth
+        : collapsedWidth;
+      const cell = (expandedWidth - padY) / REACTION_GRID_COLS;
+      const expandedHeight = Math.round(padY + cell * REACTION_VISIBLE_ROWS);
+      const collapsedHeight = 36 + padY;
+      const height = reactionPickerExpanded.value
+        ? expandedHeight
+        : collapsedHeight;
+
+      const spaceAbove = Math.max(0, anchorRect.top - gap - bounds.top);
+      const spaceBelow = Math.max(0, bounds.bottom - (anchorRect.bottom + gap));
+
+      let placement = "above";
+      if (spaceAbove < height && spaceBelow > spaceAbove) {
+        placement = "below";
+      }
+      reactionPickerPlacement.value = placement;
+
+      let left = anchorRect.left + (anchorRect.width - width) / 2;
+      left = Math.max(bounds.left, Math.min(left, bounds.right - width));
+
+      let top =
+        placement === "above"
+          ? anchorRect.top - height - gap
+          : anchorRect.bottom + gap;
+      top = Math.max(bounds.top, Math.min(top, bounds.bottom - height));
+
+      const style = {
+        top: `${Math.round(top)}px`,
+        left: `${Math.round(left)}px`,
+        height: `${height}px`,
+      };
+      if (reactionPickerExpanded.value) {
+        style.width = `${Math.round(expandedWidth)}px`;
+      } else {
+        style.width = "auto";
+      }
+      return style;
+    }
+
+    function repositionReactionPicker() {
+      if (!reactionAnchorRect || !showReactionPicker.value) return;
+      nextTick(() => {
+        if (!reactionAnchorRect || !showReactionPicker.value) return;
+        reactionPickerStyle.value =
+          clampReactionPickerPosition(reactionAnchorRect);
+      });
     }
 
     function openReactionPicker(e, discipline) {
-      const target = e.currentTarget || e.target;
-      const rect = target.getBoundingClientRect();
+      if (
+        showReactionPicker.value &&
+        reactionPickerDiscipline.value &&
+        reactionPickerDiscipline.value.id === discipline.id
+      ) {
+        closeReactionPicker();
+        return;
+      }
 
-      reactionPickerPosition.value = {
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX + rect.width / 2
-      };
-
+      vibrate(10);
+      reactionAnchorRect = e.currentTarget.getBoundingClientRect();
+      reactionPickerExpanded.value = false;
+      reactionPickerStyle.value =
+        clampReactionPickerPosition(reactionAnchorRect);
       reactionPickerDiscipline.value = discipline;
       showReactionPicker.value = true;
+      setReactionScrollLock(true);
+      repositionReactionPicker();
+    }
+
+    function expandReactionPicker(e) {
+      if (e) e.stopPropagation();
+      if (reactionPickerExpanded.value) return;
+      vibrate(10);
+      reactionPickerExpanded.value = true;
+      repositionReactionPicker();
     }
 
     function closeReactionPicker() {
       showReactionPicker.value = false;
       reactionPickerDiscipline.value = null;
+      reactionPickerExpanded.value = false;
+      reactionAnchorRect = null;
+      setReactionScrollLock(false);
     }
 
     async function addReaction(emoji) {
@@ -2303,10 +2408,12 @@ createApp({
       handleGazpromClick,
       showReactionPicker,
       reactionPickerDiscipline,
-      reactionPickerPosition,
-      disciplineLongPressing,
-      onDisciplinePointerDown,
-      onDisciplinePointerUp,
+      reactionPickerStyle,
+      reactionPickerPlacement,
+      reactionPickerExpanded,
+      visibleReactionEmojis,
+      openReactionPicker,
+      expandReactionPicker,
       closeReactionPicker,
       addReaction,
       getTopReactions,

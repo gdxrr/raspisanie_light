@@ -313,11 +313,8 @@
           <div class="lessons-block">
             <div v-for="disc in disciplines" :key="'disc-' + disc.id"
                  class="lesson-row sheet-row-discipline"
-                 :class="{ 'pressing': disciplineLongPressing === disc.id }"
-                 @pointerdown="onDisciplinePointerDown($event, disc)"
-                 @pointerup="onDisciplinePointerUp"
-                 @pointercancel="onDisciplinePointerUp"
-                 @pointerleave="onDisciplinePointerUp">
+                 :class="{ 'reaction-target': showReactionPicker && reactionPickerDiscipline && reactionPickerDiscipline.id === disc.id }"
+                 @click="openReactionPicker($event, disc)">
               <div class="time-col sheet-disc-index">
                 <div class="pair-num">{{ disc.id }}</div>
               </div>
@@ -328,7 +325,8 @@
                 <div class="l-teacher" v-if="disc.teacher">{{ disc.teacher }}</div>
                 <div class="discipline-reactions" v-if="getTopReactions(disc.reactions).length > 0">
                   <span v-for="reaction in getTopReactions(disc.reactions)" :key="reaction.emoji" class="reaction-badge">
-                    {{ reaction.emoji }} {{ reaction.count }}
+                    <span class="reaction-emoji">{{ reaction.emoji }}</span>
+                    <span class="reaction-count">{{ reaction.count }}</span>
                   </span>
                 </div>
               </div>
@@ -687,20 +685,48 @@
     </div>
   </transition>
 
-  <transition name="fade">
-    <div v-if="showReactionPicker" class="reaction-picker-overlay" @click="closeReactionPicker">
-      <div class="reaction-picker"
-           :style="{ top: reactionPickerPosition.top + 'px', left: reactionPickerPosition.left + 'px' }"
-           @click.stop>
-        <div class="reaction-picker-grid">
-          <button
-            v-for="emoji in EMOJI_LIST"
-            :key="emoji"
-            type="button"
-            class="reaction-emoji-btn"
-            @click="addReaction(emoji)">
-            {{ emoji }}
-          </button>
+  <transition name="reaction-pop">
+    <div
+      v-if="showReactionPicker"
+      class="reaction-picker-layer"
+      @click="closeReactionPicker"
+      @wheel.prevent
+      @touchmove.prevent>
+      <div
+        class="reaction-picker"
+        :class="[
+          'reaction-picker--' + reactionPickerPlacement,
+          { 'reaction-picker--expanded': reactionPickerExpanded }
+        ]"
+        :style="reactionPickerStyle"
+        @click.stop>
+        <div
+          class="reaction-picker-scroll"
+          :class="{ 'reaction-picker-scroll--collapsed': !reactionPickerExpanded }"
+          @wheel.stop
+          @touchmove.stop>
+          <div
+            class="reaction-picker-grid"
+            :class="{ 'reaction-picker-grid--collapsed': !reactionPickerExpanded }">
+            <button
+              v-for="emoji in visibleReactionEmojis"
+              :key="emoji"
+              type="button"
+              class="reaction-emoji-btn"
+              @click="addReaction(emoji)">
+              {{ emoji }}
+            </button>
+            <button
+              v-if="!reactionPickerExpanded"
+              type="button"
+              class="reaction-expand-btn"
+              aria-label="Ещё эмодзи"
+              @click="expandReactionPicker">
+              <span
+                class="lucide-wrap lucide-wrap-reaction-expand"
+                v-html="lucideIcon('chevron-down', 18)"></span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
